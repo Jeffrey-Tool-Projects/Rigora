@@ -63,15 +63,15 @@ from OpenGL.GL import (
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 
-from Imervue.puppet.document import PuppetDocument
-from Imervue.puppet.render_prep import (
+from puppet.document import PuppetDocument
+from puppet.render_prep import (
     DrawCommand,
     build_draw_list,
     fit_view,
 )
-from Imervue.puppet.mesh_edit import find_drawable_at, move_vertex
-from Imervue.puppet.physics import PhysicsEngine
-from Imervue.puppet.runtime import (
+from puppet.mesh_edit import find_drawable_at, move_vertex
+from puppet.physics import PhysicsEngine
+from puppet.runtime import (
     apply_expressions,
     compose_all_drawables,
     default_parameter_values,

@@ -12,7 +12,7 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
-from Imervue.puppet.document import (
+from puppet.document import (
     BLEND_MODES,
     DEFORMER_TYPES,
     EXPRESSION_MODES,
@@ -147,6 +147,10 @@ def _parse_drawable(raw: dict) -> Drawable:
         raise PuppetFormatError(
             f"drawable {raw['id']!r} vertices/uvs length mismatch"
         )
+    bone_weights = _parse_bone_weights(
+        raw.get("bone_weights"), len(raw["vertices"]), raw["id"],
+    )
+    opacity_keys = _parse_opacity_keys(raw.get("opacity_keys"), raw["id"])
     return Drawable(
         id=str(raw["id"]),
         texture=str(raw["texture"]),
@@ -158,7 +162,71 @@ def _parse_drawable(raw: dict) -> Drawable:
         clip_mask=raw.get("clip_mask"),
         visible=bool(raw.get("visible", True)),
         opacity=float(raw.get("opacity", 1.0)),
+        bone_weights=bone_weights,
+        opacity_keys=opacity_keys,
     )
+
+
+def _parse_bone_weights(
+    raw: Any, n_vertices: int, drawable_id: str,
+) -> dict[str, list[float]] | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise PuppetFormatError(
+            f"drawable {drawable_id!r} bone_weights must be a dict, got {type(raw).__name__}"
+        )
+    out: dict[str, list[float]] = {}
+    for bone_id, weights in raw.items():
+        if not isinstance(weights, list):
+            raise PuppetFormatError(
+                f"drawable {drawable_id!r} bone_weights[{bone_id!r}] must be a list"
+            )
+        if len(weights) != n_vertices:
+            raise PuppetFormatError(
+                f"drawable {drawable_id!r} bone_weights[{bone_id!r}] length "
+                f"{len(weights)} does not match vertex count {n_vertices}"
+            )
+        out[str(bone_id)] = [float(w) for w in weights]
+    return out
+
+
+def _parse_opacity_keys(raw: Any, drawable_id: str) -> list[dict] | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, list):
+        raise PuppetFormatError(
+            f"drawable {drawable_id!r} opacity_keys must be a list, got {type(raw).__name__}"
+        )
+    out: list[dict] = []
+    for idx, entry in enumerate(raw):
+        if not isinstance(entry, dict):
+            raise PuppetFormatError(
+                f"drawable {drawable_id!r} opacity_keys[{idx}] must be a dict"
+            )
+        param = entry.get("parameter")
+        stops = entry.get("stops")
+        if not isinstance(param, str) or not param:
+            raise PuppetFormatError(
+                f"drawable {drawable_id!r} opacity_keys[{idx}] missing 'parameter'"
+            )
+        if not isinstance(stops, list) or len(stops) < 2:
+            raise PuppetFormatError(
+                f"drawable {drawable_id!r} opacity_keys[{idx}] needs >=2 stops"
+            )
+        parsed_stops = []
+        for s_idx, stop in enumerate(stops):
+            if not isinstance(stop, dict) or "value" not in stop or "alpha" not in stop:
+                raise PuppetFormatError(
+                    f"drawable {drawable_id!r} opacity_keys[{idx}].stops[{s_idx}] "
+                    f"must have 'value' and 'alpha'"
+                )
+            parsed_stops.append({
+                "value": float(stop["value"]),
+                "alpha": float(stop["alpha"]),
+            })
+        out.append({"parameter": param, "stops": parsed_stops})
+    return out
 
 
 def _parse_deformer(raw: dict) -> Deformer:
@@ -345,6 +413,22 @@ def _drawable_to_json(d: Drawable) -> dict:
     }
     if d.clip_mask is not None:
         out["clip_mask"] = d.clip_mask
+    if d.bone_weights:
+        out["bone_weights"] = {
+            bone_id: [float(w) for w in weights]
+            for bone_id, weights in d.bone_weights.items()
+        }
+    if d.opacity_keys:
+        out["opacity_keys"] = [
+            {
+                "parameter": entry["parameter"],
+                "stops": [
+                    {"value": float(s["value"]), "alpha": float(s["alpha"])}
+                    for s in entry["stops"]
+                ],
+            }
+            for entry in d.opacity_keys
+        ]
     return out
 
 

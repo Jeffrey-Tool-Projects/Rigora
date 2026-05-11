@@ -46,6 +46,60 @@ def _rotate(vertices: np.ndarray, anchor: np.ndarray, angle: float) -> np.ndarra
 
 
 # ---------------------------------------------------------------------------
+# Skeletal LBS — multi-bone vertex blending
+# ---------------------------------------------------------------------------
+
+
+def apply_skeleton_lbs(
+    rest_vertices: np.ndarray,
+    bones: list[dict[str, Any]],
+    weights_per_bone: dict[str, np.ndarray],
+) -> np.ndarray:
+    """Linear blend skinning. For each rest vertex, blend the rotated
+    positions produced by every bone, weighted by that vertex's weight
+    in each bone.
+
+    Parameters
+    ----------
+    rest_vertices : (N, 2) float array — vertices in their authored
+        rest position.
+    bones : list of ``{"bone_id": str, "anchor": (x, y), "angle": rad}``
+        — one entry per bone driving this drawable.
+    weights_per_bone : dict mapping ``bone_id`` to a length-N float
+        array. Missing bones get an implicit zero-weight column.
+
+    Returns the blended (N, 2) vertex positions. A vertex whose weight
+    sums to zero across all bones keeps its rest position; non-zero
+    weight sums are normalised so total influence is exactly one,
+    making the function tolerant of weight-list rounding errors."""
+    n = len(rest_vertices)
+    blended = np.zeros_like(rest_vertices)
+    total = np.zeros(n, dtype=rest_vertices.dtype)
+    for bone in bones:
+        bone_id = bone.get("bone_id")
+        if bone_id is None:
+            continue
+        weights = weights_per_bone.get(bone_id)
+        if weights is None:
+            continue
+        weights_arr = np.asarray(weights, dtype=rest_vertices.dtype)
+        if weights_arr.shape != (n,):
+            continue
+        if not np.any(weights_arr > 0):
+            continue
+        anchor = _xy(bone.get("anchor", (0.0, 0.0)))
+        angle = float(bone.get("angle", 0.0))
+        rotated = _rotate(rest_vertices, anchor, angle)
+        blended += weights_arr[:, None] * rotated
+        total += weights_arr
+    no_influence = total <= 0.0
+    if no_influence.any():
+        blended[no_influence] = rest_vertices[no_influence]
+        total[no_influence] = 1.0
+    return blended / total[:, None]
+
+
+# ---------------------------------------------------------------------------
 # Warp deformer (bilinear lattice)
 # ---------------------------------------------------------------------------
 

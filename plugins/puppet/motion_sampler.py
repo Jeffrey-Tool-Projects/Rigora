@@ -9,7 +9,7 @@ on top of this handles the QTimer wiring.
 """
 from __future__ import annotations
 
-from Imervue.puppet.document import Motion, MotionSegment, MotionTrack
+from puppet.document import Motion, MotionSegment, MotionTrack
 
 
 def sample_motion(

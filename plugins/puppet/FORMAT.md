@@ -91,6 +91,39 @@ the schema gains a breaking change. v1 is frozen by this document.
 | `clip_mask` | string\|null | no | If set, render this drawable only inside `<id>`'s alpha |
 | `visible` | bool | no | Default `true` |
 | `opacity` | float | no | `[0, 1]`, default `1.0` |
+| `bone_weights` | object | no | Per-vertex skeletal weights (see *Bone weights* below) |
+| `opacity_keys` | array | no | Parameter-driven alpha curves (see *Opacity keys* below) |
+
+### Opacity keys
+
+Optional. Drives the drawable's alpha from one or more parameters —
+this is how Live2D-style cross-fades between pose variants are wired.
+At render time the static `opacity` is multiplied by each curve sampled
+at its parameter value; a final zero short-circuits the draw call.
+
+```json
+"opacity_keys": [
+  {
+    "parameter": "arm_swing_left",
+    "stops": [
+      {"value": -1.57, "alpha": 1.0},
+      {"value":  0.00, "alpha": 0.0}
+    ]
+  }
+]
+```
+
+| Field | Type | Required | Meaning |
+|---|---|---|---|
+| `parameter` | string | yes | Parameter id sampled at runtime |
+| `stops` | array | yes | At least two `{"value", "alpha"}` pairs |
+| `stops[].value` | float | yes | Parameter value at this stop |
+| `stops[].alpha` | float | yes | Alpha multiplier (`[0, 1]` recommended) |
+
+Stops are linearly interpolated between adjacent points; values below
+the lowest / above the highest stop clamp to the edge alpha. Multiple
+entries combine multiplicatively, letting two parameters (e.g.
+`swing × expression`) gate the same drawable independently.
 
 ## Deformer
 

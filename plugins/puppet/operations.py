@@ -18,11 +18,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from Imervue.puppet.deformers import (
+from puppet.deformers import (
     default_rotation_form,
     default_warp_form,
 )
-from Imervue.puppet.document import (
+from puppet.document import (
     Deformer,
     Parameter,
     ParameterKey,

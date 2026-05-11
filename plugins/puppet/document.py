@@ -17,7 +17,7 @@ SCHEMA_VERSION: int = 1
 """Bumped when the on-disk schema gains a breaking change."""
 
 BLEND_MODES: tuple[str, ...] = ("normal", "additive", "multiply")
-DEFORMER_TYPES: tuple[str, ...] = ("rotation", "warp")
+DEFORMER_TYPES: tuple[str, ...] = ("rotation", "warp", "bone_rotation")
 SEGMENT_TYPES: tuple[str, ...] = (
     "linear", "stepped", "inverse-stepped", "cubic-bezier",
 )
@@ -34,7 +34,15 @@ BlendMode = Literal["normal", "additive", "multiply"]
 @dataclass
 class Drawable:
     """One textured mesh piece. Vertices and UVs are stored in canvas-space
-    pixels and the texture's `[0, 1]` UV space respectively."""
+    pixels and the texture's `[0, 1]` UV space respectively.
+
+    ``bone_weights``, when present, drives skeletal LBS (linear blend
+    skinning): it maps a bone id to one weight per vertex in ``[0, 1]``.
+    Per vertex, weights across all bones should sum to ``1`` (the
+    runtime renormalises if they don't, and a vertex with all-zero
+    weights stays at its rest position). Drawables without
+    ``bone_weights`` behave as before — every vertex follows any
+    rotation / warp deformer rigidly."""
 
     id: str
     texture: str
@@ -46,13 +54,22 @@ class Drawable:
     clip_mask: str | None = None
     visible: bool = True
     opacity: float = 1.0
+    bone_weights: dict[str, list[float]] | None = None
+    opacity_keys: list[dict] | None = None
+    """Parameter-driven opacity curves. Each entry has the form
+    ``{"parameter": str, "stops": [{"value": float, "alpha": float}, ...]}``.
+    Multiple entries multiply (so two curves both at ``0.5`` yield ``0.25``).
+    Used for cross-fading between pose variants — e.g. an ``arm_drop``
+    drawable can be transparent at neutral swing and opaque at full drop,
+    while an ``arm_neutral`` drawable does the opposite, giving a smooth
+    blend through the parameter's range."""
 
 
 # ---------------------------------------------------------------------------
 # Deformers
 # ---------------------------------------------------------------------------
 
-DeformerType = Literal["rotation", "warp"]
+DeformerType = Literal["rotation", "warp", "bone_rotation"]
 
 
 @dataclass

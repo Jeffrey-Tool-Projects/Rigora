@@ -22,10 +22,10 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
-from Imervue.puppet.document import Motion, MotionSegment, MotionTrack
+from puppet.document import Motion, MotionSegment, MotionTrack
 
 if TYPE_CHECKING:
-    from Imervue.puppet.canvas import PuppetCanvas
+    from puppet.canvas import PuppetCanvas
 
 logger = logging.getLogger("Imervue.plugin.puppet.motion_recorder")
 

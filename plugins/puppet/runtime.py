@@ -25,12 +25,13 @@ from typing import Any
 
 import numpy as np
 
-from Imervue.puppet.deformers import (
+from puppet.deformers import (
     apply_rotation,
+    apply_skeleton_lbs,
     apply_warp,
     blend_forms,
 )
-from Imervue.puppet.document import (
+from puppet.document import (
     Deformer,
     Drawable,
     Expression,
@@ -119,14 +120,61 @@ def compose_drawable_vertices(
     :func:`merge_parameter_samples`. A deformer not present in
     ``overrides`` runs with its authored neutral form (= identity in
     practice, since neutral forms produce identity transforms).
+
+    All ``bone_rotation`` deformers targeting this drawable are
+    aggregated into a single LBS pass that runs against the rest
+    vertices — that's what makes opposing-bone weights cancel correctly
+    instead of stacking sequentially. Other deformer types are then
+    applied in author order on top of the LBS result.
     """
-    verts = np.asarray(drawable.vertices, dtype=np.float64)
+    rest = np.asarray(drawable.vertices, dtype=np.float64)
+    bone_deformers: list[Deformer] = []
+    other_deformers: list[Deformer] = []
     for deformer in deformers:
         if drawable.id not in deformer.drawables:
             continue
+        if deformer.type == "bone_rotation":
+            bone_deformers.append(deformer)
+        else:
+            other_deformers.append(deformer)
+    verts = _compose_bone_lbs(rest, drawable, bone_deformers, overrides)
+    for deformer in other_deformers:
         form = _form_for(deformer, overrides)
         verts = _apply_deformer(deformer.type, verts, form)
     return verts.astype(np.float32, copy=False)
+
+
+def _compose_bone_lbs(
+    rest: np.ndarray,
+    drawable: Drawable,
+    bone_deformers: list[Deformer],
+    overrides: dict[str, dict[str, Any]],
+) -> np.ndarray:
+    """Build the bones list + weights map from the drawable's
+    bone_weights and the bone_rotation deformers, then run one LBS
+    pass. Returns the rest vertices unchanged when no bones drive this
+    drawable, which keeps the cost negligible for non-skinned rigs."""
+    if not bone_deformers or not drawable.bone_weights:
+        return rest
+    bones: list[dict[str, Any]] = []
+    weights_per_bone: dict[str, np.ndarray] = {}
+    for deformer in bone_deformers:
+        form = _form_for(deformer, overrides)
+        bone_id = form.get("bone_id")
+        if bone_id is None:
+            continue
+        weights = drawable.bone_weights.get(bone_id)
+        if weights is None:
+            continue
+        bones.append({
+            "bone_id": bone_id,
+            "anchor": form.get("anchor", (0.0, 0.0)),
+            "angle": float(form.get("angle", 0.0)),
+        })
+        weights_per_bone[bone_id] = np.asarray(weights, dtype=rest.dtype)
+    if not bones:
+        return rest
+    return apply_skeleton_lbs(rest, bones, weights_per_bone)
 
 
 def compose_all_drawables(
@@ -146,6 +194,57 @@ def default_parameter_values(document: PuppetDocument) -> dict[str, float]:
     """Map every parameter to its default value — used by the canvas
     to seed the parameter-values dict on document load."""
     return {p.id: float(p.default) for p in document.parameters}
+
+
+# ---------------------------------------------------------------------------
+# Drawable opacity — parameter-driven cross-fade
+# ---------------------------------------------------------------------------
+
+
+def resolve_drawable_opacity(
+    drawable: Drawable, values: dict[str, float],
+) -> float:
+    """Compute the effective alpha multiplier for ``drawable`` given the
+    current parameter ``values``.
+
+    Multiplies the static ``drawable.opacity`` with each
+    ``opacity_keys`` curve sampled at its parameter value. Stops are
+    interpolated linearly; values outside the stop range clamp to the
+    nearest stop. A drawable without ``opacity_keys`` returns
+    ``drawable.opacity`` unchanged.
+
+    Used for cross-fading between pose variants (e.g. an arm at neutral
+    swing fades out while an arm at full drop fades in)."""
+    out = float(drawable.opacity)
+    if not drawable.opacity_keys:
+        return max(0.0, min(1.0, out))
+    for entry in drawable.opacity_keys:
+        param = entry.get("parameter")
+        stops = entry.get("stops") or []
+        if not isinstance(param, str) or not param or not stops:
+            continue
+        sample = float(values.get(param, 0.0))
+        out *= _sample_opacity_stops(stops, sample)
+        if out <= 0.0:
+            return 0.0
+    return max(0.0, min(1.0, out))
+
+
+def _sample_opacity_stops(stops: list[dict], value: float) -> float:
+    sorted_stops = sorted(stops, key=lambda s: float(s["value"]))
+    if value <= float(sorted_stops[0]["value"]):
+        return float(sorted_stops[0]["alpha"])
+    if value >= float(sorted_stops[-1]["value"]):
+        return float(sorted_stops[-1]["alpha"])
+    for i in range(len(sorted_stops) - 1):
+        a, b = sorted_stops[i], sorted_stops[i + 1]
+        av, bv = float(a["value"]), float(b["value"])
+        if av <= value <= bv:
+            if bv == av:
+                return float(a["alpha"])
+            t = (value - av) / (bv - av)
+            return float(a["alpha"]) * (1.0 - t) + float(b["alpha"]) * t
+    return float(sorted_stops[-1]["alpha"])
 
 
 # ---------------------------------------------------------------------------
