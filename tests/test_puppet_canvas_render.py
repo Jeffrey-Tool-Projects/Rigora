@@ -23,8 +23,8 @@ def shown_canvas(qapp):
     """One shown canvas with the bundled example rig, shared by the module."""
     from PySide6.QtTest import QTest
 
-    from Imervue.puppet.canvas import PuppetCanvas
-    from Imervue.puppet.document_io import load_puppet
+    from rigora.puppet.canvas import PuppetCanvas
+    from rigora.puppet.document_io import load_puppet
 
     if not _RIG.is_file():
         pytest.skip("example rig not present")
@@ -73,7 +73,7 @@ def _square(drawable_id, box, color, **extra):
 
     from PIL import Image
 
-    from Imervue.puppet.document import Drawable
+    from rigora.puppet.document import Drawable
     x0, y0, x1, y1 = box
     buf = io.BytesIO()
     Image.new("RGBA", (4, 4), color).save(buf, format="PNG")
@@ -99,8 +99,8 @@ def test_clip_masks_clip_on_screen_and_off_screen(qapp):
     """
     from PySide6.QtTest import QTest
 
-    from Imervue.puppet.canvas import PuppetCanvas
-    from Imervue.puppet.document import PuppetDocument
+    from rigora.puppet.canvas import PuppetCanvas
+    from rigora.puppet.document import PuppetDocument
 
     doc = PuppetDocument(size=(100, 100))
     mask, mask_png = _square("mask", (40, 0, 60, 100), (0, 0, 255, 255), draw_order=0, visible=False)

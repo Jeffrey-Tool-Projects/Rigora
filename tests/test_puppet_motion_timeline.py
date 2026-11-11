@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import pytest
 
-from Imervue.puppet.document import Motion, MotionSegment, MotionTrack
-from Imervue.puppet.motion_timeline import MotionTimelineDialog, MotionTimelineWidget
+from rigora.puppet.document import Motion, MotionSegment, MotionTrack
+from rigora.puppet.motion_timeline import MotionTimelineDialog, MotionTimelineWidget
 
 
 def _two_segment_motion() -> Motion:

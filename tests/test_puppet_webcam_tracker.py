@@ -4,8 +4,8 @@ exercise the API contract: construction, toggle, graceful degrade
 when imports fail.
 """
 from __future__ import annotations
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.webcam_tracker import WebcamTracker
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.webcam_tracker import WebcamTracker
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 
@@ -69,7 +69,7 @@ def test_https_urlopen_rejects_non_https_scheme():
     an insecure channel. Mirrors the pip_installer / plugin_downloader
     convention."""
     import pytest
-    from Imervue.puppet.webcam_tracker import _https_urlopen, _WebcamSetupError
+    from rigora.puppet.webcam_tracker import _https_urlopen, _WebcamSetupError
     for bad in (
         "http://example.com/face_landmarker.task",   # NOSONAR - negative test
         "file:///etc/passwd",
@@ -88,7 +88,7 @@ def test_landmarks_to_array_handles_tasks_api_shape():
     import numpy as np
     import pytest
     from types import SimpleNamespace
-    from Imervue.puppet.webcam_tracker import _landmarks_to_array
+    from rigora.puppet.webcam_tracker import _landmarks_to_array
 
     fake_landmarks = [
         SimpleNamespace(x=0.1, y=0.2, z=0.0),

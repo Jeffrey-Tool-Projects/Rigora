@@ -8,8 +8,8 @@ flaky. We exercise it via the public methods directly
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Drawable,
     Motion,
     MotionSegment,
@@ -17,8 +17,8 @@ from Imervue.puppet.document import (
     Parameter,
     PuppetDocument,
 )
-from Imervue.puppet.idle_motion_cycler import IdleMotionCycler
-from Imervue.puppet.motion_player import MotionPlayer
+from rigora.puppet.idle_motion_cycler import IdleMotionCycler
+from rigora.puppet.motion_player import MotionPlayer
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

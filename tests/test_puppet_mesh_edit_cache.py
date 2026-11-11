@@ -6,9 +6,9 @@ stayed invisible on a parameterised rig.
 """
 from __future__ import annotations
 
-from Imervue.puppet.document import Drawable
-from Imervue.puppet.mesh_edit import delete_vertex, move_vertex
-from Imervue.puppet.runtime import _rest_vertices_array
+from rigora.puppet.document import Drawable
+from rigora.puppet.mesh_edit import delete_vertex, move_vertex
+from rigora.puppet.runtime import _rest_vertices_array
 
 
 def _drawable(vertices):

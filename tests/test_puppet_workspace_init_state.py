@@ -84,7 +84,7 @@ def _describe(value):
 
 @pytest.fixture
 def workspace(qapp):
-    from Imervue.puppet.workspace import PuppetWorkspace
+    from rigora.puppet.workspace import PuppetWorkspace
     ws = PuppetWorkspace()
     yield ws
     ws.deleteLater()

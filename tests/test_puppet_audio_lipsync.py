@@ -6,7 +6,7 @@ import wave
 import numpy as np
 import pytest
 
-from Imervue.puppet.audio_lipsync import (
+from rigora.puppet.audio_lipsync import (
     load_wav_mono,
     mouth_open_curve,
     mouth_open_curve_from_wav,

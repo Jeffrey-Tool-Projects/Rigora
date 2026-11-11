@@ -10,14 +10,14 @@ in the reverse order.
 from __future__ import annotations
 import numpy as np
 
-from Imervue.puppet.bone_tree_dock import BoneTreeDock
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.bone_tree_dock import BoneTreeDock
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Deformer,
     Drawable,
     PuppetDocument,
 )
-from Imervue.puppet.runtime import (
+from rigora.puppet.runtime import (
     compose_drawable_vertices,
     topologically_sorted_deformers,
 )

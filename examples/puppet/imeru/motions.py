@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from Imervue.puppet.document import Expression, ExpressionParam, Motion, MotionSegment, MotionTrack
+from rigora.puppet.document import Expression, ExpressionParam, Motion, MotionSegment, MotionTrack
 
 
 #: Per-side parameter names, filled in with "L" / "R" by :func:`both`.

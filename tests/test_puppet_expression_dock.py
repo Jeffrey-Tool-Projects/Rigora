@@ -7,9 +7,9 @@ The dock instantiates a canvas internally (it listens to
 PuppetWorkspace so the wiring is exercised end-to-end.
 """
 from __future__ import annotations
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import Drawable, Expression, ExpressionParam, PuppetDocument
-from Imervue.puppet.expression_dock import ExpressionDock
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import Drawable, Expression, ExpressionParam, PuppetDocument
+from rigora.puppet.expression_dock import ExpressionDock
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

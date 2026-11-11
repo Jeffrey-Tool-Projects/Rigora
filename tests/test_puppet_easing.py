@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from Imervue.puppet.easing import (
+from rigora.puppet.easing import (
     EASING_NAMES,
     control_points_for_segment,
     ease_value,
@@ -120,8 +120,8 @@ def test_control_points_unknown_raises():
 
 
 def test_bezier_segment_samples_a_monotone_eased_curve():
-    from Imervue.puppet import motion_sampler
-    from Imervue.puppet.document import MotionSegment
+    from rigora.puppet import motion_sampler
+    from rigora.puppet.document import MotionSegment
 
     c0, c1 = control_points_for_segment("ease-in-out-quad", (0.0, 0.0), (1.0, 1.0))
     seg = MotionSegment(

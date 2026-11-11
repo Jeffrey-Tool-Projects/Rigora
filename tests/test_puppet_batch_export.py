@@ -8,13 +8,13 @@ sanitiser.
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.batch_export import (
+from rigora.puppet.batch_export import (
     SUPPORTED_EXTENSIONS,
     BatchMotionExporter,
     _safe_filename,
 )
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Drawable,
     Motion,
     MotionSegment,
@@ -22,7 +22,7 @@ from Imervue.puppet.document import (
     Parameter,
     PuppetDocument,
 )
-from Imervue.puppet.motion_player import MotionPlayer
+from rigora.puppet.motion_player import MotionPlayer
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

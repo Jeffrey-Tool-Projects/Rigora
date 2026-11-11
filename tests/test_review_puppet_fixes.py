@@ -5,8 +5,8 @@ import pytest
 from PIL import Image
 from PySide6.QtGui import QImage
 
-from Imervue.puppet.batch_export import BatchMotionExporter
-from Imervue.puppet.vts_api import VTubeStudioHandler, VTubeStudioServer
+from rigora.puppet.batch_export import BatchMotionExporter
+from rigora.puppet.vts_api import VTubeStudioHandler, VTubeStudioServer
 
 
 class Canvas:
@@ -45,7 +45,7 @@ class Player:
 
 @pytest.mark.parametrize('names', [['idle/01', 'idle:01', '中文', '另一段'], ['Idle', 'idle']])
 def test_colliding_batch_names_keep_every_clip_and_existing_file(qapp, tmp_path, monkeypatch, names):
-    from Imervue.puppet import batch_export
+    from rigora.puppet import batch_export
     monkeypatch.setattr(batch_export.os.path, 'normcase', lambda path: path)
     canvas = Canvas(names)
     player = Player(canvas)
@@ -134,7 +134,7 @@ def test_vts_invalid_shapes_return_error_through_callback(qapp, message):
 
 
 def test_workspace_shutdown_covers_services_recorders_and_player():
-    from Imervue.puppet.workspace import PuppetWorkspace
+    from rigora.puppet.workspace import PuppetWorkspace
     calls = []
     def owned(name):
         return SimpleNamespace(shutdown=lambda: calls.append(name), stop=lambda: calls.append(name))
@@ -149,26 +149,12 @@ def test_workspace_shutdown_covers_services_recorders_and_player():
     assert sorted(calls) == sorted([*names, 'player'])
 
 
-def test_main_release_closes_both_owned_workspaces_even_after_one_fails(monkeypatch):
-    from Imervue.Imervue_main_window import ImervueMainWindow
-    from Imervue.gpu_image_view.images import image_loader
-    calls = []
-    def broken():
-        calls.append('puppet')
-        raise RuntimeError('already gone')
-    main = SimpleNamespace(
-        puppet_workspace=SimpleNamespace(shutdown=broken),
-        pet_workspace=SimpleNamespace(shutdown=lambda: calls.append('pet')),
-    )
-    monkeypatch.setattr(image_loader, 'cancel_folder_scan', lambda _viewer: None)
-    ImervueMainWindow._release_for_close(main)
-    assert calls == ['puppet', 'pet']
 
 
 def test_webcam_shutdown_detaches_gui_without_waiting_for_blocked_capture(qapp):
     from threading import Event, Thread
     from PySide6.QtCore import QTimer
-    from Imervue.puppet.webcam_tracker import WebcamTracker
+    from rigora.puppet.webcam_tracker import WebcamTracker
     release = Event()
     tracker = WebcamTracker(Canvas())
     worker = Thread(target=release.wait, daemon=True)
@@ -193,7 +179,7 @@ def test_webcam_shutdown_detaches_gui_without_waiting_for_blocked_capture(qapp):
 
 
 def test_pet_workspace_shutdown_releases_overlay_once_without_creating_one():
-    from Imervue.desktop_pet.pet_workspace import PetWorkspace
+    from rigora.desktop_pet.pet_workspace import PetWorkspace
     calls = []
     pet = SimpleNamespace(shutdown=lambda: calls.append('shutdown'),
                           close=lambda: calls.append('close'),
@@ -206,20 +192,20 @@ def test_pet_workspace_shutdown_releases_overlay_once_without_creating_one():
 
 
 def test_pet_canvas_shutdown_stops_always_present_input_and_player():
-    from Imervue.desktop_pet.pet_canvas_drivers import PetCanvasDrivers
+    from rigora.desktop_pet.pet_canvas_drivers import PetCanvasDrivers
     calls = []
     drivers = SimpleNamespace(
         webcam_tracker=None, virtual_camera=None, idle_driver=None,
         idle_cycler=None, mouse_gaze=None,
         input_engine=SimpleNamespace(shutdown=lambda: calls.append('input')),
-        motion_player=SimpleNamespace(stop=lambda: calls.append('player')))
+        motion_player=SimpleNamespace(shutdown=lambda: calls.append('player')))
     PetCanvasDrivers.shutdown(drivers)
     assert calls == ['input', 'player']
 
 
 def test_mic_shutdown_discards_late_callbacks_before_touching_canvas(qapp):
     import numpy as np
-    from Imervue.puppet.input_engine import InputEngine
+    from rigora.puppet.input_engine import InputEngine
     canvas = Canvas()
     canvas.cursor_moved = SimpleNamespace(connect=lambda _slot: None)
     engine = InputEngine(canvas)
@@ -256,7 +242,7 @@ def test_vts_invalid_request_does_not_break_authenticated_session():
 
 
 def test_pet_window_shutdown_stops_overlay_timers_and_audio_once():
-    from Imervue.desktop_pet.pet_window import PetWindow
+    from rigora.desktop_pet.pet_window import PetWindow
     calls = []
     def stop(name):
         return lambda: calls.append(name)

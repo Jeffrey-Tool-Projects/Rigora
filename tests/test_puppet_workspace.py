@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from Imervue.puppet.document import Drawable, PuppetDocument
-from Imervue.puppet.document_io import save_puppet
-from Imervue.puppet.workspace import PuppetWorkspace, _push_recent
-from Imervue.user_settings.user_setting_dict import user_setting_dict
+from rigora.puppet.document import Drawable, PuppetDocument
+from rigora.puppet.document_io import save_puppet
+from rigora.puppet.workspace import PuppetWorkspace, _push_recent
+from rigora.system.settings import user_setting_dict
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 
@@ -186,13 +186,13 @@ def test_examples_menu_lists_bundled_puppets(qapp, tmp_path, monkeypatch):
     ``<examples_dir>/puppet/*.puppet`` and add one action per file.
     File names are pretty-printed (underscores → spaces, each word's first
     letter raised) so ``imeru_2nd_outfit.puppet`` shows as ``Imeru 2nd Outfit``."""
-    import Imervue.puppet.workspace as ws_mod
+    import rigora.puppet.workspace as ws_mod
     examples_root = tmp_path / "examples"
     (examples_root / "puppet").mkdir(parents=True)
     _write_minimal_puppet(examples_root / "puppet" / "imeru_2nd_outfit.puppet")
     _write_minimal_puppet(examples_root / "puppet" / "imeru.puppet")
     monkeypatch.setattr(
-        "Imervue.system.app_paths.app_dir",
+        "rigora.system.app_paths.app_dir",
         lambda: tmp_path,
     )
 
@@ -215,10 +215,10 @@ def test_examples_menu_shows_disabled_placeholder_when_empty(
     """When the examples directory is missing or empty, the menu
     contains a single disabled placeholder so the user understands
     that nothing was bundled rather than silently showing no menu."""
-    import Imervue.puppet.workspace as ws_mod
+    import rigora.puppet.workspace as ws_mod
     # No examples/puppet/ directory at all under tmp_path.
     monkeypatch.setattr(
-        "Imervue.system.app_paths.app_dir",
+        "rigora.system.app_paths.app_dir",
         lambda: tmp_path,
     )
 
@@ -238,13 +238,13 @@ def test_examples_menu_action_loads_via_open_puppet(
     """Clicking an entry must call ``open_puppet(path)`` with the
     absolute path of the bundled file. The shipped rig should then
     end up bound to the canvas."""
-    import Imervue.puppet.workspace as ws_mod
+    import rigora.puppet.workspace as ws_mod
     examples_root = tmp_path / "examples"
     (examples_root / "puppet").mkdir(parents=True)
     target = examples_root / "puppet" / "tiny.puppet"
     _write_minimal_puppet(target)
     monkeypatch.setattr(
-        "Imervue.system.app_paths.app_dir",
+        "rigora.system.app_paths.app_dir",
         lambda: tmp_path,
     )
 
@@ -270,7 +270,7 @@ def test_examples_menu_action_loads_via_open_puppet(
 def _document_with_one_param():
     """A document with a single parameter that defaults to 0.0 — used
     to verify reset_to_rest restores parameter values."""
-    from Imervue.puppet.document import (
+    from rigora.puppet.document import (
         Drawable, Parameter, PuppetDocument,
     )
     doc = PuppetDocument(size=(64, 64))
@@ -291,7 +291,7 @@ def test_reset_to_rest_snaps_parameters_back_to_defaults(qapp, tmp_path):
     rig back at its authored default — closes the "rig stuck at last
     motion frame" gap users hit when a motion finishes mid-pose."""
     out = tmp_path / "mini.puppet"
-    from Imervue.puppet.document_io import save_puppet
+    from rigora.puppet.document_io import save_puppet
     save_puppet(_document_with_one_param(), out)
     ws = PuppetWorkspace()
     try:
@@ -310,7 +310,7 @@ def test_reset_to_rest_disables_live_toggles(qapp, tmp_path):
     reset. Some toggles can't actually start (no webcam / no mic in
     CI) — those stay unchecked anyway, which is the right end state."""
     out = tmp_path / "mini.puppet"
-    from Imervue.puppet.document_io import save_puppet
+    from rigora.puppet.document_io import save_puppet
     save_puppet(_document_with_one_param(), out)
     ws = PuppetWorkspace()
     try:
@@ -333,8 +333,8 @@ def test_reset_to_rest_disables_live_toggles(qapp, tmp_path):
 def test_reset_to_rest_clears_active_expressions(qapp, tmp_path):
     """Active expression overrides must drop back to the empty list
     so the rig isn't smiling / surprised forever after a reset."""
-    from Imervue.puppet.document import Expression, ExpressionParam
-    from Imervue.puppet.document_io import save_puppet
+    from rigora.puppet.document import Expression, ExpressionParam
+    from rigora.puppet.document_io import save_puppet
     doc = _document_with_one_param()
     doc.expressions = [
         Expression(name="smile", params=[

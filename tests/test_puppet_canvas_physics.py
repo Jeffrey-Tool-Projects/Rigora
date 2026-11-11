@@ -11,10 +11,10 @@ from types import SimpleNamespace
 import pytest
 from PySide6.QtCore import QTimer
 
-from Imervue.puppet import canvas as canvas_mod
-from Imervue.puppet.canvas import PuppetCanvas, _outputs_close
-from Imervue.puppet.document import PhysicsParticle, PhysicsRig, PuppetDocument
-from Imervue.puppet.physics import PhysicsEngine
+from rigora.puppet import canvas as canvas_mod
+from rigora.puppet.canvas import PuppetCanvas, _outputs_close
+from rigora.puppet.document import PhysicsParticle, PhysicsRig, PuppetDocument
+from rigora.puppet.physics import PhysicsEngine
 
 
 @pytest.mark.parametrize(("new", "old", "close"), [

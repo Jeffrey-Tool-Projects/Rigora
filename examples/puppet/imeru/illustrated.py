@@ -6,8 +6,8 @@ import numpy as np
 
 from illustrated_mesh import ARTWORK, SIZE, ellipse, opacity, patch, region
 from illustrated_rig import arms, common_motion, face_motion
-from Imervue.puppet.document import HitArea, Part, PuppetDocument
-from Imervue.puppet.standard_params import standard_parameters
+from rigora.puppet.document import HitArea, Part, PuppetDocument
+from rigora.puppet.standard_params import standard_parameters
 from rig import physics
 
 

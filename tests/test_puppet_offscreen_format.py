@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from PySide6.QtOpenGL import QOpenGLFramebufferObject
 
-from Imervue.puppet.canvas import offscreen_framebuffer_format
+from rigora.puppet.canvas import offscreen_framebuffer_format
 
 
 def test_offscreen_framebuffer_has_a_depth_stencil_attachment(qapp):

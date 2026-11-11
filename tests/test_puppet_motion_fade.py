@@ -9,8 +9,8 @@ the tests stay deterministic.
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Drawable,
     Motion,
     MotionSegment,
@@ -18,7 +18,7 @@ from Imervue.puppet.document import (
     Parameter,
     PuppetDocument,
 )
-from Imervue.puppet.motion_player import MotionPlayer
+from rigora.puppet.motion_player import MotionPlayer
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 
@@ -66,6 +66,32 @@ def _two_motion_doc() -> PuppetDocument:
 # ---------------------------------------------------------------------------
 # Fade-in
 # ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("fading", [False, True])
+def test_shutdown_stops_timer_without_changing_pose(qapp, fading):
+    canvas = PuppetCanvas()
+    canvas.load_document(_two_motion_doc())
+    player = MotionPlayer(canvas)
+    player.set_motion(canvas.document().motions[1])
+    try:
+        player.play()
+        player.seek(0.2)
+        if fading:
+            player.stop()
+            assert player.is_fading_out()
+        pose = dict(canvas.parameter_values())
+        player.shutdown()
+        player.shutdown()
+        qapp.processEvents()
+        assert not player._timer.isActive()
+        assert not player.is_playing()
+        assert not player.is_fading_out()
+        assert canvas.parameter_values() == pose
+    finally:
+        player.shutdown()
+        player.deleteLater()
+        canvas.deleteLater()
 
 
 def test_first_bind_has_no_fade_in_state(qapp):

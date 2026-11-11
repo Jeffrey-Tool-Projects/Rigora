@@ -8,15 +8,15 @@ from __future__ import annotations
 
 import pytest
 
-from Imervue.puppet.auto_rig import (
+from rigora.puppet.auto_rig import (
     auto_rig,
     detect_eye,
     detect_hair,
     detect_head,
     detect_mouth_variant,
 )
-from Imervue.puppet.document import Drawable, PuppetDocument
-from Imervue.puppet.standard_params import standard_parameters
+from rigora.puppet.document import Drawable, PuppetDocument
+from rigora.puppet.standard_params import standard_parameters
 
 
 def _doc_with(ids: tuple[str, ...]) -> PuppetDocument:
@@ -180,7 +180,7 @@ def test_auto_rig_on_empty_document_is_noop():
 
 def test_the_hair_warp_is_keyed_so_the_chain_sways_it():
     """The hair chain drove ParamHairFront, which nothing was keyed on: no visible swing."""
-    from Imervue.puppet.runtime import compose_all_drawables
+    from rigora.puppet.runtime import compose_all_drawables
     doc = _doc_with(("hair_back_01", "bang_01"))
     doc.parameters = standard_parameters()
     auto_rig(doc)

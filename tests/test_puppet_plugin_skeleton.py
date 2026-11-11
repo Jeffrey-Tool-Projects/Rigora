@@ -10,7 +10,7 @@ from __future__ import annotations
 import pytest
 from PySide6.QtWidgets import QTabWidget
 
-from Imervue.puppet import PuppetWorkspace
+from rigora.puppet import PuppetWorkspace
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

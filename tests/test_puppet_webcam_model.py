@@ -10,7 +10,7 @@ import hashlib
 
 import pytest
 
-from Imervue.puppet import webcam_tracker as wt
+from rigora.puppet import webcam_tracker as wt
 
 _GOOD = b"the genuine model bytes"
 
@@ -31,7 +31,7 @@ class _Resp:
 
 @pytest.fixture
 def model_dir(tmp_path, monkeypatch):
-    monkeypatch.setattr("Imervue.system.app_paths.app_dir", lambda: tmp_path)
+    monkeypatch.setattr("rigora.system.app_paths.app_dir", lambda: tmp_path)
     monkeypatch.setattr(wt, "_FACE_LANDMARKER_SHA256", hashlib.sha256(_GOOD).hexdigest())
     return tmp_path / "models"
 
@@ -78,7 +78,7 @@ def test_tampered_cache_is_replaced_by_a_verified_download(model_dir, monkeypatc
     model_dir.mkdir()
     (model_dir / "face_landmarker.task").write_bytes(b"tampered")
     calls = _serve(monkeypatch, _GOOD)
-    with caplog.at_level("DEBUG", logger="Imervue"):
+    with caplog.at_level("DEBUG", logger="rigora"):
         out = wt._face_landmarker_model_path()
     assert len(calls) == 1
     assert out.read_bytes() == _GOOD

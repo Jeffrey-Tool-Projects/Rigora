@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from Imervue.puppet.canvas import _fit_scale_and_pan
+from rigora.puppet.canvas import _fit_scale_and_pan
 
 
 @pytest.mark.parametrize("doc, target, expected", [

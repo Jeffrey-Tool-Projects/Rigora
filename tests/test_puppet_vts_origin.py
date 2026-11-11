@@ -11,7 +11,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from Imervue.puppet.vts_api import MAX_MESSAGE_BYTES, VTubeStudioServer
+from rigora.puppet.vts_api import MAX_MESSAGE_BYTES, VTubeStudioServer
 
 
 class _Signal:
@@ -67,7 +67,7 @@ def test_native_tracker_gets_a_session_with_capped_messages():
 def test_web_page_is_closed_without_a_session(caplog, origin):
     page = _Socket(origin)
     tracker = _Socket("http://localhost:3000")
-    with caplog.at_level("DEBUG", logger="Imervue"):
+    with caplog.at_level("DEBUG", logger="rigora"):
         sessions = _accept(page, tracker)
     assert page not in sessions
     assert page.calls == ["close", "deleteLater"]

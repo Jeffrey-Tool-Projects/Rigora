@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 
-from Imervue.puppet.cubism_import import (
+from rigora.puppet.cubism_import import (
     load_cdi3,
     load_model3,
     load_physics3,

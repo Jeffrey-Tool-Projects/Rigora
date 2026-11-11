@@ -24,8 +24,8 @@ def test_tracker_preview_snapshot_keys_match_contract(qapp):
     and the preview dialog — every key the dialog reads must exist
     on the returned dict, with sensible defaults before the first
     frame lands."""
-    from Imervue.puppet.canvas import PuppetCanvas
-    from Imervue.puppet.webcam_tracker import WebcamTracker
+    from rigora.puppet.canvas import PuppetCanvas
+    from rigora.puppet.webcam_tracker import WebcamTracker
     canvas = PuppetCanvas()
     tracker = WebcamTracker(canvas)
     try:
@@ -48,8 +48,8 @@ def test_tracker_preview_snapshot_returns_independent_copy(qapp):
     """Mutating the returned snapshot must not affect the tracker's
     internal arrays — otherwise the GUI thread could race the
     capture thread through a shared reference."""
-    from Imervue.puppet.canvas import PuppetCanvas
-    from Imervue.puppet.webcam_tracker import WebcamTracker
+    from rigora.puppet.canvas import PuppetCanvas
+    from rigora.puppet.webcam_tracker import WebcamTracker
     canvas = PuppetCanvas()
     tracker = WebcamTracker(canvas)
     try:
@@ -72,7 +72,7 @@ def test_frame_to_pixmap_mirrors_and_preserves_size(qapp):
     the original frame size so the user sees themselves the right
     way around. The pixmap's dimensions must match the input BGR
     frame."""
-    from Imervue.puppet.webcam_preview_dialog import _frame_to_pixmap
+    from rigora.puppet.webcam_preview_dialog import _frame_to_pixmap
     frame = np.zeros((60, 80, 3), dtype=np.uint8)
     # Set a single bright-red pixel at column 0 — after horizontal
     # mirroring it should land at column W-1.
@@ -91,7 +91,7 @@ def test_frame_to_pixmap_mirrors_and_preserves_size(qapp):
 def test_frame_to_pixmap_rejects_wrong_shape(qapp):
     """Helper validates input shape so the dialog can't accidentally
     paint garbage into a label."""
-    from Imervue.puppet.webcam_preview_dialog import _frame_to_pixmap
+    from rigora.puppet.webcam_preview_dialog import _frame_to_pixmap
     with pytest.raises(ValueError):
         _frame_to_pixmap(np.zeros((10, 10), dtype=np.uint8), None)
     with pytest.raises(ValueError):
@@ -102,9 +102,9 @@ def test_dialog_constructs_and_shows_waiting_state(qapp):
     """Construct the dialog with a tracker that's never seen a frame.
     The status text should announce we're waiting for the camera
     rather than crashing or showing a blank label."""
-    from Imervue.puppet.canvas import PuppetCanvas
-    from Imervue.puppet.webcam_preview_dialog import WebcamPreviewDialog
-    from Imervue.puppet.webcam_tracker import WebcamTracker
+    from rigora.puppet.canvas import PuppetCanvas
+    from rigora.puppet.webcam_preview_dialog import WebcamPreviewDialog
+    from rigora.puppet.webcam_tracker import WebcamTracker
     canvas = PuppetCanvas()
     tracker = WebcamTracker(canvas)
     dlg = WebcamPreviewDialog(tracker)
@@ -152,9 +152,9 @@ def test_dialog_close_disables_tracker(qapp, dismiss):
     """Every dismissal path must stop the tracker — otherwise the camera
     light stays on with no UI to surface it. A hidden or unshown dialog's
     close reaches only closeEvent, while Escape reaches only done()."""
-    from Imervue.puppet.canvas import PuppetCanvas
-    from Imervue.puppet.webcam_preview_dialog import WebcamPreviewDialog
-    from Imervue.puppet.webcam_tracker import WebcamTracker
+    from rigora.puppet.canvas import PuppetCanvas
+    from rigora.puppet.webcam_preview_dialog import WebcamPreviewDialog
+    from rigora.puppet.webcam_tracker import WebcamTracker
     canvas = PuppetCanvas()
     tracker = WebcamTracker(canvas)
     dlg = WebcamPreviewDialog(tracker)

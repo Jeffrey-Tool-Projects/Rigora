@@ -13,7 +13,7 @@ import zipfile
 
 import pytest
 
-from Imervue.puppet.document import (
+from rigora.puppet.document import (
     Deformer,
     Drawable,
     Expression,
@@ -28,7 +28,7 @@ from Imervue.puppet.document import (
     PoseGroup,
     PuppetDocument,
 )
-from Imervue.puppet.document_io import (
+from rigora.puppet.document_io import (
     PuppetFormatError,
     SCHEMA_VERSION,
     from_zip_bytes,
@@ -270,7 +270,7 @@ def test_load_rejects_a_version_that_is_not_v1_or_newer(tmp_path, version):
 
 def test_a_saved_puppet_starts_with_its_media_type_and_names_its_schemas(tmp_path):
     """A .puppet is recognisable by its first bytes, and editors can check its JSON."""
-    from Imervue.puppet.format_schema import MEDIA_TYPE, SCHEMA_URLS
+    from rigora.puppet.format_schema import MEDIA_TYPE, SCHEMA_URLS
     doc = _build_full_doc()
     doc.motions = [Motion(name="idle", duration=1.0, tracks=[])]
     out = tmp_path / "id.puppet"
@@ -435,7 +435,7 @@ def test_load_rejects_truncated_vertex_pair(tmp_path):
 
 def test_document_io_imports_without_qt():
     """The puppet package must stay Qt-free for the MCP tools: importing
-    Imervue.puppet.document_io must not drag in PySide6 (the package
+    rigora.puppet.document_io must not drag in PySide6 (the package
     __init__ exposes PuppetWorkspace lazily via __getattr__)."""
     import subprocess
     import sys
@@ -447,7 +447,7 @@ def test_document_io_imports_without_qt():
         "        raise ImportError('PySide6 blocked for test')\n"
         "    return _real(name, *a, **k)\n"
         "builtins.__import__ = _blocked\n"
-        "import Imervue.puppet.document_io\n"
+        "import rigora.puppet.document_io\n"
         "print('OK')\n"
     )
     result = subprocess.run(
@@ -810,7 +810,7 @@ def _bomb_bytes(payload_size: int) -> bytes:
 
 
 def test_archive_over_the_uncompressed_limit_is_refused(monkeypatch):
-    from Imervue.puppet import document_io
+    from rigora.puppet import document_io
     monkeypatch.setattr(document_io, "_MAX_UNCOMPRESSED_BYTES", 64 * 1024)
     data = _bomb_bytes(1024 * 1024)
     assert len(data) < 64 * 1024          # small on disk, large once expanded
@@ -819,14 +819,14 @@ def test_archive_over_the_uncompressed_limit_is_refused(monkeypatch):
 
 
 def test_archive_under_the_limit_still_loads(monkeypatch):
-    from Imervue.puppet import document_io
+    from rigora.puppet import document_io
     monkeypatch.setattr(document_io, "_MAX_UNCOMPRESSED_BYTES", 4 * 1024 * 1024)
     doc = from_zip_bytes(_bomb_bytes(1024 * 1024))
     assert doc is not None
 
 
 def test_limit_is_checked_before_any_entry_is_read(monkeypatch):
-    from Imervue.puppet import document_io
+    from rigora.puppet import document_io
     monkeypatch.setattr(document_io, "_MAX_UNCOMPRESSED_BYTES", 64 * 1024)
     data = _bomb_bytes(1024 * 1024)       # built before reads are tracked
     reads: list[str] = []
@@ -843,7 +843,7 @@ def test_limit_is_checked_before_any_entry_is_read(monkeypatch):
 
 
 def test_a_save_that_fails_midway_keeps_the_old_puppet(tmp_path, monkeypatch):
-    from Imervue.puppet import archive_container
+    from rigora.puppet import archive_container
     path = tmp_path / "rig.puppet"
     save_puppet(_build_full_doc(), path)
     before = path.read_bytes()

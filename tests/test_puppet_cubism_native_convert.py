@@ -14,13 +14,13 @@ from typing import cast
 
 import pytest
 
-from Imervue.puppet.cubism_native_bridge import (
+from rigora.puppet.cubism_native_bridge import (
     CubismModel,
     DrawableInfo,
     ParameterInfo,
 )
-from Imervue.puppet.cubism_native_convert import _attach_visibility_keys
-from Imervue.puppet.document import Drawable, PuppetDocument
+from rigora.puppet.cubism_native_convert import _attach_visibility_keys
+from rigora.puppet.document import Drawable, PuppetDocument
 
 
 @dataclass
@@ -276,8 +276,8 @@ def test_zero_range_parameter_is_skipped():
 
 def test_a_malformed_model3_is_a_cubism_format_error(tmp_path):
     """json.JSONDecodeError escaped the importer, which only reports Cubism errors."""
-    from Imervue.puppet.cubism_import import CubismFormatError
-    from Imervue.puppet.cubism_native_convert import cubism_to_puppet
+    from rigora.puppet.cubism_import import CubismFormatError
+    from rigora.puppet.cubism_native_convert import cubism_to_puppet
     bad = tmp_path / "model.model3.json"
     bad.write_text("{", encoding="utf-8")
     with pytest.raises(CubismFormatError):
@@ -286,8 +286,8 @@ def test_a_malformed_model3_is_a_cubism_format_error(tmp_path):
 
 def test_a_model3_saved_with_a_bom_is_read(tmp_path):
     """It gets as far as the missing Moc reference instead of failing as bad JSON."""
-    from Imervue.puppet.cubism_native_bridge import CubismBridgeError
-    from Imervue.puppet.cubism_native_convert import cubism_to_puppet
+    from rigora.puppet.cubism_native_bridge import CubismBridgeError
+    from rigora.puppet.cubism_native_convert import cubism_to_puppet
     model = tmp_path / "model.model3.json"
     model.write_bytes(b"\xef\xbb\xbf" + b'{"FileReferences": {}}')
     with pytest.raises(CubismBridgeError, match="Moc is missing"):

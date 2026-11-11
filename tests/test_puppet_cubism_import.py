@@ -10,14 +10,14 @@ import json
 
 import pytest
 
-from Imervue.puppet.cubism_import import (
+from rigora.puppet.cubism_import import (
     CubismFormatError,
     apply_bundle,
     load_exp3,
     load_model3,
     load_motion3,
 )
-from Imervue.puppet.document import PuppetDocument
+from rigora.puppet.document import PuppetDocument
 
 
 # ---------------------------------------------------------------------------
@@ -277,7 +277,7 @@ def test_load_model3_resolves_referenced_files(tmp_path):
 
 
 def test_apply_bundle_dedupes_by_name(tmp_path):
-    from Imervue.puppet.cubism_import import CubismBundle
+    from rigora.puppet.cubism_import import CubismBundle
     motion_path = tmp_path / "idle.motion3.json"
     _write_minimal_motion3(motion_path)
     doc = PuppetDocument(size=(64, 64))
@@ -296,7 +296,7 @@ def test_load_motion3_missing_file_raises():
 @pytest.mark.parametrize("sound", ["sounds/tap.wav", "", None])
 def test_both_motion_loaders_keep_the_entrys_sound(tmp_path, sound):
     """The full .moc3 conversion dropped Sound; only the .model3.json merge kept it."""
-    from Imervue.puppet import cubism_import, cubism_native_convert
+    from rigora.puppet import cubism_import, cubism_native_convert
     motion_path = tmp_path / "motions" / "tap.motion3.json"
     motion_path.parent.mkdir()
     _write_minimal_motion3(motion_path)

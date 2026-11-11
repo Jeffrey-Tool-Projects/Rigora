@@ -1,8 +1,10 @@
 # Puppet Guide — Live Streaming & Animation Production
 
+Install the authorized Rigora checkout with `python -m pip install ".[gui]"`, then run `python -m rigora`. Rigora is currently private and has no public package release. The editor described here also runs in Imervue’s Puppet tab when Rigora is installed. Packaged examples are resolved with `rigora.system.app_paths.examples_dir()`; the `examples/` paths below refer to the Rigora source checkout.
+
 A walkthrough for getting from "I want to do VTuber-style streaming
 or make a short animation" to "I'm live on OBS / I have an MP4
-file on disk" using Imervue's **Puppet** tab.
+file on disk" using Rigora's **Puppet** tab.
 
 Two paths are documented:
 
@@ -32,10 +34,10 @@ feed or a file on disk.
 
 ## Quick start
 
-1. Launch Imervue (`python -m Imervue` if running from source).
+1. Launch Rigora (`python -m rigora` if running from source).
 2. Click the **Puppet** tab at the top of the window.
 3. **File > Examples > Imeru** (or the toolbar's **Examples ▾**
-   dropdown). The bundled rig, Imervue's mascot, opens centred.
+   dropdown). The bundled rig, Rigora's mascot, opens centred.
 4. In the bottom **Motions** dock, click any of the 8 motions.
    The rig animates immediately.
 5. Press **Reset to rest** on the toolbar to snap the rig back to
@@ -73,7 +75,7 @@ feed with detected landmarks overlaid — useful for verifying the
 tracker actually sees your face.
 
 > **First-run note** — webcam tracking needs `mediapipe`'s
-> face-landmark model. Imervue downloads it (~3.7 MB from Google
+> face-landmark model. Rigora downloads it (~3.7 MB from Google
 > Cloud Storage) to `<app_dir>/models/face_landmarker.task` the
 > first time you enable the toggle. Subsequent launches use the
 > cached copy.
@@ -108,7 +110,7 @@ Plus the platform virtual-camera driver:
   extension. First run will prompt to enable it under
   System Settings → Privacy & Security.
 - **Linux**: `sudo apt install v4l2loopback-dkms` then
-  `sudo modprobe v4l2loopback exclusive_caps=1 card_label="Imervue"`.
+  `sudo modprobe v4l2loopback exclusive_caps=1 card_label="Rigora"`.
 
 Wiring:
 
@@ -122,7 +124,7 @@ Wiring:
 
 Virtual cameras transport RGB only — DirectShow / AVFoundation /
 v4l2loopback all share that limitation. OBS treats the input as
-opaque RGB, so whatever colour Imervue puts behind the character
+opaque RGB, so whatever colour Rigora puts behind the character
 is what OBS displays. Magenta `#FF00FF` is the industry-standard
 chroma-key colour because it almost never appears in skin /
 hair / eye palettes.
@@ -185,15 +187,15 @@ If that's more setup than you want, stay on Path A.
 
 #### Path C — Window Capture (zero install)
 
-OBS **Sources > + > Window Capture** can grab the Imervue window
+OBS **Sources > + > Window Capture** can grab the Rigora window
 directly. No virtual-camera driver, no SDK. Trade-offs:
 
-- Captures the whole Imervue window, chrome included — you have
+- Captures the whole Rigora window, chrome included — you have
   to add an OBS *Crop/Pad* filter to chop down to just the
   puppet area.
 - Whatever's in the puppet workspace's checker backdrop gets
   streamed too.
-- Bound to whatever size the Imervue window is.
+- Bound to whatever size the Rigora window is.
 
 Only use this for quick demos. For anything you'd actually
 stream, use A or B.
@@ -202,7 +204,7 @@ stream, use A or B.
 
 Both Virtual Camera and NDI render the puppet to an off-screen
 framebuffer **without the checker backdrop or any editor
-chrome**. The toolbar / docks / status bar inside Imervue are
+chrome**. The toolbar / docks / status bar inside Rigora are
 purely for your editing convenience; only the actual character
 drawables hit the stream. The output's longest side is capped
 at 1080 px (so a 3503×7777 Cubism canvas doesn't break the
@@ -234,7 +236,7 @@ on disk.
 ### 2.1 Recording a motion from a live take
 
 This is the easiest path: drive the rig with your face / mic /
-mouse, record the parameter values as they fly, and Imervue
+mouse, record the parameter values as they fly, and Rigora
 bakes the take into a `Motion` you can later play / loop / save.
 
 1. Open your rig.
@@ -299,7 +301,7 @@ one without a live performance:
    (see 2.2).
 3. For exact keyframes, write `motions/<name>.json` inside the
    `.puppet` zip by hand and list the name under `motions` in
-   `puppet.json` (see [`FORMAT.md`](Imervue/puppet/FORMAT.md)).
+   `puppet.json` (see [`FORMAT.md`](rigora/puppet/FORMAT.md)).
 
 The **Set key** button next to each slider is a rigging tool, not
 a motion keyframe: it stores every deformer's current form as a
@@ -438,7 +440,7 @@ Every animated value is a *parameter* with a min, max, and
 default. Each of a parameter's `keys` stores deformer forms at one
 parameter value; the runtime interpolates linearly between the two
 keys around the current value and holds the end keys beyond them.
-See `Imervue/puppet/standard_params.py` for the Cubism-standard
+See `rigora/puppet/standard_params.py` for the Cubism-standard
 ids the input drivers expect.
 
 ### Deformers
@@ -616,7 +618,7 @@ re-convert via **File > Import Cubism…** and save the result.
 
 The `.puppet` file format is a zip container with JSON manifests
 and PNG textures. Full spec at
-[`Imervue/puppet/FORMAT.md`](Imervue/puppet/FORMAT.md).
+[`rigora/puppet/FORMAT.md`](rigora/puppet/FORMAT.md).
 
 Bundled demo rig: [`examples/puppet/imeru.puppet`](examples/puppet/imeru.puppet), rebuilt
 by `examples/puppet/imeru/build.py`

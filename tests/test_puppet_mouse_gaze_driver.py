@@ -12,9 +12,9 @@ import math
 
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import Drawable, Parameter, PuppetDocument
-from Imervue.puppet.mouse_gaze_driver import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import Drawable, Parameter, PuppetDocument
+from rigora.puppet.mouse_gaze_driver import (
     DEFAULT_EYE_TRACK_RADIUS_PX,
     DEFAULT_HEAD_TRACK_RADIUS_PX,
     DEFAULT_SMOOTHING_S,
@@ -22,7 +22,7 @@ from Imervue.puppet.mouse_gaze_driver import (
     gaze_target_values,
     smoothed_value,
 )
-from Imervue.puppet.standard_params import (
+from rigora.puppet.standard_params import (
     PARAM_ANGLE_X,
     PARAM_ANGLE_Y,
     PARAM_EYE_BALL_X,

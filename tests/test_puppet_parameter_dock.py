@@ -10,15 +10,15 @@ import math
 
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Deformer,
     Drawable,
     Parameter,
     ParameterKey,
     PuppetDocument,
 )
-from Imervue.puppet.parameter_dock import ParameterDock
+from rigora.puppet.parameter_dock import ParameterDock
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

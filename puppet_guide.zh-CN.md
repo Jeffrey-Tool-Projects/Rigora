@@ -1,6 +1,8 @@
 # Puppet 指南 — 直播与动画制作
 
-从"我想做 VTuber 风直播或短动画"走到"我已经在 OBS 上直播 / 我手上有一个 MP4 文件"的完整流程，用 Imervue 的 **Puppet** 标签完成。
+请在已获授权的 Rigora checkout 执行 `python -m pip install ".[gui]"`，再执行 `python -m rigora`。Rigora 目前为私有项目，尚未公开发布软件包。本指南的编辑器也可在已安装 Rigora 的 Imervue Puppet 标签页使用。软件包示例由 `rigora.system.app_paths.examples_dir()` 定位；以下 `examples/` 路径指 Rigora 源码 checkout。
+
+从"我想做 VTuber 风直播或短动画"走到"我已经在 OBS 上直播 / 我手上有一个 MP4 文件"的完整流程，用 Rigora 的 **Puppet** 标签完成。
 
 两条路：
 
@@ -26,9 +28,9 @@
 
 ## 快速开始
 
-1. 启动 Imervue（从源码跑就 `python -m Imervue`）。
+1. 启动 Rigora（从源码跑就 `python -m rigora`）。
 2. 点窗口顶端的 **Puppet** 标签。
-3. **File > Examples > Imeru**（或工具栏的 **Examples ▾** 下拉）。内置的 rig — Imervue 的吉祥物 — 居中加载。
+3. **File > Examples > Imeru**（或工具栏的 **Examples ▾** 下拉）。内置的 rig — Rigora 的吉祥物 — 居中加载。
 4. 在底部 **Motions** 停靠栏点 8 个动作中的任一个 — rig 立刻动起来。
 5. 工具栏的 **Reset to rest** 按钮把 rig 拉回静止姿势。
 
@@ -55,7 +57,7 @@ Puppet 工具栏有 6 个实时输入 toggle（**Live** 菜单里也有同样 6 
 
 典型脸部追踪 VTuber 设置：开 **Webcam tracking** + **Auto-blink** + **Mic lip-sync**。打开 *Webcam tracking* 时会弹出预览窗口，显示摄像头画面 + 检测到的 landmark — 用来确认 tracker 真的有看到你。
 
-> **首次使用注意** — webcam tracking 需要 `mediapipe` 的 face-landmark 模型。Imervue 第一次启用会自动下载（~3.7 MB，从 Google Cloud Storage）到 `<app_dir>/models/face_landmarker.task`，之后直接用缓存。
+> **首次使用注意** — webcam tracking 需要 `mediapipe` 的 face-landmark 模型。Rigora 第一次启用会自动下载（~3.7 MB，从 Google Cloud Storage）到 `<app_dir>/models/face_landmarker.task`，之后直接用缓存。
 
 **Output > VTS API** 是另一种输入：它在 `ws://127.0.0.1:8001`（仅限本机）开一个精简版 VTube Studio Public API 服务器，支持该协议的面部追踪程序连上后，可以列出 rig 的参数并写入数值。服务器会自动发放并接受 token。
 
@@ -75,7 +77,7 @@ pip install pyvirtualcam
 
 - **Windows**：装 OBS Studio 26+，自带 *OBS Virtual Camera* 驱动。第一次打开 OBS、右下角点 **Start Virtual Camera** 注册驱动，之后 `pyvirtualcam` 才找得到。
 - **macOS**：OBS for Mac 自带 system extension，首次运行会要求在"系统设置 → 隐私与安全性"启用。
-- **Linux**：`sudo apt install v4l2loopback-dkms` 然后 `sudo modprobe v4l2loopback exclusive_caps=1 card_label="Imervue"`。
+- **Linux**：`sudo apt install v4l2loopback-dkms` 然后 `sudo modprobe v4l2loopback exclusive_caps=1 card_label="Rigora"`。
 
 接线：
 
@@ -84,7 +86,7 @@ pip install pyvirtualcam
 
 **为什么背景是洋红色？**
 
-虚拟摄像头走 DirectShow / AVFoundation / v4l2loopback，三个传输层**只有 RGB、没有 alpha 通道**。OBS 把进来的图像当不透明 RGB 处理，所以 Imervue 在角色以外填什么颜色，OBS 就显示什么颜色。挑 `#FF00FF` 是业界标准 chroma-key 色 — 几乎不会出现在自然肤色 / 发色 / 瞳色里，去背容差可以开很宽。
+虚拟摄像头走 DirectShow / AVFoundation / v4l2loopback，三个传输层**只有 RGB、没有 alpha 通道**。OBS 把进来的图像当不透明 RGB 处理，所以 Rigora 在角色以外填什么颜色，OBS 就显示什么颜色。挑 `#FF00FF` 是业界标准 chroma-key 色 — 几乎不会出现在自然肤色 / 发色 / 瞳色里，去背容差可以开很宽。
 
 **OBS 端去背：**
 
@@ -130,17 +132,17 @@ pip install ndi-python
 
 #### Path C — Window Capture（零安装）
 
-OBS **Sources > + > Window Capture** 可以直接抓 Imervue 窗口。没有虚拟摄像头驱动、没有 SDK。Trade-off：
+OBS **Sources > + > Window Capture** 可以直接抓 Rigora 窗口。没有虚拟摄像头驱动、没有 SDK。Trade-off：
 
-- 抓整个 Imervue 窗口（含外壳），要加 OBS *Crop/Pad* filter 裁到只剩 puppet 区。
+- 抓整个 Rigora 窗口（含外壳），要加 OBS *Crop/Pad* filter 裁到只剩 puppet 区。
 - Puppet 工作区的棋盘格背景也会跟着推。
-- 受 Imervue 窗口大小限制。
+- 受 Rigora 窗口大小限制。
 
 只适合临时 demo。要正式直播用 A 或 B。
 
 ### 1.3 角色独立渲染路径
 
-Virtual Camera 与 NDI 都用 off-screen framebuffer 重画，**不含棋盘格背景跟任何编辑器外壳**。Imervue 窗口里的工具栏 / 停靠栏 / 状态栏纯粹是给你编辑用的，推流只有角色 drawable 本身。输出长边上限 1080 px（避免 3503×7777 的 Cubism canvas 把 DirectShow 驱动搞挂）。
+Virtual Camera 与 NDI 都用 off-screen framebuffer 重画，**不含棋盘格背景跟任何编辑器外壳**。Rigora 窗口里的工具栏 / 停靠栏 / 状态栏纯粹是给你编辑用的，推流只有角色 drawable 本身。输出长边上限 1080 px（避免 3503×7777 的 Cubism canvas 把 DirectShow 驱动搞挂）。
 
 ### 1.4 两段 take 之间重置
 
@@ -163,7 +165,7 @@ Virtual Camera 与 NDI 都用 off-screen framebuffer 重画，**不含棋盘格�
 
 ### 2.1 从实时 take 录制动作
 
-最简单的路径：用脸 / 麦克风 / 鼠标驱动 rig、实时录下参数值，Imervue 烘焙成一个之后可以播 / 循环 / 保存的 `Motion`。
+最简单的路径：用脸 / 麦克风 / 鼠标驱动 rig、实时录下参数值，Rigora 烘焙成一个之后可以播 / 循环 / 保存的 `Motion`。
 
 1. 打开 rig。
 2. 启用想驱动 rig 的实时输入（webcam / drag / blink / lip-sync / idle），或准备自己拖 **Parameters** 停靠栏的滑块。
@@ -190,7 +192,7 @@ Puppet 标签没有用来新建动作的 keyframe 编辑器。不靠实时表演
 
 1. 打开 **Output > Record motion**，自己拖 **Parameters** 停靠栏的滑块 — 滑块变化和其他实时输入一样会被录下。
 2. 停止录制，再用 **Edit > Edit motion…** 调整关键点（见 2.2）。
-3. 要精确的 keyframe，就直接手写 `.puppet` zip 里的 `motions/<name>.json`，并把名称加进 `puppet.json` 的 `motions`（见 [`FORMAT.md`](Imervue/puppet/FORMAT.md)）。
+3. 要精确的 keyframe，就直接手写 `.puppet` zip 里的 `motions/<name>.json`，并把名称加进 `puppet.json` 的 `motions`（见 [`FORMAT.md`](rigora/puppet/FORMAT.md)）。
 
 每个滑块旁的 **Set key** 按钮是绑骨用的工具，不是动作 keyframe：它把每个变形器当前的 form 存成该参数在滑块当前值的 key。**Edit > Add Parameter** 会新增一个 `ParamN` 滑块（−1 到 1）供你打 key。
 
@@ -258,7 +260,7 @@ Parameter blends — 在两个以上参数构成的网格上给变形器 form �
 
 ### 参数
 
-每个会动的值都是 *parameter*，有 min、max、default。参数的每个 `key` 存的是某个参数值下的变形器 form；runtime 在当前值两侧的两个 key 之间线性插值，超出首尾就保持端点 key。Cubism 标准 id 参考 `Imervue/puppet/standard_params.py`。
+每个会动的值都是 *parameter*，有 min、max、default。参数的每个 `key` 存的是某个参数值下的变形器 form；runtime 在当前值两侧的两个 key 之间线性插值，超出首尾就保持端点 key。Cubism 标准 id 参考 `rigora/puppet/standard_params.py`。
 
 ### 变形器
 
@@ -351,6 +353,6 @@ Motions 停靠栏的 **Loop** 关闭时，播到结尾的动作会停在最后�
 
 ## 文件格式参考
 
-`.puppet` 是 zip 容器、含 JSON manifest 跟 PNG 纹理。完整规格见 [`Imervue/puppet/FORMAT.md`](Imervue/puppet/FORMAT.md)。
+`.puppet` 是 zip 容器、含 JSON manifest 跟 PNG 纹理。完整规格见 [`rigora/puppet/FORMAT.md`](rigora/puppet/FORMAT.md)。
 
 内置 demo rig：[`examples/puppet/imeru.puppet`](examples/puppet/imeru.puppet)，由 `examples/puppet/imeru/build.py` 重新生成（见 [`examples/puppet/README.md`](examples/puppet/README.md)）。

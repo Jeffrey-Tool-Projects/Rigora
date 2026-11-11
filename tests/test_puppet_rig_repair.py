@@ -12,11 +12,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from Imervue.puppet.document import Drawable, PuppetDocument
-from Imervue.puppet.mesh_edit import delete_vertex, remap_vertex_data
-from Imervue.puppet.mesh_repair import repair_mesh
-from Imervue.puppet.rig_repair import repair_rig
-from Imervue.puppet.workspace import PuppetWorkspace
+from rigora.puppet.document import Drawable, PuppetDocument
+from rigora.puppet.mesh_edit import delete_vertex, remap_vertex_data
+from rigora.puppet.mesh_repair import repair_mesh
+from rigora.puppet.rig_repair import repair_rig
+from rigora.puppet.workspace import PuppetWorkspace
 
 _SQUARE = [(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)]
 _SQUARE_UV = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]

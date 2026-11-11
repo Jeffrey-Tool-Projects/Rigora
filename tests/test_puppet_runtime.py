@@ -12,14 +12,14 @@ import math
 import numpy as np
 import pytest
 
-from Imervue.puppet.document import (
+from rigora.puppet.document import (
     Deformer,
     Drawable,
     Parameter,
     ParameterKey,
     PuppetDocument,
 )
-from Imervue.puppet.runtime import (
+from rigora.puppet.runtime import (
     compose_all_drawables,
     compose_drawable_vertices,
     default_parameter_values,

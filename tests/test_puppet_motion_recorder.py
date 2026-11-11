@@ -2,13 +2,13 @@
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Drawable,
     Parameter,
     PuppetDocument,
 )
-from Imervue.puppet.motion_recorder import (
+from rigora.puppet.motion_recorder import (
     MotionRecorder,
     append_motion,
     bake_to_motion,

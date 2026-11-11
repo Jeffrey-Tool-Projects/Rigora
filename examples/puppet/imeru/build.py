@@ -22,9 +22,9 @@ import illustrated  # noqa: E402
 import motions  # noqa: E402
 import render3d  # noqa: E402
 import rig  # noqa: E402
-from Imervue.puppet.document import PuppetDocument  # noqa: E402
-from Imervue.puppet.document_io import save_puppet  # noqa: E402
-from Imervue.puppet.format_schema import check_puppet_file  # noqa: E402
+from rigora.puppet.document import PuppetDocument  # noqa: E402
+from rigora.puppet.document_io import save_puppet  # noqa: E402
+from rigora.puppet.format_schema import check_puppet_file  # noqa: E402
 
 OUTPUT = HERE.parent / "imeru.puppet"
 #: Empty canvas above the ahoge, trimmed so a desktop pet window is no taller than she is.

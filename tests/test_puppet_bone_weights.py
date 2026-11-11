@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from Imervue.puppet.bone_weights import (
+from rigora.puppet.bone_weights import (
     is_normalised,
     needs_repair,
     normalize_bone_weights,

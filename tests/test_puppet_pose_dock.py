@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from PySide6.QtCore import QObject, Signal
 
-from Imervue.puppet.document import PoseGroup, PuppetDocument
-from Imervue.puppet.pose_dock import PoseDock
+from rigora.puppet.document import PoseGroup, PuppetDocument
+from rigora.puppet.pose_dock import PoseDock
 
 
 class _Canvas(QObject):

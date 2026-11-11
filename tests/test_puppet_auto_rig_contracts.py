@@ -15,8 +15,8 @@ import math
 
 import pytest
 
-from Imervue.puppet.auto_rig import auto_rig
-from Imervue.puppet.document import (
+from rigora.puppet.auto_rig import auto_rig
+from rigora.puppet.document import (
     Deformer,
     Drawable,
     Parameter,
@@ -24,7 +24,7 @@ from Imervue.puppet.document import (
     PhysicsRig,
     PuppetDocument,
 )
-from Imervue.puppet.standard_params import standard_parameters
+from rigora.puppet.standard_params import standard_parameters
 
 _FULL_FACE = (
     "eye_l_open", "eye_l_close", "EyeROpen", "EyeRClosed",

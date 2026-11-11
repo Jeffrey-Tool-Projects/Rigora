@@ -13,10 +13,10 @@ from types import SimpleNamespace
 import pytest
 from OpenGL.error import GLError
 
-from Imervue.puppet import recorder as recorder_mod
-from Imervue.puppet.ndi_output import NDIOutput
-from Imervue.puppet.recorder import CaptureError, RecordingSession
-from Imervue.puppet.virtual_camera import VirtualCameraOutput
+from rigora.puppet import recorder as recorder_mod
+from rigora.puppet.ndi_output import NDIOutput
+from rigora.puppet.recorder import CaptureError, RecordingSession
+from rigora.puppet.virtual_camera import VirtualCameraOutput
 
 
 def _raise(exc):

@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from Imervue.puppet.document import Deformer, Drawable, PuppetDocument
-from Imervue.puppet.symmetrize import (
+from rigora.puppet.document import Deformer, Drawable, PuppetDocument
+from rigora.puppet.symmetrize import (
     auto_mirror_pair,
     mirror_drawable,
     mirror_id,

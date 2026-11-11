@@ -17,8 +17,8 @@ from PIL import Image
 
 import art
 import face_shadow
-from Imervue.puppet.auto_mesh import triangulate_alpha_grid
-from Imervue.puppet.document import (
+from rigora.puppet.auto_mesh import triangulate_alpha_grid
+from rigora.puppet.document import (
     Deformer,
     Drawable,
     HitArea,
@@ -28,7 +28,7 @@ from Imervue.puppet.document import (
     PhysicsRig,
     PuppetDocument,
 )
-from Imervue.puppet.standard_params import standard_parameters
+from rigora.puppet.standard_params import standard_parameters
 
 CX, PIVOT_X, PIVOT_Y = 512.0, 512.0, 760.0
 TURN_X, TURN_Y = 44.0, 26.0  # px a feature at depth 1 moves at ParamAngleX / Y = ±1
@@ -522,7 +522,7 @@ def arm_deformers() -> list[Deformer]:
 
 def arm_parameters() -> list:
     """``ParamArm{L,R}A`` raises the upper arm, ``ParamArm{L,R}B`` bends the forearm up (0..1)."""
-    from Imervue.puppet.document import Parameter
+    from rigora.puppet.document import Parameter
 
     out = []
     for char, sign in (("R", 1.0), ("L", -1.0)):

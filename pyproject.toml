@@ -1,0 +1,120 @@
+[build-system]
+requires = ["setuptools>=82.0.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rigora"
+version = "0.1.0"
+description = "2D character rigging, animation, live performance and desktop companions."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_LICENSES.md"]
+authors = [{name = "JE-Chen", email = "jechenmailman@gmail.com"}]
+dependencies = ["numpy", "Pillow>=12.3.0"]
+
+[project.optional-dependencies]
+gui = ["PySide6>=6.8", "PyOpenGL", "imageio", "imageio-ffmpeg"]
+webcam = ["opencv-python", "mediapipe"]
+lipsync = ["sounddevice"]
+virtual-camera = ["pyvirtualcam"]
+ndi = ["ndi-python"]
+hotkeys = ["pynput"]
+dev = ["pytest>=9", "ruff==0.15.20", "bandit[toml]", "build", "PySide6>=6.8", "PyOpenGL", "imageio", "imageio-ffmpeg"]
+
+[project.scripts]
+rigora = "rigora.cli:main"
+rigora-mcp = "rigora.mcp_server:main"
+
+[project.gui-scripts]
+rigora-editor = "rigora.app:main"
+
+[project.urls]
+Homepage = "https://github.com/Jeffrey-Tool-Projects/Rigora"
+Repository = "https://github.com/Jeffrey-Tool-Projects/Rigora"
+
+[tool.setuptools.packages.find]
+include = ["rigora", "rigora.*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+rigora = ["resources/examples/puppet/*.puppet", "resources/examples/desktop_pet/*.json", "resources/schemas/*.json", "puppet/FORMAT.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]
+markers = [
+    "fast: tests without Qt widgets",
+    "gui: tests using Qt widgets",
+    "integration: tests spanning subsystems",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".audit", "build", "dist", "examples", "rigora/resources"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",   # pycodestyle / pyflakes
+    "B",             # flake8-bugbear
+    "SIM",           # flake8-simplify
+    "UP",            # pyupgrade
+    "PL",            # pylint
+    "S",             # flake8-bandit (security)
+    "C90",           # mccabe complexity
+    "N",             # pep8-naming
+    "BLE",           # flake8-blind-except
+]
+ignore = [
+    # Qt override methods must be camelCase (mousePressEvent, paintEvent, ...)
+    "N802", "N803", "N806", "N815",
+    # Local imports are often needed to break Qt circular imports
+    "PLC0415",
+    # Magic values are acceptable in UI constants (pixel sizes, timings)
+    "PLR2004",
+    # Non-crypto random is used for UI features (random image, annotation colours, IDs)
+    "S311",
+    # Lambdas wrapping signal slots are intentional — they drop the bool
+    # ``checked`` argument that Qt ``triggered``/``toggled`` signals pass.
+    "PLW0108",
+    # Module-level caches (save-timer, bookmark set) genuinely need ``global``
+    # for lazy init / invalidation.
+    "PLW0602", "PLW0603",
+    # subprocess is only used with static argument lists for trusted OS tools
+    # (explorer, xdg-open, osascript, gsettings, pip inside frozen venv)
+    "S603", "S607",
+    # Plugin downloader only hits https:// URLs from a hard-coded allowlist
+    "S310",
+    # os.startfile / Popen without shell is intentional for "reveal in folder"
+    "S606",
+    # Function-shape limits: C901 caps complexity instead of branch / statement
+    # counts. PLR0913 counts keyword-only options too; the project caps
+    # positional parameters at 7 instead (tests/test_code_size_limits.py, see
+    # CLAUDE.md for the keyword-only exception).
+    "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+    # UP042 wants StrEnum, whose str() is the value rather than Class.MEMBER. That changes
+    # runtime output, so it is a separate decision from the 3.11 floor that enabled the rule.
+    "UP042",
+]
+# McCabe ≤ 15 is the workspace-wide ceiling (D:\Codes\CLAUDE.md, "可讀性"),
+# which a project may tighten but not relax. No module needs a per-file C901
+# exemption.
+mccabe.max-complexity = 15
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "PLR2004", "PLR0913", "PLR0915", "E501"]
+"rigora/i18n/*.py" = ["E501"]
+# Plugins ship their translations via get_translations(); long-localised
+# strings (CJK + Korean) routinely exceed 100 chars and splitting them
+# mid-character hurts readability.
+"plugins/**/*.py" = ["E501"]
+"rigora/gpu_image_view/gl_renderer.py" = ["E501", "E702"]  # GLSL strings + glTexCoord/glVertex pairs
+"rigora/paint/canvas_gl.py" = ["E702"]  # glTexCoord/glVertex pairs are clearer on one line
+"rigora/paint/canvas_overlays.py" = ["E702"]  # same glTexCoord/glVertex pairs, moved from canvas.py
+
+[tool.bandit]
+# Mirror of .bandit — kept here so tooling that only reads pyproject.toml picks
+# it up. See .bandit for per-rule justification.
+skips = ["B105", "B110", "B311", "B403", "B404", "B603", "B606", "B607"]
+exclude_dirs = ["tests"]

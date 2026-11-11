@@ -1,8 +1,6 @@
 """Tests for the PSD → puppet multi-layer import path.
 
-Builds a synthetic 3-layer PSD via the existing
-``Imervue.paint.psd_io.save_psd`` writer (so no checked-in binary
-fixture) and asserts the puppet document that comes out: drawable
+Builds a synthetic 3-layer PSD with an independent test encoder and asserts the puppet document that comes out: drawable
 count, drawable bounding boxes, texture dedupe, draw_order, and
 standard-parameter seeding.
 """
@@ -11,15 +9,14 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from Imervue.paint.document import PaintDocument
-from Imervue.paint.psd_io import save_psd
-from Imervue.puppet.psd_import import puppet_from_psd
+from tests.psd_fixtures import FixtureDocument, save_psd
+from rigora.puppet.psd_import import puppet_from_psd
 
 
 def _make_psd_with_three_layers(path) -> None:
     """Synthetic PSD: 32×32 canvas, three opaque squares at known
     positions on three layers named ``head``, ``eye_l``, ``eye_r``."""
-    doc = PaintDocument()
+    doc = FixtureDocument()
     base = np.zeros((32, 32, 4), dtype=np.uint8)
     base[8:24, 8:24, :3] = (200, 100, 50)
     base[8:24, 8:24, 3] = 255
@@ -95,7 +92,7 @@ def test_psd_import_dedupes_layers_with_same_sanitized_name(tmp_path):
     """Two layers named identically (after sanitisation) must still
     produce two distinct drawables — the second gets a suffix."""
     psd = tmp_path / "dupes.psd"
-    doc = PaintDocument()
+    doc = FixtureDocument()
     base = np.zeros((16, 16, 4), dtype=np.uint8)
     base[2:6, 2:6, :3] = (100, 100, 100)
     base[2:6, 2:6, 3] = 255
@@ -113,7 +110,7 @@ def test_psd_import_dedupes_layers_with_same_sanitized_name(tmp_path):
 
 def test_psd_import_skips_fully_transparent_layers(tmp_path):
     psd = tmp_path / "blank.psd"
-    doc = PaintDocument()
+    doc = FixtureDocument()
     base = np.zeros((16, 16, 4), dtype=np.uint8)
     base[2:6, 2:6, :3] = (100, 100, 100)
     base[2:6, 2:6, 3] = 255
@@ -129,7 +126,7 @@ def test_psd_import_skips_fully_transparent_layers(tmp_path):
 
 def test_psd_import_raises_when_no_visible_layer_has_pixels(tmp_path):
     psd = tmp_path / "all_empty.psd"
-    doc = PaintDocument()
+    doc = FixtureDocument()
     base = np.zeros((16, 16, 4), dtype=np.uint8)
     doc.load_image(base)
     save_psd(doc, psd)

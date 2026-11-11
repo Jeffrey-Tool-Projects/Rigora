@@ -6,7 +6,7 @@ import math
 import numpy as np
 import pytest
 
-from Imervue.puppet.document import (
+from rigora.puppet.document import (
     BlendKey,
     Deformer,
     Drawable,
@@ -15,7 +15,7 @@ from Imervue.puppet.document import (
     ParameterKey,
     PuppetDocument,
 )
-from Imervue.puppet.runtime import (
+from rigora.puppet.runtime import (
     compose_all_drawables,
     merge_parameter_samples,
     resolve_drawable_color,

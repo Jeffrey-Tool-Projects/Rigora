@@ -5,7 +5,7 @@ constructed, so unlike the smoke tests these run on headless CI.
 """
 from __future__ import annotations
 
-from Imervue.puppet.webcam_tracker import WebcamTracker
+from rigora.puppet.webcam_tracker import WebcamTracker
 
 
 class _FakeCanvas:

@@ -17,14 +17,14 @@ import time
 import pytest
 from PySide6.QtCore import QObject
 
-from Imervue.puppet.document import (
+from rigora.puppet.document import (
     Motion,
     MotionSegment,
     MotionTrack,
     Parameter,
     PuppetDocument,
 )
-from Imervue.puppet.motion_player import MotionPlayer
+from rigora.puppet.motion_player import MotionPlayer
 
 
 class _Canvas(QObject):
@@ -591,7 +591,7 @@ def test_missing_sound_file_is_logged_and_skipped(qapp, clock, tmp_path, caplog)
     try:
         player._sound_effect = effect  # noqa: SLF001
         player.set_motion(_motion(sound=str(tmp_path / "none.wav")))
-        with caplog.at_level(logging.DEBUG, logger="Imervue.plugin.puppet.motion_player"):
+        with caplog.at_level(logging.DEBUG, logger="rigora.puppet.motion_player"):
             player.play()
         assert effect.calls == []
         assert "missing on disk" in caplog.text
@@ -604,7 +604,7 @@ def test_stop_sound_logs_a_runtime_error(qapp, caplog):
     player = MotionPlayer(_Canvas())
     try:
         player._sound_effect = _Effect(fail_stop=True)  # noqa: SLF001
-        with caplog.at_level(logging.DEBUG, logger="Imervue.plugin.puppet.motion_player"):
+        with caplog.at_level(logging.DEBUG, logger="rigora.puppet.motion_player"):
             player._stop_sound()  # noqa: SLF001
         assert "sound stop failed: already deleted" in caplog.text
     finally:
@@ -615,7 +615,7 @@ def test_missing_qtmultimedia_disables_audio(qapp, monkeypatch, caplog):
     monkeypatch.setitem(sys.modules, "PySide6.QtMultimedia", None)
     player = MotionPlayer(_Canvas())
     try:
-        with caplog.at_level(logging.INFO, logger="Imervue.plugin.puppet.motion_player"):
+        with caplog.at_level(logging.INFO, logger="rigora.puppet.motion_player"):
             assert player._ensure_sound_effect() is None  # noqa: SLF001
         assert "motion audio disabled" in caplog.text
     finally:

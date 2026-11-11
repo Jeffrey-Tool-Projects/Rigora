@@ -4,8 +4,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from Imervue.puppet.face_landmark_mapper import landmarks_to_params
-from Imervue.puppet.input_drivers import (
+from rigora.puppet.face_landmark_mapper import landmarks_to_params
+from rigora.puppet.input_drivers import (
     DEFAULT_DRAG_EYE_X_PARAM,
     DEFAULT_DRAG_EYE_Y_PARAM,
     DEFAULT_DRAG_X_PARAM,

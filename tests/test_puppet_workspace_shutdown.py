@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from Imervue.puppet.workspace import PuppetWorkspace
+from rigora.puppet.workspace import PuppetWorkspace
 
 
 def _driver(calls, name):
@@ -55,7 +55,7 @@ class _Webcam:
 def test_a_failing_driver_is_logged_by_its_class_name(caplog):
     ws = SimpleNamespace(_webcam=_Webcam(), _input_engine=None,
                          _virtual_camera=None, _ndi_output=None)
-    with caplog.at_level("DEBUG", logger="Imervue"):
+    with caplog.at_level("DEBUG", logger="rigora"):
         PuppetWorkspace._shutdown_drivers(ws)
     (record,) = caplog.records
     assert "shut down _Webcam" in record.getMessage()

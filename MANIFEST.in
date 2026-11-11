@@ -1,0 +1,7 @@
+include LICENSE THIRD_PARTY_LICENSES.md README.md pyproject.toml
+recursive-include rigora/resources/examples/puppet *.puppet
+recursive-include rigora/resources/examples/desktop_pet *.json
+recursive-include rigora/resources/schemas *.json
+include rigora/puppet/FORMAT.md
+prune tests
+prune .audit

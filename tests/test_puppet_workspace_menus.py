@@ -11,7 +11,7 @@ import pytest
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu, QWidget
 
-from Imervue.puppet.workspace_menus import PuppetMenusMixin, example_label
+from rigora.puppet.workspace_menus import PuppetMenusMixin, example_label
 
 # (attribute, label, checkable, slot)
 _ACTIONS = [
@@ -65,7 +65,7 @@ class _Host(PuppetMenusMixin, QWidget):
 
 @pytest.fixture
 def host(qapp, monkeypatch):
-    from Imervue.puppet import workspace_menus
+    from rigora.puppet import workspace_menus
     monkeypatch.setattr(workspace_menus.language_wrapper, "language_word_dict", {})
     widget = _Host()
     widget._build_actions()  # noqa: SLF001
@@ -111,7 +111,7 @@ def test_submenus_rebuild_before_showing(host, attr, title, slot):
 
 
 def test_labels_come_from_the_language_dict(qapp, monkeypatch):
-    from Imervue.puppet import workspace_menus
+    from rigora.puppet import workspace_menus
     monkeypatch.setattr(workspace_menus.language_wrapper, "language_word_dict",
                         {"puppet_open": "OPEN", "puppet_recent": "RECENT"})
     widget = _Host()

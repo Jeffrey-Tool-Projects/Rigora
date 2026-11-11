@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from PySide6.QtCore import QObject, Signal
 
-from Imervue.puppet.document import Motion, PuppetDocument
-from Imervue.puppet.motion_dock import MotionDock
-from Imervue.puppet.motion_player import MotionPlayer
+from rigora.puppet.document import Motion, PuppetDocument
+from rigora.puppet.motion_dock import MotionDock
+from rigora.puppet.motion_player import MotionPlayer
 
 
 class _Canvas(QObject):

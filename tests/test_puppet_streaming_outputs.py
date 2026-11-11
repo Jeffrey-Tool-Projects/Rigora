@@ -10,7 +10,7 @@ the DirectShow virtual-camera driver.
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.virtual_camera import (
+from rigora.puppet.virtual_camera import (
     MAX_OUTPUT_DIMENSION,
     _scale_for_streaming,
 )
@@ -89,8 +89,8 @@ def test_ndi_output_reuses_virtual_camera_scaler():
     """Both outputs need the same cap behaviour — the NDI module
     imports the helper from the virtual camera module rather than
     duplicating the logic. This test guards that import path."""
-    from Imervue.puppet import ndi_output
-    from Imervue.puppet.virtual_camera import _scale_for_streaming as src
+    from rigora.puppet import ndi_output
+    from rigora.puppet.virtual_camera import _scale_for_streaming as src
     assert ndi_output._scale_for_streaming is src   # noqa: SLF001
 
 
@@ -104,7 +104,7 @@ def test_qimage_to_rgb_array_preserves_aspect_on_match(qapp):
     should not introduce any padding."""
     import numpy as np
     from PySide6.QtGui import QImage
-    from Imervue.puppet.virtual_camera import _qimage_to_rgb_array
+    from rigora.puppet.virtual_camera import _qimage_to_rgb_array
 
     src = QImage(640, 360, QImage.Format.Format_RGB888)
     src.fill(0xFF8080)   # solid red
@@ -119,7 +119,7 @@ def test_qimage_to_rgb_array_pads_on_aspect_mismatch(qapp):
     letterbox the result on a black canvas — not stretch."""
     import numpy as np
     from PySide6.QtGui import QImage
-    from Imervue.puppet.virtual_camera import _qimage_to_rgb_array
+    from rigora.puppet.virtual_camera import _qimage_to_rgb_array
 
     src = QImage(1920, 1080, QImage.Format.Format_RGB888)
     src.fill(0xFF0000)
@@ -139,7 +139,7 @@ def test_qimage_to_rgb_array_rejects_zero_target(qapp):
     """Defensive: zero target dimensions return ``None`` so the
     caller can refuse the frame rather than crash."""
     from PySide6.QtGui import QImage
-    from Imervue.puppet.virtual_camera import _qimage_to_rgb_array
+    from rigora.puppet.virtual_camera import _qimage_to_rgb_array
     src = QImage(640, 360, QImage.Format.Format_RGB888)
     assert _qimage_to_rgb_array(src, 0, 100) is None
     assert _qimage_to_rgb_array(src, 100, 0) is None
@@ -154,7 +154,7 @@ def test_render_offscreen_returns_none_without_document(qapp):
     """Streaming outputs call ``render_offscreen_puppet`` every tick;
     when no document is loaded the helper must return ``None`` so the
     caller can skip the frame rather than crashing on the doc deref."""
-    from Imervue.puppet.canvas import PuppetCanvas
+    from rigora.puppet.canvas import PuppetCanvas
     canvas = PuppetCanvas()
     try:
         assert canvas.render_offscreen_puppet(640, 480) is None
@@ -165,8 +165,8 @@ def test_render_offscreen_returns_none_without_document(qapp):
 def test_render_offscreen_returns_none_for_zero_target(qapp):
     """Defensive: ``(0, _)`` / ``(_, 0)`` returns ``None`` instead
     of crashing inside QOpenGLFramebufferObject."""
-    from Imervue.puppet.canvas import PuppetCanvas
-    from Imervue.puppet.document import Drawable, PuppetDocument
+    from rigora.puppet.canvas import PuppetCanvas
+    from rigora.puppet.document import Drawable, PuppetDocument
     doc = PuppetDocument(size=(512, 512))
     doc.textures["textures/x.png"] = b""
     doc.drawables = [Drawable(
@@ -192,7 +192,7 @@ def test_virtual_camera_uses_chroma_key_magenta(qapp):
     alpha, so streamers depend on this colour to drop the background
     via OBS Color Key. Test guards against a future "let's just use
     black" regression that would silently break the workflow."""
-    from Imervue.puppet.virtual_camera import CHROMA_KEY_MAGENTA_RGBA
+    from rigora.puppet.virtual_camera import CHROMA_KEY_MAGENTA_RGBA
     r, g, b, a = CHROMA_KEY_MAGENTA_RGBA
     # Pure magenta — full red + full blue, zero green, opaque alpha.
     assert (r, g, b, a) == (1.0, 0.0, 1.0, 1.0)

@@ -12,8 +12,8 @@ from types import SimpleNamespace
 import pytest
 from OpenGL.error import GLError
 
-from Imervue.puppet import canvas_render as render_mod
-from Imervue.puppet.canvas_render import PuppetCanvasRenderMixin
+from rigora.puppet import canvas_render as render_mod
+from rigora.puppet.canvas_render import PuppetCanvasRenderMixin
 
 
 def _raise(exc):

@@ -3,7 +3,7 @@ from types import MethodType, SimpleNamespace
 
 import pytest
 
-from Imervue.puppet.workspace import PuppetWorkspace
+from rigora.puppet.workspace import PuppetWorkspace
 
 
 class Host(SimpleNamespace):

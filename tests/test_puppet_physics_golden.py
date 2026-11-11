@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import pytest
 
-from Imervue.puppet.document import PhysicsParticle, PhysicsRig, PuppetDocument
-from Imervue.puppet.physics import PhysicsEngine
+from rigora.puppet.document import PhysicsParticle, PhysicsRig, PuppetDocument
+from rigora.puppet.physics import PhysicsEngine
 
 _TIGHT = {"rel": 1e-12, "abs": 1e-15}
 

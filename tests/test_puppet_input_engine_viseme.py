@@ -11,7 +11,7 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from Imervue.puppet.input_engine import InputEngine
+from rigora.puppet.input_engine import InputEngine
 
 # The engine connects the canvas's cursor_moved; these fakes never move.
 _NO_SIGNAL = SimpleNamespace(connect=lambda _slot: None)

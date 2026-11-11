@@ -20,8 +20,8 @@ from types import SimpleNamespace
 
 from PySide6.QtWidgets import QWidget
 
-from Imervue.puppet import recorder as recorder_mod
-from Imervue.puppet.recorder import RecordingSession, save_canvas_png
+from rigora.puppet import recorder as recorder_mod
+from rigora.puppet.recorder import RecordingSession, save_canvas_png
 
 
 class _StubCanvas(QWidget):
@@ -166,7 +166,7 @@ def test_save_canvas_png_reports_an_uncreatable_folder(qapp, tmp_path, caplog):
     blocker.write_text("x", encoding="utf-8")
     canvas = _stub_with_real_image()
     try:
-        with caplog.at_level("DEBUG", logger="Imervue"):
+        with caplog.at_level("DEBUG", logger="rigora"):
             assert save_canvas_png(canvas, blocker / "sub" / "frame.png") is False
         assert any("png save failed" in r.getMessage() for r in caplog.records)
     finally:
@@ -178,7 +178,7 @@ def test_save_canvas_png_reports_a_failed_write(qapp, tmp_path, caplog):
     target = tmp_path / "taken.png"
     target.mkdir()   # a directory where the file should go: QImage.save returns False
     try:
-        with caplog.at_level("DEBUG", logger="Imervue"):
+        with caplog.at_level("DEBUG", logger="rigora"):
             assert save_canvas_png(canvas, target) is False
         assert any("png save failed" in r.getMessage() for r in caplog.records)
     finally:
@@ -186,7 +186,7 @@ def test_save_canvas_png_reports_a_failed_write(qapp, tmp_path, caplog):
 
 
 def test_save_canvas_png_propagates_an_unexpected_capture_error(qapp, tmp_path, monkeypatch):
-    from Imervue.puppet import recorder as recorder_mod
+    from rigora.puppet import recorder as recorder_mod
 
     def broken(_canvas):
         raise TypeError("bad canvas")

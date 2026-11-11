@@ -9,9 +9,9 @@ from pathlib import Path
 
 import pytest
 
-from Imervue.puppet.document import Deformer, Motion, MotionSegment, MotionTrack
-from Imervue.puppet.document_io import new_blank, save_puppet, to_zip_bytes
-from Imervue.puppet.format_schema import (
+from rigora.puppet.document import Deformer, Motion, MotionSegment, MotionTrack
+from rigora.puppet.document_io import new_blank, save_puppet, to_zip_bytes
+from rigora.puppet.format_schema import (
     MEDIA_TYPE,
     PUPPET_SCHEMA,
     SCHEMA_NAMES,
@@ -22,7 +22,7 @@ from Imervue.puppet.format_schema import (
     schema_text,
     write_schema_files,
 )
-from Imervue.puppet.schema_check import validate
+from rigora.puppet.schema_check import validate
 from test_puppet_document_io import _build_full_doc
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -73,7 +73,7 @@ def test_every_file_imervue_writes_conforms(make):
 def test_a_png_import_conforms(tmp_path):
     from PIL import Image
 
-    from Imervue.puppet.auto_mesh import puppet_from_png
+    from rigora.puppet.auto_mesh import puppet_from_png
     png = tmp_path / "a.png"
     Image.new("RGBA", (64, 64), (200, 10, 10, 255)).save(png)
     assert schema_errors(_archive(to_zip_bytes(puppet_from_png(png, cell_size=16)))) == []
@@ -86,7 +86,7 @@ def test_the_schemas_name_their_published_urls():
 
 
 def test_the_published_schema_files_are_the_generated_ones():
-    """docs/schemas/ is generated: python -m Imervue.puppet.format_schema docs/schemas."""
+    """docs/schemas/ is generated: python -m rigora.puppet.format_schema docs/schemas."""
     for name in SCHEMA_NAMES:
         published = (_ROOT / "docs" / "schemas" / f"{name}.schema.json").read_text(encoding="utf-8")
         assert published.replace("\r\n", "\n") == schema_text(name)
@@ -238,7 +238,7 @@ def test_a_manifest_that_is_not_an_object(tmp_path):
 # --- MCP / CLI ------------------------------------------------------------------------
 
 def test_the_mcp_tools(tmp_path):
-    from Imervue.mcp_server.tools import puppet_schema, puppet_validate
+    from rigora.commands import puppet_schema, puppet_validate
     path = tmp_path / "p.puppet"
     save_puppet(_rigged_doc(), path)
     assert puppet_validate(str(path))["valid"]
@@ -249,7 +249,7 @@ def test_the_mcp_tools(tmp_path):
 
 
 def test_the_cli_validates_and_prints_a_schema(tmp_path, capsys):
-    from Imervue.cli import main
+    from rigora.cli import main
     path = tmp_path / "p.puppet"
     save_puppet(_rigged_doc(), path)
     assert main(["puppet-validate", str(path), "--json"]) == 0

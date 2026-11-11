@@ -7,13 +7,13 @@ test without any Qt.
 """
 from __future__ import annotations
 
-from Imervue.puppet.document import (
+from rigora.puppet.document import (
     Motion,
     MotionSegment,
     MotionTrack,
     PuppetDocument,
 )
-from Imervue.puppet.motion_picker import pick_random_motion_in_group
+from rigora.puppet.motion_picker import pick_random_motion_in_group
 
 
 def _motion(name: str, group: str | None) -> Motion:

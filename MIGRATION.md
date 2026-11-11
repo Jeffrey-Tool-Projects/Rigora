@@ -4,7 +4,29 @@
 目標是讓 Puppet 有獨立 GitHub repository、安裝套件、啟動入口與測試，並讓 Imervue 和 FrontEngine 使用同一份實作。
 使用者已於 2026-11-11 選定專案品牌 **Rigora**。目標 repository 為
 `Jeffrey-Tool-Projects/Rigora`，拆分期間預設 private。
-Python distribution 與 import 名稱需另外核實可用性，不因 GitHub 名稱可用就視為已取得套件名稱。
+本地 Python distribution 與 import 名稱為 `rigora`；尚未公開發行，不因 GitHub 名稱可用就視為已取得 PyPI 名稱。
+
+## 2026-11-11 獨立套件遷移狀態
+
+使用者已選定保留 Imervue 的 Puppet／Desktop Pet 分頁及既有 CLI／MCP 入口，改用外部 Rigora，移除舊實作。此結構變更與本機驗收已完成：舊 runtime 已移除，外部套件可獨立安裝與執行。Git 提交保留本次遷移；公開 PyPI 發行與凍結執行檔重建不包含在本次來源遷移內。
+
+| 項目 | 目前實作 |
+| --- | --- |
+| 套件與入口 | distribution／import 使用 `rigora`；`python -m rigora` 啟動 GUI，另有 `rigora editor`、`rigora mcp` 與 headless 模型 CLI |
+| 核心與桌寵 | `rigora.puppet`、`rigora.desktop_pet` 擁有文件、runtime、編輯器、輸入輸出及桌寵；不再反向匯入 Imervue |
+| 原生支援 | `rigora.system`、`rigora.gui`、`rigora.i18n`、`rigora.dependencies` 提供設定、翻譯、工作管理及 GUI 支援；PSD／GL 支援分別位於 `rigora.psd`、`rigora.rendering` |
+| 設定與資源 | `RIGORA_DATA_DIR`、`RIGORA_SETTINGS_PATH` 控制自有資料與設定；`rigora.system.app_paths.examples_dir()` 定位套件內的 Imeru 及桌寵腳本 |
+| Imervue | `system/rigora_integration.py` 匯入舊偏好一次、同步語言、連接工作登錄並在關閉時寫入設定；缺少選用套件時顯示提示，其他功能仍可使用 |
+| FrontEngine | 不宣告未公開發行的 Rigora registry 相依，改由授權 checkout／wheel 安裝；adapter 改用 `rigora.puppet`／`rigora.desktop_pet`，保留既有 scene 契約 |
+| 外掛 | 本地與 Imervue_Plugins 的 `pet_integrations` 改用 Rigora controller；延遲載入讓未安裝 Rigora 的 Imervue 仍可載入外掛 |
+| 移除舊實作 | Imervue 的 161 個 Puppet／Desktop Pet Python 模組、139 個專屬測試及 tracked 範例已搬至 Rigora；原有未追蹤素材保留原處，不視為套件內容 |
+| 文件 | 10 種 README／Sphinx 語系、兩邊的三份 Puppet 指南及架構地圖已同步；舊 MIME、schema URL 與標準函式庫 reader 保留 |
+
+目前 Rigora repository 仍為 private，未公開發行 PyPI 套件。取得授權的相鄰 checkout 後，在 Imervue 使用的 Python 環境執行 `python -m pip install "../Rigora[gui]"`；也可安裝授權提供的 wheel 與所需 GUI 相依。公開消費端不提供指向未發行套件的 extra；公開 distribution 名稱也尚未因本地建置而獲得保留。公開凍結執行檔只有在建置時提供 Rigora 才會包含它，外部 pip 安裝無法將其加入既有凍結執行檔。
+
+驗證：Rigora 1,705 passed／478 skipped；Imervue 16,192 passed／964 skipped，安裝版整合另有 320 passed，缺少套件的 CLI／MCP 驗證 240 passed／7 skipped。乾淨 core wheel 環境未安裝 Imervue、未載入 Qt，完成模型 IO、schema、runtime 與內附範例檢查。另在獨立 GUI 虛擬環境以原生 Windows OpenGL、隱藏視窗驗證透明角色渲染、動作像素變化、儲存重開一致、Desktop Pet 分頁建立及關閉後無殘留計時器。可見桌寵、攝影機、麥克風與網路輸出未啟用。FrontEngine 完整回歸另記於其更新紀錄；文件、多語、ruff、bandit 與 Imervue lock 檢查通過。
+
+下列盤點數字、舊 import 路徑、來源 SHA-256 與原專案基準都是抽取前的歷史證據，不是目前 Rigora 的目錄清單。`migration/` 的來源清單及 commit mapping 保持原樣，讓來源仍可重查。
 
 ## 完成條件
 
@@ -14,7 +36,7 @@ Python distribution 與 import 名稱需另外核實可用性，不因 GitHub �
 - 新專案包含授權、格式文件、範例、測試與 CI；Imervue 不再維護第二份 runtime。
 - 舊 `.puppet` 文件仍可讀取；既有 MIME、schema URL 與檔案格式版本不因品牌改名而改動。
 
-## 已確認的邊界
+## 抽取前的邊界盤點
 
 靜態盤點找到 122 個 Puppet Python 模組，26 個檔案匯入 Puppet 以外的 Imervue 模組。
 另有 126 個 repository 內的 Python 檔案匯入 Puppet，包含測試。這不是 126 個外部產品。
@@ -49,7 +71,7 @@ Python distribution 與 import 名稱需另外核實可用性，不因 GitHub �
 階段 2 的來源匯入優先保留選定路徑的歷史；只在新的隔離 clone 執行歷史篩選，不改寫 Imervue 歷史。
 若先上傳 snapshot，必須標明來源 commit，且不得宣稱保留了逐檔歷史。
 
-## 本次執行紀錄
+## 抽取前基準與歷史紀錄
 
 已建立本機靜態 import 清單及 260 個候選搬移檔案的 SHA-256 manifest。
 候選清單涵蓋 Puppet 程式、專屬測試、範例、schema、使用指南及授權。
@@ -68,7 +90,7 @@ ruff 通過；bandit 未發現問題。原專案完整測試為 17,886 passed、
 SHA-256 對應本機 tracked 檔案位元組，Windows 換行可能與 Git blob 不同。
 這份 ZIP 不包含 Git 歷史，也沒有獨立套件設定。
 
-另已讀取 `D:/Codes/FrontEngine/FrontEngine/utils/imervue/runtime.py` 與 `pyproject.toml`，
+抽取前已讀取 `D:/Codes/FrontEngine/FrontEngine/utils/imervue/runtime.py` 與 `pyproject.toml`，
 確認其實際 imports 與 `puppet = ["Imervue>=1.0.90"]`，不只依賴架構文件的描述。
 
 工作量檢查點放在階段 1 結束。先確認測試基準與跨專案合約，再進入程式搬移；不把數百個模組的搬移與品牌改名混在同一階段。
@@ -80,5 +102,4 @@ SHA-256 對應本機 tracked 檔案位元組，Windows 換行可能與 Git blob 
 加入新專案文件前，260 個檔案的 Git blob 與來源 revision 全數一致；`git fsck --full` 通過。
 新專案的 `migration/` 保存選取路徑、commit mapping 與來源記錄。
 
-程式碼暫時維持原 import 路徑。下一階段從 document／archive／runtime 與原子存檔邊界開始，
-讓新套件在未安裝 Imervue 的環境通過測試，再接續 GUI 與呼叫者遷移。
+這次初始匯入當時保留原 import 路徑；後續工作樹已遷移至原生 `rigora` 套件，狀態見上方紀錄。初始遠端提交只代表來源抽取，不代表後續實作已提交或發布。

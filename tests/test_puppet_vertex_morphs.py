@@ -10,9 +10,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from Imervue.puppet.document import Drawable, Parameter, PuppetDocument
-from Imervue.puppet.document_io import from_zip_bytes, to_zip_bytes
-from Imervue.puppet.runtime import apply_vertex_morphs, compose_all_drawables
+from rigora.puppet.document import Drawable, Parameter, PuppetDocument
+from rigora.puppet.document_io import from_zip_bytes, to_zip_bytes
+from rigora.puppet.runtime import apply_vertex_morphs, compose_all_drawables
 
 
 def _drawable_with_morph(parameter: str, dmin, dmax) -> Drawable:

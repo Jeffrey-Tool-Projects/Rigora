@@ -4,9 +4,9 @@ deformers / parameters / keys + Save Puppet As… end-to-end.
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.auto_mesh import puppet_from_png
-from Imervue.puppet.document_io import load_puppet
-from Imervue.puppet.workspace import PuppetWorkspace
+from rigora.puppet.auto_mesh import puppet_from_png
+from rigora.puppet.document_io import load_puppet
+from rigora.puppet.workspace import PuppetWorkspace
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 from illustrated_mesh import SIZE, morph, opacity
-from Imervue.puppet.document import Deformer, Parameter, ParameterKey
+from rigora.puppet.document import Deformer, Parameter, ParameterKey
 
 ARMS = {
     "r": ((402.0, 275.0), (325.0, 500.0), (255.0, 653.0), 1.0),

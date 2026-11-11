@@ -5,9 +5,9 @@ audio capture.
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import Drawable, Parameter, PuppetDocument
-from Imervue.puppet.input_engine import InputEngine
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import Drawable, Parameter, PuppetDocument
+from rigora.puppet.input_engine import InputEngine
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 
@@ -205,9 +205,9 @@ def test_blink_runs_multiple_cycles_against_competing_writer(qapp):
     spaced ~4.5 s apart — proof that the blink driver isn't getting
     stomped by the competing writes."""
     from unittest.mock import patch
-    from Imervue.puppet.canvas import PuppetCanvas
-    from Imervue.puppet.document import Drawable, Parameter, PuppetDocument
-    from Imervue.puppet.input_engine import InputEngine
+    from rigora.puppet.canvas import PuppetCanvas
+    from rigora.puppet.document import Drawable, Parameter, PuppetDocument
+    from rigora.puppet.input_engine import InputEngine
 
     doc = PuppetDocument(size=(64, 64))
     doc.parameters = [
@@ -268,8 +268,8 @@ def test_blink_timer_is_repeating(qapp):
     """Defensive: the blink QTimer must be configured as repeating —
     a future PySide6 default change to single-shot would silently
     cause exactly one blink and then radio silence."""
-    from Imervue.puppet.canvas import PuppetCanvas
-    from Imervue.puppet.input_engine import InputEngine
+    from rigora.puppet.canvas import PuppetCanvas
+    from rigora.puppet.input_engine import InputEngine
     canvas = PuppetCanvas()
     engine = InputEngine(canvas)
     try:

@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from Imervue.puppet.document import HitArea, Motion, PuppetDocument
-from Imervue.puppet.workspace import PuppetWorkspace
+from rigora.puppet.document import HitArea, Motion, PuppetDocument
+from rigora.puppet.workspace import PuppetWorkspace
 
 
 def _host(area, motions, *, listed=True):

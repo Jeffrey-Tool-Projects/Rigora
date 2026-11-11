@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from Imervue.puppet.spritesheet import (
+from rigora.puppet.spritesheet import (
     compose_spritesheet,
     grid_dimensions,
     save_spritesheet,
@@ -90,7 +90,7 @@ class TestSaveSpritesheetFromQimages:
     def test_packs_qimage_frames(self, qapp, tmp_path):
         from PySide6.QtGui import QColor, QImage
 
-        from Imervue.puppet.recorder import save_spritesheet_from_qimages
+        from rigora.puppet.recorder import save_spritesheet_from_qimages
         frames = []
         for value in (10, 20, 30, 40):
             img = QImage(3, 2, QImage.Format.Format_RGB888)
@@ -102,6 +102,6 @@ class TestSaveSpritesheetFromQimages:
             assert im.size == (12, 2)
 
     def test_no_frames_raises(self, qapp, tmp_path):
-        from Imervue.puppet.recorder import save_spritesheet_from_qimages
+        from rigora.puppet.recorder import save_spritesheet_from_qimages
         with pytest.raises(ValueError, match="no convertible frames"):
             save_spritesheet_from_qimages([], tmp_path / "x.png")

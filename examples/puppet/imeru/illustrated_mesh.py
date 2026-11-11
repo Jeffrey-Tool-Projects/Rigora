@@ -7,8 +7,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 
-from Imervue.puppet.auto_mesh import triangulate_alpha_grid
-from Imervue.puppet.document import Drawable
+from rigora.puppet.auto_mesh import triangulate_alpha_grid
+from rigora.puppet.document import Drawable
 
 SIZE = (1024, 1536)
 ARTWORK = Path(__file__).parent / "artwork"

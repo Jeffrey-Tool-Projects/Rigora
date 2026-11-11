@@ -11,7 +11,7 @@ import os
 import numpy as np
 import pytest
 
-from Imervue.puppet.auto_mesh import (
+from rigora.puppet.auto_mesh import (
     DEFAULT_CELL_SIZE,
     puppet_from_png,
     triangulate_alpha_grid,
@@ -208,7 +208,7 @@ def test_puppet_from_png_carries_custom_drawable_id():
 
 @_skip_on_headless_ci
 def test_workspace_import_png_loads_into_canvas(qapp, tmp_path):
-    from Imervue.puppet.workspace import PuppetWorkspace
+    from rigora.puppet.workspace import PuppetWorkspace
 
     arr = _solid_rgba(64, 64)
     p = tmp_path / "in.png"
@@ -226,7 +226,7 @@ def test_workspace_import_png_loads_into_canvas(qapp, tmp_path):
 
 @_skip_on_headless_ci
 def test_workspace_import_png_handles_corrupt_input(qapp, tmp_path):
-    from Imervue.puppet.workspace import PuppetWorkspace
+    from rigora.puppet.workspace import PuppetWorkspace
 
     bad = tmp_path / "broken.png"
     bad.write_bytes(b"not a png")
@@ -239,7 +239,7 @@ def test_workspace_import_png_handles_corrupt_input(qapp, tmp_path):
 
 @_skip_on_headless_ci
 def test_workspace_import_png_handles_fully_transparent_image(qapp, tmp_path):
-    from Imervue.puppet.workspace import PuppetWorkspace
+    from rigora.puppet.workspace import PuppetWorkspace
 
     arr = _solid_rgba(32, 32, alpha=0)
     p = tmp_path / "transparent.png"

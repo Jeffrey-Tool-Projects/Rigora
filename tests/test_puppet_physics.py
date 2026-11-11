@@ -3,15 +3,15 @@ integration smoke."""
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Drawable,
     Parameter,
     PhysicsParticle,
     PhysicsRig,
     PuppetDocument,
 )
-from Imervue.puppet.physics import PhysicsEngine, REST_LENGTH
+from rigora.puppet.physics import PhysicsEngine, REST_LENGTH
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

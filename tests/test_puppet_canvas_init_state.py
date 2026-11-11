@@ -12,8 +12,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QSurfaceFormat
 
 from _qt_skip import pytestmark  # noqa: E402,F401
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.physics import PhysicsEngine
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.physics import PhysicsEngine
 
 _DEFAULTS = {
     "_document": None, "_draw_list": [], "_texture_cache": {}, "_zoom": 1.0,

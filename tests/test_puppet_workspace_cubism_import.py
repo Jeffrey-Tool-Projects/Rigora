@@ -21,12 +21,12 @@ from pathlib import Path
 
 import pytest
 
-from Imervue.puppet.cubism_native_bridge import CubismBridgeError
-from Imervue.puppet.document import Drawable, PuppetDocument
-from Imervue.puppet import workspace as workspace_module
-from Imervue.puppet import workspace_import as workspace_import_module
-from Imervue.puppet.workspace import PuppetWorkspace
-from Imervue.user_settings.user_setting_dict import user_setting_dict
+from rigora.puppet.cubism_native_bridge import CubismBridgeError
+from rigora.puppet.document import Drawable, PuppetDocument
+from rigora.puppet import workspace as workspace_module
+from rigora.puppet import workspace_import as workspace_import_module
+from rigora.puppet.workspace import PuppetWorkspace
+from rigora.system.settings import user_setting_dict
 
 
 @pytest.fixture(autouse=True)
@@ -233,7 +233,7 @@ def test_guess_model3_falls_back_to_any_sibling(tmp_path):
 def test_guess_model3_raises_when_manifest_missing(tmp_path):
     """A bare ``.moc3`` in an otherwise empty folder must raise a
     readable error so ``import_cubism`` can surface it to the user."""
-    from Imervue.puppet.cubism_import import CubismFormatError
+    from rigora.puppet.cubism_import import CubismFormatError
 
     moc3 = tmp_path / "Lonely.moc3"
     moc3.write_bytes(b"x")

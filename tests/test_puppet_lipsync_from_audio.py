@@ -15,10 +15,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from Imervue.puppet.audio_lipsync import LIPSYNC_FPS, lipsync_motion
-from Imervue.puppet.document import Motion, Parameter, PuppetDocument
-from Imervue.puppet.motion_sampler import sample_motion
-from Imervue.puppet.workspace import PuppetWorkspace
+from rigora.puppet.audio_lipsync import LIPSYNC_FPS, lipsync_motion
+from rigora.puppet.document import Motion, Parameter, PuppetDocument
+from rigora.puppet.motion_sampler import sample_motion
+from rigora.puppet.workspace import PuppetWorkspace
 
 _RATE = 8000
 

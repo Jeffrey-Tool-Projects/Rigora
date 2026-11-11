@@ -6,7 +6,7 @@ real ``PuppetWorkspace`` under ``qapp`` and drive the canvas signal
 directly so the test doesn't depend on Qt mouse events.
 """
 from __future__ import annotations
-from Imervue.puppet.document import (
+from rigora.puppet.document import (
     Drawable,
     Expression,
     ExpressionParam,
@@ -16,7 +16,7 @@ from Imervue.puppet.document import (
     MotionTrack,
     PuppetDocument,
 )
-from Imervue.puppet.workspace import PuppetWorkspace
+from rigora.puppet.workspace import PuppetWorkspace
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

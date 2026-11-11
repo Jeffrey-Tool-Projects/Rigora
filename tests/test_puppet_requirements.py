@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import importlib.util
 
-from Imervue.puppet.requirements import (
+from rigora.puppet.requirements import (
     FEATURE_PACKAGES,
     LIPSYNC_PACKAGES,
     WEBCAM_PACKAGES,

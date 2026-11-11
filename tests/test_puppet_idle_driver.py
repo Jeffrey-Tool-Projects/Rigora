@@ -12,7 +12,7 @@ import math
 
 import pytest
 
-from Imervue.puppet.idle_driver import (
+from rigora.puppet.idle_driver import (
     BREATH_PERIOD_S,
     DRIFT_AMPLITUDE,
     DRIFT_PERIODS,
@@ -21,7 +21,7 @@ from Imervue.puppet.idle_driver import (
     idle_drift_value,
     idle_parameter_values,
 )
-from Imervue.puppet.standard_params import PARAM_ANGLE_X, PARAM_BREATH
+from rigora.puppet.standard_params import PARAM_ANGLE_X, PARAM_BREATH
 
 
 # ---------------------------------------------------------------------------

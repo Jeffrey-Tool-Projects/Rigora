@@ -5,9 +5,9 @@ import preserving real motion names + group tag, and
 from __future__ import annotations
 import json
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.cubism_import import load_model3
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.cubism_import import load_model3
+from rigora.puppet.document import (
     Drawable,
     Motion,
     MotionSegment,
@@ -15,8 +15,8 @@ from Imervue.puppet.document import (
     Parameter,
     PuppetDocument,
 )
-from Imervue.puppet.document_io import from_zip_bytes, to_zip_bytes
-from Imervue.puppet.motion_player import MotionPlayer
+from rigora.puppet.document_io import from_zip_bytes, to_zip_bytes
+from rigora.puppet.motion_player import MotionPlayer
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

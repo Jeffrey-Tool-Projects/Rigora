@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from Imervue.puppet.cubism_native_bridge import (
+from rigora.puppet.cubism_native_bridge import (
     LIBRARY_ENV_VAR,
     _candidate_dll_paths,
     _dll_filename,
@@ -112,7 +112,7 @@ def test_scan_handles_arbitrary_nesting(tmp_path):
 
 
 def test_load_library_raises_with_actionable_message(tmp_path, monkeypatch):
-    from Imervue.puppet.cubism_native_bridge import CubismBridgeError, load_library
+    from rigora.puppet.cubism_native_bridge import CubismBridgeError, load_library
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv(LIBRARY_ENV_VAR, raising=False)
     with pytest.raises(CubismBridgeError, match="<cwd>/sdk/"):
@@ -174,7 +174,7 @@ _EXPECTED_SIGNATURES = {'csmGetDrawableBlendModes': ('*c_long', ['c_void_p']),
 
 
 def test_bind_signatures_declares_every_function_exactly():
-    from Imervue.puppet import cubism_native_bridge as bridge
+    from rigora.puppet import cubism_native_bridge as bridge
 
     class _Fn:
         pass
@@ -226,7 +226,7 @@ class _ModelLibrary:
 
 
 def test_inconsistent_moc_is_rejected_before_native_revival():
-    from Imervue.puppet.cubism_native_bridge import CubismBridgeError, CubismModel
+    from rigora.puppet.cubism_native_bridge import CubismBridgeError, CubismModel
     lib = _ModelLibrary(consistency=0)
     with pytest.raises(CubismBridgeError, match="consistency"):
         CubismModel(lib, b"test moc bytes")
@@ -234,7 +234,7 @@ def test_inconsistent_moc_is_rejected_before_native_revival():
 
 
 def test_consistent_moc_is_checked_then_initialized_with_live_aligned_buffers():
-    from Imervue.puppet.cubism_native_bridge import CubismModel
+    from rigora.puppet.cubism_native_bridge import CubismModel
     lib = _ModelLibrary()
     model = CubismModel(lib, b"test moc bytes")
     assert lib.calls == ["check", "revive", "size", "initialize", "update"]
@@ -248,7 +248,7 @@ def test_consistent_moc_is_checked_then_initialized_with_live_aligned_buffers():
     ({"initialize": False}, "csmInitializeModelInPlace", ["check", "revive", "size", "initialize"]),
 ])
 def test_consistent_moc_still_reports_native_initialization_failures(options, message, calls):
-    from Imervue.puppet.cubism_native_bridge import CubismBridgeError, CubismModel
+    from rigora.puppet.cubism_native_bridge import CubismBridgeError, CubismModel
     lib = _ModelLibrary(**options)
     with pytest.raises(CubismBridgeError, match=message):
         CubismModel(lib, b"test moc bytes")

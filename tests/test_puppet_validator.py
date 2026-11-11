@@ -6,7 +6,7 @@ covered as the document schema grows. Reuses the dataclasses
 directly — no Qt fixture needed."""
 from __future__ import annotations
 
-from Imervue.puppet.document import (
+from rigora.puppet.document import (
     Deformer,
     Drawable,
     Expression,
@@ -20,7 +20,7 @@ from Imervue.puppet.document import (
     PoseGroup,
     PuppetDocument,
 )
-from Imervue.puppet.validator import Issue, severity_counts, validate
+from rigora.puppet.validator import Issue, severity_counts, validate
 
 
 def _empty_drawable(id_: str = "x") -> Drawable:
@@ -269,7 +269,7 @@ def test_parameters_that_drive_vertex_morphs_opacity_or_colour_are_not_flagged()
 
 
 def test_parameters_in_a_blend_or_feeding_physics_are_not_flagged():
-    from Imervue.puppet.document import BlendKey, ParameterBlend, PhysicsRig
+    from rigora.puppet.document import BlendKey, ParameterBlend, PhysicsRig
     doc = _clean_doc()
     doc.parameters = [Parameter(id=name, min=-1.0, max=1.0, default=0.0)
                       for name in ("ParamX", "ParamY", "ParamHead", "ParamHair")]

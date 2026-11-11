@@ -10,15 +10,15 @@ from __future__ import annotations
 
 import pytest
 
-from Imervue.puppet.document import Motion, MotionSegment, MotionTrack
-from Imervue.puppet.easing import (
+from rigora.puppet.document import Motion, MotionSegment, MotionTrack
+from rigora.puppet.easing import (
     EASING_BEZIER,
     EASING_SAMPLES,
     ease_track,
     ease_value,
     eased_segments,
 )
-from Imervue.puppet.motion_timeline import MotionTimelineDialog
+from rigora.puppet.motion_timeline import MotionTimelineDialog
 
 
 def _ramp(param: str = "ParamX", keys: int = 3, top: float = 1.0) -> MotionTrack:

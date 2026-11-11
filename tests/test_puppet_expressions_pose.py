@@ -4,15 +4,15 @@ plus canvas integration.
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Drawable,
     Expression,
     ExpressionParam,
     PoseGroup,
     PuppetDocument,
 )
-from Imervue.puppet.runtime import (
+from rigora.puppet.runtime import (
     apply_expression,
     apply_expressions,
     resolve_pose_visibility,

@@ -6,7 +6,7 @@ import zipfile
 
 import pytest
 
-from Imervue.puppet.document_io import PuppetFormatError, from_zip_bytes, to_zip_bytes
+from rigora.puppet.document_io import PuppetFormatError, from_zip_bytes, to_zip_bytes
 
 
 def _archive(*, drawable=None, **entries):

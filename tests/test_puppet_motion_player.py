@@ -4,8 +4,8 @@ seek behaviour without a wall-clock dependency.
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Deformer,
     Drawable,
     Motion,
@@ -14,8 +14,8 @@ from Imervue.puppet.document import (
     Parameter,
     PuppetDocument,
 )
-from Imervue.puppet.motion_dock import MotionDock
-from Imervue.puppet.motion_player import MotionPlayer
+from rigora.puppet.motion_dock import MotionDock
+from rigora.puppet.motion_player import MotionPlayer
 
 from _qt_skip import pytestmark  # noqa: E402,F401
 

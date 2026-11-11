@@ -7,9 +7,9 @@ server wrapper is covered indirectly by the same handler.
 from __future__ import annotations
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import Drawable, Parameter, PuppetDocument
-from Imervue.puppet.vts_api import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import Drawable, Parameter, PuppetDocument
+from rigora.puppet.vts_api import (
     API_NAME,
     API_VERSION,
     VTubeStudioHandler,

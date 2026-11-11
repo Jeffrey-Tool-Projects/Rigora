@@ -7,8 +7,8 @@ from types import MethodType, SimpleNamespace
 
 import pytest
 
-from Imervue.puppet.canvas import PuppetCanvas
-from Imervue.puppet.document import (
+from rigora.puppet.canvas import PuppetCanvas
+from rigora.puppet.document import (
     Drawable, Expression, ExpressionParam, PoseGroup, PuppetDocument,
 )
 
