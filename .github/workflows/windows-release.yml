@@ -1,0 +1,92 @@
+name: Windows EXE
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install build dependencies
+        run: python -m pip install ".[gui]" -r packaging/requirements-windows.txt
+      - name: Build and verify the executable
+        env:
+          RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+        run: |
+          if ($env:RELEASE_TAG) {
+            python scripts/build_windows.py --tag $env:RELEASE_TAG
+          } else {
+            python scripts/build_windows.py
+          }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: Rigora-windows-x64
+          path: |
+            dist/windows/Rigora-windows-x64.zip
+            dist/windows/SHA256SUMS.txt
+            dist/windows/smoke-report.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Preserve failed smoke evidence
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: windows-build-diagnostics
+          path: |
+            dist/windows/*report.json
+            build/windows/windows/warn-windows.txt
+          if-no-files-found: ignore
+
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
+        with:
+          name: Rigora-windows-x64
+          path: release
+      - name: Verify archive checksum
+        shell: pwsh
+        run: |
+          $line = (Get-Content release/SHA256SUMS.txt -Raw).Trim()
+          if ($line -notmatch '^([0-9a-f]{64})  Rigora-windows-x64\.zip$') {
+            throw 'Unexpected checksum manifest'
+          }
+          $expected = $Matches[1]
+          $actual = (Get-FileHash release/Rigora-windows-x64.zip -Algorithm SHA256).Hash
+          if ($actual -ne $expected) { throw 'Archive checksum mismatch' }
+      - name: Publish verified release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          @'
+          Windows x64 portable build. Extract the entire ZIP and open Rigora/Rigora.exe.
+
+          Python is not required for the bundled editor. Keep the _internal directory beside the executable.
+          Usage: https://jeffrey-tool-projects.github.io/Rigora/windows/
+          This build is unsigned. SHA256SUMS.txt verifies the downloaded ZIP.
+          '@ | Set-Content release/notes.md -Encoding utf8
+          gh release create $env:RELEASE_TAG --repo $env:GH_REPO --verify-tag --title "Rigora $env:RELEASE_TAG" --notes-file release/notes.md release/Rigora-windows-x64.zip release/SHA256SUMS.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
