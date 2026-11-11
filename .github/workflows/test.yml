@@ -72,6 +72,7 @@ jobs:
         run: |
           python -m pip install ./rigora-source[gui] ./imervue-source
           python -m pip install -r imervue-source/dev_requirements.txt
+          python -m pip install "pytest>=9"
       - name: Verify installed consumer contract
         working-directory: imervue-source
         run: python -m pytest tests/test_rigora_integration.py tests/test_rigora_service_status.py tests/test_background_jobs.py tests/test_optional_tabs.py -q
