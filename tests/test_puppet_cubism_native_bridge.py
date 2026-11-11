@@ -138,38 +138,42 @@ def _describe(ctype) -> str:
         return "*" + _describe(ctype._type_)  # noqa: SLF001
     if issubclass(ctype, ctypes.Array):
         return f"{_describe(ctype._type_)}[{ctype._length_}]"  # noqa: SLF001
+    if ctype is ctypes.c_int32:
+        return "int32"
+    if ctype is ctypes.c_uint32:
+        return "uint32"
     return ctype.__name__
 
 
-_EXPECTED_SIGNATURES = {'csmGetDrawableBlendModes': ('*c_long', ['c_void_p']),
+_EXPECTED_SIGNATURES = {'csmGetDrawableBlendModes': ('*int32', ['c_void_p']),
  'csmGetDrawableConstantFlags': ('*c_ubyte', ['c_void_p']),
- 'csmGetDrawableCount': ('c_long', ['c_void_p']),
- 'csmGetDrawableDrawOrders': ('*c_long', ['c_void_p']),
+ 'csmGetDrawableCount': ('int32', ['c_void_p']),
+ 'csmGetDrawableDrawOrders': ('*int32', ['c_void_p']),
  'csmGetDrawableDynamicFlags': ('*c_ubyte', ['c_void_p']),
  'csmGetDrawableIds': ('*c_char_p', ['c_void_p']),
- 'csmGetDrawableIndexCounts': ('*c_long', ['c_void_p']),
+ 'csmGetDrawableIndexCounts': ('*int32', ['c_void_p']),
  'csmGetDrawableIndices': ('**c_ushort', ['c_void_p']),
- 'csmGetDrawableMaskCounts': ('*c_long', ['c_void_p']),
- 'csmGetDrawableMasks': ('**c_long', ['c_void_p']),
+ 'csmGetDrawableMaskCounts': ('*int32', ['c_void_p']),
+ 'csmGetDrawableMasks': ('**int32', ['c_void_p']),
  'csmGetDrawableOpacities': ('*c_float', ['c_void_p']),
- 'csmGetDrawableTextureIndices': ('*c_long', ['c_void_p']),
- 'csmGetDrawableVertexCounts': ('*c_long', ['c_void_p']),
+ 'csmGetDrawableTextureIndices': ('*int32', ['c_void_p']),
+ 'csmGetDrawableVertexCounts': ('*int32', ['c_void_p']),
  'csmGetDrawableVertexPositions': ('**c_float', ['c_void_p']),
  'csmGetDrawableVertexUvs': ('**c_float', ['c_void_p']),
- 'csmGetMocVersion': ('c_ulong', ['c_void_p', 'c_ulong']),
- 'csmGetParameterCount': ('c_long', ['c_void_p']),
+ 'csmGetMocVersion': ('uint32', ['c_void_p', 'uint32']),
+ 'csmGetParameterCount': ('int32', ['c_void_p']),
  'csmGetParameterDefaultValues': ('*c_float', ['c_void_p']),
  'csmGetParameterIds': ('*c_char_p', ['c_void_p']),
  'csmGetParameterMaximumValues': ('*c_float', ['c_void_p']),
  'csmGetParameterMinimumValues': ('*c_float', ['c_void_p']),
  'csmGetParameterValues': ('*c_float', ['c_void_p']),
- 'csmGetRenderOrders': ('*c_long', ['c_void_p']),
- 'csmGetSizeofModel': ('c_ulong', ['c_void_p']),
- 'csmGetVersion': ('c_ulong', []),
- 'csmHasMocConsistency': ('c_long', ['c_void_p', 'c_ulong']),
- 'csmInitializeModelInPlace': ('c_void_p', ['c_void_p', 'c_void_p', 'c_ulong']),
+ 'csmGetRenderOrders': ('*int32', ['c_void_p']),
+ 'csmGetSizeofModel': ('uint32', ['c_void_p']),
+ 'csmGetVersion': ('uint32', []),
+ 'csmHasMocConsistency': ('int32', ['c_void_p', 'uint32']),
+ 'csmInitializeModelInPlace': ('c_void_p', ['c_void_p', 'c_void_p', 'uint32']),
  'csmReadCanvasInfo': ('None', ['c_void_p', '*c_float[2]', '*c_float[2]', '*c_float']),
- 'csmReviveMocInPlace': ('c_void_p', ['c_void_p', 'c_ulong']),
+ 'csmReviveMocInPlace': ('c_void_p', ['c_void_p', 'uint32']),
  'csmUpdateModel': ('None', ['c_void_p'])}
 
 
