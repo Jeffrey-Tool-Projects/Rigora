@@ -1,11 +1,22 @@
 ---
 title: 繁體中文入門
-description: 建立獨立 Python 環境，開啟 Rigora 並播放內附 Imeru 的動畫。
+description: 使用 Windows 可攜版或從原始碼安裝，開啟 Rigora 並播放內附 Imeru 的動畫。
 permalink: /getting-started-zh-tw/
 lang: zh-Hant
 ---
 
-## 安裝與啟動
+## Windows 免安裝版
+
+64 位元 Windows 10／11 可使用包含 Python 的可攜版。下載並完整解壓縮
+`Rigora-windows-x64.zip`，再執行 `Rigora` 資料夾內的 `Rigora.exe`。
+請保留旁邊的 `_internal` 資料夾，不要只移動 EXE。
+
+官方下載連結、校驗碼、未簽章提醒及選用功能限制，請見
+[Windows 使用說明]({{ '/windows/' | relative_url }}#traditional-chinese)。
+需要開發環境、選用套件或其他平台時，請依下方步驟從原始碼安裝。
+
+## 從原始碼安裝
+{: #source-install }
 
 準備 Python 3.11 以上版本與 Git。編輯器需要可使用 OpenGL 的桌面環境。
 以下指令從公開原始碼安裝，不依賴 PyPI 發行版本。

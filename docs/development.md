@@ -52,6 +52,22 @@ Use the wheel filename produced by your build if the version changes. Package
 verification checks installation outside the source checkout. A local build
 does not publish a package or a GitHub release.
 
+## Build a Windows release
+
+The [Windows release workflow](https://github.com/Jeffrey-Tool-Projects/Rigora/actions/workflows/windows-release.yml)
+builds the portable application. A manual `workflow_dispatch` run uploads a
+test artifact without publishing a release.
+
+To publish a version, use a `v`-prefixed tag that matches the version in
+`pyproject.toml`, such as `v0.1.0` for package version `0.1.0`. The workflow
+checks that match before publishing. Its release job uses the artifact built
+and verified in the same workflow run.
+
+Release assets are `Rigora-windows-x64.zip` and `SHA256SUMS.txt`. The ZIP keeps
+`Rigora.exe` and `_internal` together in a `Rigora` directory. The
+[Windows guide]({{ '/windows/' | relative_url }}) covers the end-user steps and
+the features excluded from the portable build.
+
 ## Find the owning module
 
 | Location | Responsibility |

@@ -11,6 +11,18 @@ parameters, motions, expressions, and physics in one archive.
 [User guide](https://jeffrey-tool-projects.github.io/Rigora/user-guide/) ·
 [Issues](https://github.com/Jeffrey-Tool-Projects/Rigora/issues)
 
+## Download for Windows
+
+Download `Rigora-windows-x64.zip` and `SHA256SUMS.txt` from the
+[latest GitHub release](https://github.com/Jeffrey-Tool-Projects/Rigora/releases/latest).
+Verify the checksum, extract the entire ZIP, and open `Rigora/Rigora.exe`.
+Keep the `_internal` folder beside the executable. Python is included.
+
+The portable build targets 64-bit Windows 10 and 11. It includes the core
+editor, Imeru, and export features. Optional live-input and output packages are
+not bundled. See the [Windows guide](https://jeffrey-tool-projects.github.io/Rigora/windows/)
+for checksum verification, unsigned-build notices, updates, and 繁體中文說明.
+
 ## Install from source
 
 Use Python 3.11 or newer. These commands install the public source checkout;

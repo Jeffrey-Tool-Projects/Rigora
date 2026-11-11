@@ -6,6 +6,16 @@ permalink: /getting-started/
 
 [繁體中文入門]({{ '/getting-started-zh-tw/' | relative_url }})
 
+## Use the Windows application
+
+On 64-bit Windows 10 or 11, you can use the portable application without
+installing Python. Download and extract `Rigora-windows-x64.zip`, then open
+`Rigora/Rigora.exe`. Keep the full extracted folder together.
+
+Follow the [Windows download guide]({{ '/windows/' | relative_url }}) for the
+official release link, checksum verification, and optional-feature limitations.
+For source development or other platforms, continue below.
+
 ## Create an environment
 
 Install Python 3.11 or newer and Git. The editor needs a desktop environment
