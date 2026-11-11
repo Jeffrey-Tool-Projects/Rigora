@@ -1,0 +1,1885 @@
+{
+  "source_commit": "d5fbb8339f89d75568007b4f2e319e728236db3e",
+  "puppet_modules": [
+    "Imervue/puppet/__init__.py",
+    "Imervue/puppet/archive_container.py",
+    "Imervue/puppet/archive_members.py",
+    "Imervue/puppet/audio_lipsync.py",
+    "Imervue/puppet/auto_mesh.py",
+    "Imervue/puppet/auto_rig.py",
+    "Imervue/puppet/auto_rig_detect.py",
+    "Imervue/puppet/auto_rig_mutators.py",
+    "Imervue/puppet/batch_export.py",
+    "Imervue/puppet/bone_tree_dock.py",
+    "Imervue/puppet/bone_weights.py",
+    "Imervue/puppet/canvas.py",
+    "Imervue/puppet/canvas_editing.py",
+    "Imervue/puppet/canvas_frame.py",
+    "Imervue/puppet/canvas_gl_state.py",
+    "Imervue/puppet/canvas_overrides.py",
+    "Imervue/puppet/canvas_parameters.py",
+    "Imervue/puppet/canvas_physics.py",
+    "Imervue/puppet/canvas_pointer.py",
+    "Imervue/puppet/canvas_render.py",
+    "Imervue/puppet/canvas_rig.py",
+    "Imervue/puppet/canvas_view.py",
+    "Imervue/puppet/clip_masks.py",
+    "Imervue/puppet/cubism_import.py",
+    "Imervue/puppet/cubism_import_common.py",
+    "Imervue/puppet/cubism_import_model.py",
+    "Imervue/puppet/cubism_import_motion.py",
+    "Imervue/puppet/cubism_import_parts.py",
+    "Imervue/puppet/cubism_import_physics.py",
+    "Imervue/puppet/cubism_native_bridge.py",
+    "Imervue/puppet/cubism_native_bundle.py",
+    "Imervue/puppet/cubism_native_convert.py",
+    "Imervue/puppet/cubism_native_mesh.py",
+    "Imervue/puppet/cubism_native_morphs.py",
+    "Imervue/puppet/cubism_native_motions.py",
+    "Imervue/puppet/deformers.py",
+    "Imervue/puppet/document.py",
+    "Imervue/puppet/document_io.py",
+    "Imervue/puppet/drawable_codec.py",
+    "Imervue/puppet/drawable_curves.py",
+    "Imervue/puppet/drawable_deformation.py",
+    "Imervue/puppet/easing.py",
+    "Imervue/puppet/expression_codec.py",
+    "Imervue/puppet/expression_dock.py",
+    "Imervue/puppet/face_landmark_mapper.py",
+    "Imervue/puppet/format_schema.py",
+    "Imervue/puppet/format_values.py",
+    "Imervue/puppet/hit_test.py",
+    "Imervue/puppet/idle_driver.py",
+    "Imervue/puppet/idle_motion_cycler.py",
+    "Imervue/puppet/input_drivers.py",
+    "Imervue/puppet/input_engine.py",
+    "Imervue/puppet/manifest_collections.py",
+    "Imervue/puppet/manifest_decode.py",
+    "Imervue/puppet/manifest_encode.py",
+    "Imervue/puppet/mesh_edit.py",
+    "Imervue/puppet/mesh_repair.py",
+    "Imervue/puppet/motion_codec.py",
+    "Imervue/puppet/motion_compress.py",
+    "Imervue/puppet/motion_dock.py",
+    "Imervue/puppet/motion_picker.py",
+    "Imervue/puppet/motion_player.py",
+    "Imervue/puppet/motion_player_fade.py",
+    "Imervue/puppet/motion_player_sound.py",
+    "Imervue/puppet/motion_player_timeline.py",
+    "Imervue/puppet/motion_recorder.py",
+    "Imervue/puppet/motion_sampler.py",
+    "Imervue/puppet/motion_timeline.py",
+    "Imervue/puppet/mouse_gaze_driver.py",
+    "Imervue/puppet/ndi_output.py",
+    "Imervue/puppet/operations.py",
+    "Imervue/puppet/parameter_codec.py",
+    "Imervue/puppet/parameter_dock.py",
+    "Imervue/puppet/physics.py",
+    "Imervue/puppet/physics_codec.py",
+    "Imervue/puppet/pose_dock.py",
+    "Imervue/puppet/psd_import.py",
+    "Imervue/puppet/recorder.py",
+    "Imervue/puppet/render_prep.py",
+    "Imervue/puppet/requirements.py",
+    "Imervue/puppet/rig_codec.py",
+    "Imervue/puppet/rig_repair.py",
+    "Imervue/puppet/runtime.py",
+    "Imervue/puppet/runtime_appearance.py",
+    "Imervue/puppet/runtime_blend_grid.py",
+    "Imervue/puppet/runtime_blends.py",
+    "Imervue/puppet/runtime_curves.py",
+    "Imervue/puppet/runtime_deformer_order.py",
+    "Imervue/puppet/runtime_forms.py",
+    "Imervue/puppet/runtime_geometry.py",
+    "Imervue/puppet/runtime_interpolation.py",
+    "Imervue/puppet/runtime_morphs.py",
+    "Imervue/puppet/runtime_overlays.py",
+    "Imervue/puppet/runtime_parameters.py",
+    "Imervue/puppet/runtime_parts.py",
+    "Imervue/puppet/runtime_skinning.py",
+    "Imervue/puppet/schema_check.py",
+    "Imervue/puppet/spritesheet.py",
+    "Imervue/puppet/standard_params.py",
+    "Imervue/puppet/symmetrize.py",
+    "Imervue/puppet/synth_motions.py",
+    "Imervue/puppet/validator.py",
+    "Imervue/puppet/virtual_camera.py",
+    "Imervue/puppet/vts_api.py",
+    "Imervue/puppet/webcam_preview_dialog.py",
+    "Imervue/puppet/webcam_status.py",
+    "Imervue/puppet/webcam_tracker.py",
+    "Imervue/puppet/workspace.py",
+    "Imervue/puppet/workspace_audio.py",
+    "Imervue/puppet/workspace_authoring.py",
+    "Imervue/puppet/workspace_export.py",
+    "Imervue/puppet/workspace_files.py",
+    "Imervue/puppet/workspace_import.py",
+    "Imervue/puppet/workspace_input.py",
+    "Imervue/puppet/workspace_keyframes.py",
+    "Imervue/puppet/workspace_live.py",
+    "Imervue/puppet/workspace_menus.py",
+    "Imervue/puppet/workspace_motion_edit.py",
+    "Imervue/puppet/workspace_motion_record.py",
+    "Imervue/puppet/workspace_reset.py",
+    "Imervue/puppet/workspace_ui.py",
+    "Imervue/puppet/workspace_validation.py"
+  ],
+  "selected_files": [
+    {
+      "path": "Imervue/puppet/FORMAT.md",
+      "sha256": "b11122bb5f5e3b522b071a0d8b522defd7b2e764e28138e92bdc8ddb4ff3c73f"
+    },
+    {
+      "path": "Imervue/puppet/__init__.py",
+      "sha256": "e49b15066f58c7a74de9a4d0e312ad2725b5885d377b7451e19defafe37bfc6b"
+    },
+    {
+      "path": "Imervue/puppet/archive_container.py",
+      "sha256": "be42781143ac17bccb95c9f6334614a5c311e7aa6b0ed7c5d51d49fd1dbb4f16"
+    },
+    {
+      "path": "Imervue/puppet/archive_members.py",
+      "sha256": "11dfd9ade595b7d29df3a688fdaa93de81eaee4306c2f3046dccfebfb99895a3"
+    },
+    {
+      "path": "Imervue/puppet/audio_lipsync.py",
+      "sha256": "96e6ccf18602138e6a402233cd70a02689e2d9118930ad702aacd23373de27c0"
+    },
+    {
+      "path": "Imervue/puppet/auto_mesh.py",
+      "sha256": "3c0f84fd02e9d95a76578030220ce29d30cdb09ea8a278d47efb369ffa1fec0b"
+    },
+    {
+      "path": "Imervue/puppet/auto_rig.py",
+      "sha256": "005675831c782e286c5f85c83949c05fda4234be96ce31c22b92a6489f3a7913"
+    },
+    {
+      "path": "Imervue/puppet/auto_rig_detect.py",
+      "sha256": "68bdc52769570aaef71539d152ed371e6ec51348a8af9297041619287e71780e"
+    },
+    {
+      "path": "Imervue/puppet/auto_rig_mutators.py",
+      "sha256": "26e17566551269ce5fe655d4ed36cf156436e207fcf97d4592f7679487518d8f"
+    },
+    {
+      "path": "Imervue/puppet/batch_export.py",
+      "sha256": "512a2cd65e2954c9883c57985195b9f05c5e302c83d6f806646372a296d2c08a"
+    },
+    {
+      "path": "Imervue/puppet/bone_tree_dock.py",
+      "sha256": "e1e6f13400d3b5ae36c9f010c7b78d525320439a75e1f2db465d95d0bd65355f"
+    },
+    {
+      "path": "Imervue/puppet/bone_weights.py",
+      "sha256": "2078ba4a6e46ee31fb7374442bbdfbe110601c0723b2e00671d2958c00a0f713"
+    },
+    {
+      "path": "Imervue/puppet/canvas.py",
+      "sha256": "8c0bf6e2174d10b86826fe333bd8b4ac579e95f45b251bebee10c3d12faabcbf"
+    },
+    {
+      "path": "Imervue/puppet/canvas_editing.py",
+      "sha256": "c9323d10b164bec75c8286e137c8b516f799b9023a7ef90a2298ebdf0f23d441"
+    },
+    {
+      "path": "Imervue/puppet/canvas_frame.py",
+      "sha256": "975f206cee8492ccfb1a94dca591a8d6e5061e603221f4c6ddc931ff7eab8bc8"
+    },
+    {
+      "path": "Imervue/puppet/canvas_gl_state.py",
+      "sha256": "3df4306b7c8e16dc301ad2917d1e57b7b6ee1cde55906759c7924e1587ef911c"
+    },
+    {
+      "path": "Imervue/puppet/canvas_overrides.py",
+      "sha256": "33f16df5a8495527c8a87840c89dea864e50ce261e0ef5fe64304fc9f436d2db"
+    },
+    {
+      "path": "Imervue/puppet/canvas_parameters.py",
+      "sha256": "5e8a5ecc626d9db7d81fb97d6426c0b3529ff7d40223b1244a3736babde037c2"
+    },
+    {
+      "path": "Imervue/puppet/canvas_physics.py",
+      "sha256": "de658f3b3570c37352613e1e7d4f371d8d27702701fabc3495e8ee65bc8024da"
+    },
+    {
+      "path": "Imervue/puppet/canvas_pointer.py",
+      "sha256": "8216582e16204af6a2e7967ce4fced04280c49530d877583c1f3576c45c22db0"
+    },
+    {
+      "path": "Imervue/puppet/canvas_render.py",
+      "sha256": "8ebfe7bc1cf7e7015a32e39f24d45617b50ca5015dcd7e532ea1e17c825eea21"
+    },
+    {
+      "path": "Imervue/puppet/canvas_rig.py",
+      "sha256": "6944ae94e047bfccd2580872e4faca4aed58b0d29755420e960f1696f4218e55"
+    },
+    {
+      "path": "Imervue/puppet/canvas_view.py",
+      "sha256": "b03ea680c1cac2427d9741c26777fe72213051186fb6af6d673deb04d5598794"
+    },
+    {
+      "path": "Imervue/puppet/clip_masks.py",
+      "sha256": "900b62db331990f3b1f40ff6a577bd9c163117739e7c8eb54031fa7b969d7d1f"
+    },
+    {
+      "path": "Imervue/puppet/cubism_import.py",
+      "sha256": "893190b85138eb77643b28afca552dd971cb4a8cf04bee519439b65a477bed42"
+    },
+    {
+      "path": "Imervue/puppet/cubism_import_common.py",
+      "sha256": "42079809006dd9174586b564d4152232d09ff4915e04fa28ee37dbe660311d9f"
+    },
+    {
+      "path": "Imervue/puppet/cubism_import_model.py",
+      "sha256": "aaa72afc849928e64cc73a9162e400bb834e06064cfd0cce7371d22818a7be37"
+    },
+    {
+      "path": "Imervue/puppet/cubism_import_motion.py",
+      "sha256": "8f6a1f460ab45fe4a7274254f6c58af032ace5fd7d0a0cfe596a5ce0333001e9"
+    },
+    {
+      "path": "Imervue/puppet/cubism_import_parts.py",
+      "sha256": "03bed43839dc52699187e1afe2014697ea0924fb9e675150d52afd84827b0f74"
+    },
+    {
+      "path": "Imervue/puppet/cubism_import_physics.py",
+      "sha256": "8047b24bb9a1088476e14c8b30d3b8429cbe3ebb6d0612e9ccc5f582948dd5cb"
+    },
+    {
+      "path": "Imervue/puppet/cubism_native_bridge.py",
+      "sha256": "f48422e755aa0c4dbe0dc491541de9d85977bdecdcabc56219109c6445baa25e"
+    },
+    {
+      "path": "Imervue/puppet/cubism_native_bundle.py",
+      "sha256": "8836b6e0ef369b1c2cb43d6e4c40fed180b331ba73f0753abceab70a343865b6"
+    },
+    {
+      "path": "Imervue/puppet/cubism_native_convert.py",
+      "sha256": "bfe3486611fff5cd2440e0e87391f0f6ba30b39354a74756c6c56e7155ad7bc5"
+    },
+    {
+      "path": "Imervue/puppet/cubism_native_mesh.py",
+      "sha256": "49039d000fb3ad4eef1a74fdb7de16f9adc358b2c261fe638c38c364c00dad18"
+    },
+    {
+      "path": "Imervue/puppet/cubism_native_morphs.py",
+      "sha256": "654b33b18ea7723c23eae8637f5060f5e61ddf3ea0d36b55c2914ec738f73c83"
+    },
+    {
+      "path": "Imervue/puppet/cubism_native_motions.py",
+      "sha256": "bb175a627887f44307d44fca0c633866623983cc97022d0ffdfeb1bfdc3d102d"
+    },
+    {
+      "path": "Imervue/puppet/deformers.py",
+      "sha256": "090616d11b62d888fd787d724a644329236c4207db01679ca34890ca9584d4a5"
+    },
+    {
+      "path": "Imervue/puppet/document.py",
+      "sha256": "d34d5565c1ba558efe579714289134a13a23ec914ccfb0cae141864a86fbba4c"
+    },
+    {
+      "path": "Imervue/puppet/document_io.py",
+      "sha256": "9de5e5af5acfb626e86dba57cc254d002dc68af4aae199ae711584b9b4b1364b"
+    },
+    {
+      "path": "Imervue/puppet/drawable_codec.py",
+      "sha256": "166fca98f74b8e37de2b025b5117e3d41887d68ee6f573d2befb9360383788dd"
+    },
+    {
+      "path": "Imervue/puppet/drawable_curves.py",
+      "sha256": "4a602fd7187225908d4040d0b5bac2a9691ff03cc62e7f5e925e5cafcf8add4d"
+    },
+    {
+      "path": "Imervue/puppet/drawable_deformation.py",
+      "sha256": "3cd672b15c376f7394e84b4b670fadaf9b0e99a1d7401057cf540f8e81426037"
+    },
+    {
+      "path": "Imervue/puppet/easing.py",
+      "sha256": "1f807beec9ec28d7316e8e33c771bcb069fd7929a3aefcfebeca11376ac4b9e9"
+    },
+    {
+      "path": "Imervue/puppet/expression_codec.py",
+      "sha256": "9644d51fc18d538d73a88e6020b9d51f08f42728dc3165cfc128a89b5162964b"
+    },
+    {
+      "path": "Imervue/puppet/expression_dock.py",
+      "sha256": "335f050ee62fcbd4cd8f980407ef3bd9ab413e818268d5dd8e78717d24b9c65c"
+    },
+    {
+      "path": "Imervue/puppet/face_landmark_mapper.py",
+      "sha256": "e0069d1413365620a0b6cd026579124f1c923baecd1390dc8ecb80690e3812a2"
+    },
+    {
+      "path": "Imervue/puppet/format_schema.py",
+      "sha256": "1ccfebbe275cb111259902948be752732be217fd99d380bde037330539a16fc2"
+    },
+    {
+      "path": "Imervue/puppet/format_values.py",
+      "sha256": "b154f09095fbff7d6014ce2671399bd2d929f371d860845c94f0d209daad1e36"
+    },
+    {
+      "path": "Imervue/puppet/hit_test.py",
+      "sha256": "a420e72f3f569fecb4f160a49258aa8a587b314f7df0fb3b1c2501b5cb46be93"
+    },
+    {
+      "path": "Imervue/puppet/idle_driver.py",
+      "sha256": "62472702bd6c4bd8c016f74d134b034e68e0f72fa0b7ce17df139059ac6d07f5"
+    },
+    {
+      "path": "Imervue/puppet/idle_motion_cycler.py",
+      "sha256": "7e7c9dfb8e66f54e3981d5f6b6e7886a485f4a2a2c7e7bafbbf63b4532ff63aa"
+    },
+    {
+      "path": "Imervue/puppet/input_drivers.py",
+      "sha256": "e5c4e8b3da28440b54ddcf5303f92f96acd9abbb17dc664a540dc80bf9cc70a4"
+    },
+    {
+      "path": "Imervue/puppet/input_engine.py",
+      "sha256": "608349d8df26c253362fa6b354b0cfabff04ddebf44dd85eef9b4304894a2a09"
+    },
+    {
+      "path": "Imervue/puppet/manifest_collections.py",
+      "sha256": "b30a37f9a186b6154cc8c9d654fe41e21d19a4a707f77e8617fa2418233005fb"
+    },
+    {
+      "path": "Imervue/puppet/manifest_decode.py",
+      "sha256": "2ae1cc5f977f27fed3def2652873ece4ccbc8052d231eb056427d401709ace7f"
+    },
+    {
+      "path": "Imervue/puppet/manifest_encode.py",
+      "sha256": "eab940afd3229551cd874d9ecc167c6daa6a8147435aeb80a2097f76c1e717ad"
+    },
+    {
+      "path": "Imervue/puppet/mesh_edit.py",
+      "sha256": "b05ad28f45b9e208c0ea6178278d9b29a5f5f045751e2cd434ad3cf9548545c9"
+    },
+    {
+      "path": "Imervue/puppet/mesh_repair.py",
+      "sha256": "ad2460c0f7643087554a1f0d864fa911dde3a94e3ca4fe40bd60bec5053bcd01"
+    },
+    {
+      "path": "Imervue/puppet/motion_codec.py",
+      "sha256": "96b9af16a7a41efccc13d4b0f86f19f75c960b51c43162a6f8e316adbed2ebbe"
+    },
+    {
+      "path": "Imervue/puppet/motion_compress.py",
+      "sha256": "33bb9048815c360b58eb54c8b51fae5120a65ba00f611e10ca9000f21649fdee"
+    },
+    {
+      "path": "Imervue/puppet/motion_dock.py",
+      "sha256": "765be189218a1c630dc4e52ffe50db16514fe8b8b0e981373230ed2fc97f497d"
+    },
+    {
+      "path": "Imervue/puppet/motion_picker.py",
+      "sha256": "f6adee3f72efe07760a9388492d5c24095f2fc343c23030c692b7061ee65e878"
+    },
+    {
+      "path": "Imervue/puppet/motion_player.py",
+      "sha256": "44c51328ffe039bbdb804644adaa37310dfcf772dfdd72a60f4a34018a13fc37"
+    },
+    {
+      "path": "Imervue/puppet/motion_player_fade.py",
+      "sha256": "8b462bae37c5e0dc6ba7e3e7bfb3a6b2f56f8ee901d9fcac1006eb65c4f25a00"
+    },
+    {
+      "path": "Imervue/puppet/motion_player_sound.py",
+      "sha256": "3be2d141d1fd5d958c93ffb38332f8a497d5b18911258daf4a6b1bc2f724dbb5"
+    },
+    {
+      "path": "Imervue/puppet/motion_player_timeline.py",
+      "sha256": "b86774fd494aff26a53e53cc6dd8bb9cc124a559b2901f1f67b64efbcdba2fbb"
+    },
+    {
+      "path": "Imervue/puppet/motion_recorder.py",
+      "sha256": "7019cdeeb4e5b41c6fac7f5d2253502de559c0bce9d1ecbc89e880346d0fc08a"
+    },
+    {
+      "path": "Imervue/puppet/motion_sampler.py",
+      "sha256": "cf6807113cf9d0c01af645a5d06dd4cae25e888f4a35f404bf3e7a90883338a2"
+    },
+    {
+      "path": "Imervue/puppet/motion_timeline.py",
+      "sha256": "9f72d2df48709aec8c671bbf9c3cf308a06a17b0df143126e8906e9b95554e3c"
+    },
+    {
+      "path": "Imervue/puppet/mouse_gaze_driver.py",
+      "sha256": "9dd4a67da6eaf70baa6a1660822ccc98a8a49193dff0879d6d7de31a38284ec1"
+    },
+    {
+      "path": "Imervue/puppet/ndi_output.py",
+      "sha256": "8a91da76ed717e18e17d32bbe61eab8f3427cb38af8161713e0ce90c12df8267"
+    },
+    {
+      "path": "Imervue/puppet/operations.py",
+      "sha256": "261c3f9412cd3e621d9f47702509e303f7c9b7f9e83735e5b321e8cdb6843bc2"
+    },
+    {
+      "path": "Imervue/puppet/parameter_codec.py",
+      "sha256": "e057fd0e97fbed90346d23bd2337d917f8b16ac86e48f9977d072de208b1e1aa"
+    },
+    {
+      "path": "Imervue/puppet/parameter_dock.py",
+      "sha256": "f636f341b9a08db32b0131c1c174cea4c237a8bb88162e3c66847b970a9b3adb"
+    },
+    {
+      "path": "Imervue/puppet/physics.py",
+      "sha256": "419db7330eae58213037d25c60840744068c8b2d71c36dea02fea75876484da7"
+    },
+    {
+      "path": "Imervue/puppet/physics_codec.py",
+      "sha256": "91d64873ca93dd34cd81b73c379ab9f137e5e3d49dd2afd2e59d4befa9f0dacb"
+    },
+    {
+      "path": "Imervue/puppet/pose_dock.py",
+      "sha256": "29acffbf2758a3124c05131f401ada7af16db1b7f8cd35df99f58037b6bf6e46"
+    },
+    {
+      "path": "Imervue/puppet/psd_import.py",
+      "sha256": "3da70f363f5725ffb47cfc7295b532ed680472ad2c0f6572e4d9d9e32b32237a"
+    },
+    {
+      "path": "Imervue/puppet/recorder.py",
+      "sha256": "7c05cb45f56d20a1cf2c7b01a3ef7375b9d8f17a432deee699434e22e91f5b8e"
+    },
+    {
+      "path": "Imervue/puppet/render_prep.py",
+      "sha256": "038be7ee2ed2a1c214d0bf6a057c63c468eee03689af9300bc8679ed585e8bd0"
+    },
+    {
+      "path": "Imervue/puppet/requirements.py",
+      "sha256": "87655d0014ef01f0e93223a17dd039348744c396bdd44ca70f0ce3d012bf991b"
+    },
+    {
+      "path": "Imervue/puppet/rig_codec.py",
+      "sha256": "7046d0bd86576d5f10419331e5e312bd7a2304a8b56e91772cb99e4d0874091f"
+    },
+    {
+      "path": "Imervue/puppet/rig_repair.py",
+      "sha256": "6e0f4e5a96f549a476e56095ccd10328f3f99302a80695b61759bff2fa2334c2"
+    },
+    {
+      "path": "Imervue/puppet/runtime.py",
+      "sha256": "83876b63f8e323b855e816810bb84f0125cd668452dfe8d39d760725c21b94ad"
+    },
+    {
+      "path": "Imervue/puppet/runtime_appearance.py",
+      "sha256": "57d41984a904c34a81d233884d21232c596d6cfa42775d672ca846d75230b929"
+    },
+    {
+      "path": "Imervue/puppet/runtime_blend_grid.py",
+      "sha256": "fa2774e28eb8abbd282807f84426de0b7e761b661d2fe6c41f9de89ab8f37c4a"
+    },
+    {
+      "path": "Imervue/puppet/runtime_blends.py",
+      "sha256": "46d00b1ce6044d1dd323603651e4efa9b5bdf15e5253e993f7a2f66651410d91"
+    },
+    {
+      "path": "Imervue/puppet/runtime_curves.py",
+      "sha256": "4a7fe2379adba637c2d70078498eee7a84bbc603e6dda8a8df59c648fe750659"
+    },
+    {
+      "path": "Imervue/puppet/runtime_deformer_order.py",
+      "sha256": "a565655c9da91cbf1e9649db4a9c92e63888c6dd685eac901ade83cd9c12a55b"
+    },
+    {
+      "path": "Imervue/puppet/runtime_forms.py",
+      "sha256": "c41b1d0015ed34fbcc360baca97ba150adbefbb205d8b937d493ad67975ce432"
+    },
+    {
+      "path": "Imervue/puppet/runtime_geometry.py",
+      "sha256": "1eb53aaf4f542cb58ed818f5e10edff83ef13877e6c773ff7c6ddf30d463831e"
+    },
+    {
+      "path": "Imervue/puppet/runtime_interpolation.py",
+      "sha256": "da2d3afa1a43ecea7413f81324bc08734178a525105980414f4449cfacb13233"
+    },
+    {
+      "path": "Imervue/puppet/runtime_morphs.py",
+      "sha256": "25ac2514a48b8e8fdb7b6d14ef874c1875b17b0daacf2bd06fc83f0c6f31a20e"
+    },
+    {
+      "path": "Imervue/puppet/runtime_overlays.py",
+      "sha256": "6c70915c63a5c959a1a5e80f13ddca2610a4b65f3ab862adf6b358b757683253"
+    },
+    {
+      "path": "Imervue/puppet/runtime_parameters.py",
+      "sha256": "1e1b00d676b0ffeae24b4a838e6191b1c13e242526b2f0aae2570e714b365f05"
+    },
+    {
+      "path": "Imervue/puppet/runtime_parts.py",
+      "sha256": "b1f7259dfbe11142f013bb84ba3149b918aa76f31993373d021b710762ceb4fb"
+    },
+    {
+      "path": "Imervue/puppet/runtime_skinning.py",
+      "sha256": "7e4e9b92cd68df9cb9296f096d44cd5c6f269a1c49e0bfcd36e77ba71cc4c644"
+    },
+    {
+      "path": "Imervue/puppet/schema_check.py",
+      "sha256": "9159e5ed3e9106ec916323064af558548607ef10a6d016212c13665875abb83a"
+    },
+    {
+      "path": "Imervue/puppet/spritesheet.py",
+      "sha256": "5d8d27b665993eb1355796ed55990e48ac0ae441c85fbb78cd6389d9930ffd9d"
+    },
+    {
+      "path": "Imervue/puppet/standard_params.py",
+      "sha256": "2dfc4e19fa00e98888d3f7aedc7bd3223cce3980275820feab300abe3e36933b"
+    },
+    {
+      "path": "Imervue/puppet/symmetrize.py",
+      "sha256": "915c9dc9f3b00d1df048353b5eb53a07bed9e191d620f0917c5188edaa85f9c6"
+    },
+    {
+      "path": "Imervue/puppet/synth_motions.py",
+      "sha256": "5ecd0a3e5966750644ac0cc46acd79034c5ebbcf7db19acf0fe71267941449c5"
+    },
+    {
+      "path": "Imervue/puppet/validator.py",
+      "sha256": "1ee20cc0a3473a30954033d2ba546e1da419eda0fd1c4052c58d2a31a6a3922c"
+    },
+    {
+      "path": "Imervue/puppet/virtual_camera.py",
+      "sha256": "f1ad76c5d0bc1e0e7b012a76fb59495853075288f6608c23adde8013d1c1b5a8"
+    },
+    {
+      "path": "Imervue/puppet/vts_api.py",
+      "sha256": "e0274d30a1c3f7d0d12aaa48bdf86297107c1e41bf29300a435ec56ac8857952"
+    },
+    {
+      "path": "Imervue/puppet/webcam_preview_dialog.py",
+      "sha256": "c770e172272ec22e22ce15b971f2ad295f58ddcaab028b569cc11c340a7d6a7a"
+    },
+    {
+      "path": "Imervue/puppet/webcam_status.py",
+      "sha256": "5a457358b6ca48cb01a46a537b5f2fb130b6b8f0aa00efb1997a3c069bc2c660"
+    },
+    {
+      "path": "Imervue/puppet/webcam_tracker.py",
+      "sha256": "e6359dca3fa082c0aff9bcdee3b04d3fe38555eb8e4af8abe5cb44d035da58cf"
+    },
+    {
+      "path": "Imervue/puppet/workspace.py",
+      "sha256": "8365a2e92ed425362cfcb27d66702ff663980818c39431f5ce590d5e11428dbf"
+    },
+    {
+      "path": "Imervue/puppet/workspace_audio.py",
+      "sha256": "09b606386c2c77ba920aa138ea132ea3aed41d3c8c69145f49230c8fdbd77c7a"
+    },
+    {
+      "path": "Imervue/puppet/workspace_authoring.py",
+      "sha256": "a5e4a6b4daeb7235894ee4bc537b5abf164cdc31208a87a99fe21a3c3b04c071"
+    },
+    {
+      "path": "Imervue/puppet/workspace_export.py",
+      "sha256": "c25115e21b508db577dd9dd4f9ee65484f1a5c189fc215e6410bb01373263f5e"
+    },
+    {
+      "path": "Imervue/puppet/workspace_files.py",
+      "sha256": "dd304e010622fee4e359e15097788aa32ae9e4110301b9f6c7df57e8e43ca976"
+    },
+    {
+      "path": "Imervue/puppet/workspace_import.py",
+      "sha256": "8043772eb0cccefa1ac5b0259440dd04b2b408987ea8fb1fe6a7d8aaa32d4840"
+    },
+    {
+      "path": "Imervue/puppet/workspace_input.py",
+      "sha256": "bf12cc26ad29b50e1ef4f51290ab7495e2c8b5c915893ef33bbae177c7ed837b"
+    },
+    {
+      "path": "Imervue/puppet/workspace_keyframes.py",
+      "sha256": "d7ec1058095cc910c94c187adff537108ed86cc88d3db76fed427dde20cc4226"
+    },
+    {
+      "path": "Imervue/puppet/workspace_live.py",
+      "sha256": "2bd44d227141b87b9895db01975dba9680354026b7579631d765e7132f15b13a"
+    },
+    {
+      "path": "Imervue/puppet/workspace_menus.py",
+      "sha256": "956dba0d93d6911a61390541c1897b52fab23911460129f99a6cccd05cfdab10"
+    },
+    {
+      "path": "Imervue/puppet/workspace_motion_edit.py",
+      "sha256": "e4b2c9acb4e3725ca54a9cc2e021011c5f2886c5fc2df44adbb6d43a59916636"
+    },
+    {
+      "path": "Imervue/puppet/workspace_motion_record.py",
+      "sha256": "9325201e4e5a4cccbe8b8046a731236bef1d886610dcfa2b24e3df2124a4922f"
+    },
+    {
+      "path": "Imervue/puppet/workspace_reset.py",
+      "sha256": "01f04e79f6eebf619b0c93fa21ba429a1d1e6c601631795d4dd7a44383cbce20"
+    },
+    {
+      "path": "Imervue/puppet/workspace_ui.py",
+      "sha256": "952117ace1d9d4176c2c987b65bbd10150338a7a450c19a7bf2b6a33596f25cd"
+    },
+    {
+      "path": "Imervue/puppet/workspace_validation.py",
+      "sha256": "4fd8b48993b71c6d47a2f97ac08202d40cb5159c0e246d4bf333c81a36a00bfd"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "fe63b0b6724207b36ce52f4e8f694fe9f19bc9712e4b0aa155a45ad793d336f2"
+    },
+    {
+      "path": "THIRD_PARTY_LICENSES.md",
+      "sha256": "baeeea5205c22391dda2a8a85554659843b36695e931b8470c915744122de89a"
+    },
+    {
+      "path": "docs/examples/read_puppet.py",
+      "sha256": "ce149779c9b6e145f80972be5e6328c4a193decb571570b5b99a73c9a4bc4db9"
+    },
+    {
+      "path": "docs/schemas/expression.schema.json",
+      "sha256": "5ff0803f1b63e4ea7c44717cd2c59376f9eaf0f03646581409147d04a973f7ab"
+    },
+    {
+      "path": "docs/schemas/motion.schema.json",
+      "sha256": "6f3644807fe2d0ddf00732b16f9969b178bdc64e516eddc1a4f422119502d63e"
+    },
+    {
+      "path": "docs/schemas/physics.schema.json",
+      "sha256": "06bb5199417afd40a76d4b705962f7aad4ff5804a96cecc086b729fcc7023030"
+    },
+    {
+      "path": "docs/schemas/puppet.schema.json",
+      "sha256": "e292400b7fc5b3679f4371cf1072da47fcc48f4f62b5cbc5a06454087618104c"
+    },
+    {
+      "path": "examples/puppet/README.md",
+      "sha256": "ccf4b01b56a16fc8323feebe41288280e62d2e8005d51057c7cad7b10accf70c"
+    },
+    {
+      "path": "examples/puppet/imeru.puppet",
+      "sha256": "2c77c4164adaff4ffe4bb7a1c4fe9db9f2950965187b7ee5f42e36992a51f612"
+    },
+    {
+      "path": "examples/puppet/imeru/art.py",
+      "sha256": "b4d1ea32dc574a0f26c90160a9d502f881c88cf8ed7f6695ebe33d8d292db5aa"
+    },
+    {
+      "path": "examples/puppet/imeru/artwork/README.md",
+      "sha256": "c56b1e3c5bc636bc8c971f0f7b1c6b9cb04aa6723b6bc295ebc2c92ecddbcddb"
+    },
+    {
+      "path": "examples/puppet/imeru/artwork/alternates.png",
+      "sha256": "9f7f86ac24db4739b54050fdb1f3aedd3701f51cc7e8253f1b28794c0b0a2c07"
+    },
+    {
+      "path": "examples/puppet/imeru/artwork/arms.png",
+      "sha256": "608b4213261c58a014adaa272dbc3c5c41533c55f3d08278ffbebe1b23637180"
+    },
+    {
+      "path": "examples/puppet/imeru/artwork/master.png",
+      "sha256": "d088b66f8174f03d2dabb27040004d5eea43ae684a7f419aebdd8163ef7485d4"
+    },
+    {
+      "path": "examples/puppet/imeru/artwork/underlay.png",
+      "sha256": "bbb7a5274bc7a91807cc5c19b9a7b4bdc9af74cb26f932c4d64fce4306b129ae"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/arms.py",
+      "sha256": "587bef8908ff956819fa6fde1bcddd480ef1eeef80d3332c67521688abefd414"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/body.py",
+      "sha256": "55be162cefdbf291701e910c471ac8019c509cf49d434a761dca1e2ed8531add"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/common.py",
+      "sha256": "aa6f1265a933bf723c318f6bf98d29ec34f5115a265a9dd3744cc3d9ada7a763"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/geo.py",
+      "sha256": "eb910230c5be3e9cd205e2a71288a870e5611bf53703478357ea4ceef9ec7154"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/head.py",
+      "sha256": "72b89f31160fc5d781abdef601b1ba8aca79d14200c4e7679741c91f471b13ed"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/lightmap.py",
+      "sha256": "ba9d39af183eb8d5a26080b4138a0d6fbffaf4d0470a07eb51e5c384874657a9"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/main.py",
+      "sha256": "7ea2df67bb53d0cff2a11cf80a30e7668c88e528f6ddffa7306a7e9d053bd38c"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/normals.py",
+      "sha256": "f8f23c7589eb80977660e85bb440fb9125cc7bbae9ae68e18dabaf607a9b0cc0"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/ornament.py",
+      "sha256": "03b7bc043f68f8d06819671122e89bae21b2cbb8039065831ac18f4d829e052f"
+    },
+    {
+      "path": "examples/puppet/imeru/blender/toon.py",
+      "sha256": "71364e4eac649862054caafdb53bb7c8087c29054e8ffe36a6765c63b8b399eb"
+    },
+    {
+      "path": "examples/puppet/imeru/build.py",
+      "sha256": "f9a4189660dfe1a0320071188d6accb59f5c34187f0ae75414dea2ef1e134605"
+    },
+    {
+      "path": "examples/puppet/imeru/concepts/modern-design-brief.md",
+      "sha256": "1fa80c52b7bc7df8fdcd0020fa37e455d92ef8ab742d8a1b101700bcfb11a677"
+    },
+    {
+      "path": "examples/puppet/imeru/concepts/modern-full-body.png",
+      "sha256": "d343d6c498edefbc28d00f86641ab71a7b56e8fb565a31e0821e0ba2cc62b6c0"
+    },
+    {
+      "path": "examples/puppet/imeru/draw.py",
+      "sha256": "3d19838b4618243578485972e3242dd7e11726f05a1ac2e5f93fda687966d501"
+    },
+    {
+      "path": "examples/puppet/imeru/face_shadow.py",
+      "sha256": "eec7037ace2cac441f7eab05719a73421da5cb3376989946b00a5a826ea41aec"
+    },
+    {
+      "path": "examples/puppet/imeru/features.py",
+      "sha256": "f9b688a5729273e6626aaea0b34fb91388eb0aacdb44b69857adf65eb040b08e"
+    },
+    {
+      "path": "examples/puppet/imeru/illustrated.py",
+      "sha256": "35db045bcaa3ea8f4a954ee48fbf0628947bdca9baf1e6d4090cb8c8afa75a17"
+    },
+    {
+      "path": "examples/puppet/imeru/illustrated_mesh.py",
+      "sha256": "0f62398f950d694e351525f5d1004284217a146fea73bba5394f1cdfb9619670"
+    },
+    {
+      "path": "examples/puppet/imeru/illustrated_rig.py",
+      "sha256": "99593f7135e5280cc29f594f2d4efa8d48220c65fe04ccbe628799af79bfe648"
+    },
+    {
+      "path": "examples/puppet/imeru/motions.py",
+      "sha256": "ab0de19d060f2027c19564e753449c12b7eea4745c6ee36a068392833712132c"
+    },
+    {
+      "path": "examples/puppet/imeru/preview-wave.png",
+      "sha256": "28d6bfdb497ab64be7ad0a15e8ad29cee2d9a1e32d9c5cdc177e94f1903eb0d2"
+    },
+    {
+      "path": "examples/puppet/imeru/preview-wave.webp",
+      "sha256": "9f002cd7d6ca210603dc11c5bcb4bf1d96ae268c7fee585629dd15b2b6a77c69"
+    },
+    {
+      "path": "examples/puppet/imeru/preview.png",
+      "sha256": "08cdb60afdad35554c3b4fe11f595e83dbe1a5c863508869c57776c6c0d072ee"
+    },
+    {
+      "path": "examples/puppet/imeru/render3d.py",
+      "sha256": "f1b4c0486f4498c6c1f175f01c554c09c480db38d51150155cbe73cba2f84b51"
+    },
+    {
+      "path": "examples/puppet/imeru/rig.py",
+      "sha256": "e23e6fb51c9690f3432eec62fa60f0820efd3905164de535e554f84b9ff4af24"
+    },
+    {
+      "path": "puppet_guide.md",
+      "sha256": "f672f74bd816fcbb6e0902e2ba609fee7fe5e2c92d90e0b31c2766174da10f33"
+    },
+    {
+      "path": "puppet_guide.zh-CN.md",
+      "sha256": "5870a5d341eb7250177af0a1e7f1e7795f199112c717ae1758db50a2e8eab647"
+    },
+    {
+      "path": "puppet_guide.zh-TW.md",
+      "sha256": "b3e18e854b9ad8ab4a63eb46f81c845e89ccc2df6a67b1f63f8c9bc6c17b431c"
+    },
+    {
+      "path": "tests/test_puppet_archive_contracts.py",
+      "sha256": "34bd5e0cf2715c6c92d957332c80568a271159b3adb4bf971437e05b904066f3"
+    },
+    {
+      "path": "tests/test_puppet_archive_curves.py",
+      "sha256": "c31bdfaa026825f518cd351fbddebcaad748cb97c7906eb6301a346549e2d72a"
+    },
+    {
+      "path": "tests/test_puppet_audio_lipsync.py",
+      "sha256": "4764a5f57211f2f97d0bfdacd4daf5cf853a5b35a6119e0236a51e77fb25d649"
+    },
+    {
+      "path": "tests/test_puppet_auto_mesh.py",
+      "sha256": "36ddae1d52ee4ea6be1450d87f20eab43c02875eedfaa85a067401e7338015c6"
+    },
+    {
+      "path": "tests/test_puppet_auto_rig.py",
+      "sha256": "82592cea2b543b0f73b4190fca5651812a0d3b08e0a39cb48434d194693df88f"
+    },
+    {
+      "path": "tests/test_puppet_auto_rig_contracts.py",
+      "sha256": "17678b19e410e247b6d0ac87a4e605f9b93d0a8ae48181da5483e26275989d2e"
+    },
+    {
+      "path": "tests/test_puppet_batch_export.py",
+      "sha256": "183c99f3e54dbb925a8b40476e481fdc86a74272a24b5b3ae84517dd2f123b71"
+    },
+    {
+      "path": "tests/test_puppet_bone_hierarchy.py",
+      "sha256": "6775721006aded1f708c96aec5171f339eced1245659a9d0fe52cafc4e29a273"
+    },
+    {
+      "path": "tests/test_puppet_bone_weights.py",
+      "sha256": "2256b726473fa459b327375815cf987da9d54e68f1f6d4e5e38f02269324c8c2"
+    },
+    {
+      "path": "tests/test_puppet_canvas.py",
+      "sha256": "64c1803435a407af6422d143a8bd68754ad54f924c7d4ddc3c26d31601104c5d"
+    },
+    {
+      "path": "tests/test_puppet_canvas_contracts.py",
+      "sha256": "46f9c82cce7a82df1204d10b8272dbfff187b34d3cc5509b145ba0803cdaa98f"
+    },
+    {
+      "path": "tests/test_puppet_canvas_fit.py",
+      "sha256": "bb32eb91b17fe051ec3073707143d09e00698a058e0b26a16bff3536759e9f48"
+    },
+    {
+      "path": "tests/test_puppet_canvas_init_state.py",
+      "sha256": "d62b6a79fdb9c20f1bf762e5034a07e8adf03d45eea344c14b54a4d7d8248a31"
+    },
+    {
+      "path": "tests/test_puppet_canvas_physics.py",
+      "sha256": "951fb3d4de70be7bee411d6b6168c4351da99f9d786381c306014ac363ccd80f"
+    },
+    {
+      "path": "tests/test_puppet_canvas_render.py",
+      "sha256": "4daa1074c80066b4b3bc76ab65bdc940f192daf686ae5ba151236ba54606c50a"
+    },
+    {
+      "path": "tests/test_puppet_canvas_render_state.py",
+      "sha256": "b71411e8759521bc78c416c10800e237d84e4e9fb3fcf0ba951932166ec455aa"
+    },
+    {
+      "path": "tests/test_puppet_clip_masks.py",
+      "sha256": "b53fd15235984fa466ff04b32cce8afd5b6ef11a521eb770dc32bbebf85635e0"
+    },
+    {
+      "path": "tests/test_puppet_color_tint.py",
+      "sha256": "5927cb71939fec51e6b4931437d7ae316ccc3f8b7f78eb605ae727f44631967c"
+    },
+    {
+      "path": "tests/test_puppet_cubism_import.py",
+      "sha256": "6c07f2c263af338614462d159ee9f0744bbdbca3dd787134748bdb1a34dcb33a"
+    },
+    {
+      "path": "tests/test_puppet_cubism_native_bridge.py",
+      "sha256": "b211bd004d17f31b28e042dff51169633967f2d35784d65a66a39fa426266318"
+    },
+    {
+      "path": "tests/test_puppet_cubism_native_convert.py",
+      "sha256": "2cd55bafee871a0c4ff53643d6d6fcd682892310a343500abdd301d73ab767dd"
+    },
+    {
+      "path": "tests/test_puppet_cubism_physics_dynamics.py",
+      "sha256": "d21d74d8cfee7367a5101a263309af18b5c81dc88e6299858175748c96125b16"
+    },
+    {
+      "path": "tests/test_puppet_cubism_physics_pose_cdi.py",
+      "sha256": "3e55852a42f5cb7cd89c1457566f64cd7cac09174abcbef36b7bfbab59e76bd8"
+    },
+    {
+      "path": "tests/test_puppet_deformers.py",
+      "sha256": "098fdf48bb984b071b7e3d68ce5d82138a1ca95284fa387fdb87313150a993dd"
+    },
+    {
+      "path": "tests/test_puppet_document_io.py",
+      "sha256": "a0d6eb9bd14fe0d23a148428f8e422dd0bfc8b87d93ca3324f05fd46975db3a8"
+    },
+    {
+      "path": "tests/test_puppet_easing.py",
+      "sha256": "63b9c9654f6502ce79bc54872526d61a0ae10dac1cbc97885bb0e490d28f0382"
+    },
+    {
+      "path": "tests/test_puppet_expression_dock.py",
+      "sha256": "4bd211e3504a930caf0cc73984bf40d01d1c14514b2b453a0db5cd88e68c2d56"
+    },
+    {
+      "path": "tests/test_puppet_expressions_pose.py",
+      "sha256": "f73eb6474b26ef32a2df8be2a41a7fb850893fa8111091852eecb81c76b6a01f"
+    },
+    {
+      "path": "tests/test_puppet_face_landmark_mapper.py",
+      "sha256": "a3bfed403e5378921287a2dd81180a29c7ecc0947a49697ae4335d85790a2bfa"
+    },
+    {
+      "path": "tests/test_puppet_format_schema.py",
+      "sha256": "10f8c069454b6fb4f32fe1401656c6deaf5678824987393f65b775f65717e499"
+    },
+    {
+      "path": "tests/test_puppet_gl_release.py",
+      "sha256": "49484c6de7190ad9cdecbbe5308c6d9a7a32464a504488f4e11ca3b967d3fc67"
+    },
+    {
+      "path": "tests/test_puppet_hit_area.py",
+      "sha256": "c400c0f4181f2a084a3224e62b0426081c5760b9b18e075123855605cc646ce1"
+    },
+    {
+      "path": "tests/test_puppet_hit_area_play.py",
+      "sha256": "735f201450d87caf060bde9bedfa3d87891a66909d287c14d5b9c2876c8f271e"
+    },
+    {
+      "path": "tests/test_puppet_idle_driver.py",
+      "sha256": "f7af19408a656c60bc9aec4a868bab30fc435a3f0d0fad83431c894dcc7103f9"
+    },
+    {
+      "path": "tests/test_puppet_idle_motion_cycler.py",
+      "sha256": "8b25efbf86cd6f64c734358ce93d81552c8c22717c38adbc05d64779be4ce69a"
+    },
+    {
+      "path": "tests/test_puppet_input_drivers.py",
+      "sha256": "d97a0b26d3a003482f2edcea4b3eb989a3a8e83d708a4194b3d8f2c9a88c8ab5"
+    },
+    {
+      "path": "tests/test_puppet_input_engine.py",
+      "sha256": "a8ff593ddfe3a24454b179d6cbe1927371d74e12cad9d8414e050ba3ff52322e"
+    },
+    {
+      "path": "tests/test_puppet_input_engine_viseme.py",
+      "sha256": "5a6626a68674b7e85ff69a581d31c64f0ce46a5faef4f7bac21eb4732f4c82ab"
+    },
+    {
+      "path": "tests/test_puppet_lipsync_from_audio.py",
+      "sha256": "7314810d746a59a4cb2a06318c7eb2e9cb1560a0323550d1472772828773b2a8"
+    },
+    {
+      "path": "tests/test_puppet_lookat_and_iris.py",
+      "sha256": "66a721faec5765d451263d05cdc3f43b759ab95993c33c0be50087cfab5a4fca"
+    },
+    {
+      "path": "tests/test_puppet_mesh_edit.py",
+      "sha256": "afdd8e0a109230fe53ea38e4b9a8a432c82225fea8cc2008f811fb5194846977"
+    },
+    {
+      "path": "tests/test_puppet_mesh_edit_cache.py",
+      "sha256": "6f611724e402c76c1cc05eb45f3112ce945dde2663830a58a685ce8c452b7a46"
+    },
+    {
+      "path": "tests/test_puppet_motion_fade.py",
+      "sha256": "d87d5157c10c4587b1ea52dfe5bd756de934603db984567cd9fca480cbaff543"
+    },
+    {
+      "path": "tests/test_puppet_motion_groups.py",
+      "sha256": "9881a1d3c245c77fa5bf0ff030276c1a8a437fd673ab69540fbd02b461c06628"
+    },
+    {
+      "path": "tests/test_puppet_motion_loop_flag.py",
+      "sha256": "ad3cd1524160b0942931a31fd59845188f07b6eead3c1419aaf310407e6a7f2d"
+    },
+    {
+      "path": "tests/test_puppet_motion_picker.py",
+      "sha256": "862ff3ee8a6e61659b5ee7e51f35fd151a4d2e5cc1cbac680e4bbfb30dff6957"
+    },
+    {
+      "path": "tests/test_puppet_motion_player.py",
+      "sha256": "f6570b48e24f18124e5c9264dfff4718fd85f2d52abca06b7d898484e699736a"
+    },
+    {
+      "path": "tests/test_puppet_motion_player_contracts.py",
+      "sha256": "200405533a992917126c509d9b4d3cb33842b6da10d221119bc42052c7c00c69"
+    },
+    {
+      "path": "tests/test_puppet_motion_recorder.py",
+      "sha256": "7badce540e3f66754cbe7bce4f126d3f9886677b4af93f4eacda8110b814fda9"
+    },
+    {
+      "path": "tests/test_puppet_motion_sampler.py",
+      "sha256": "42f4791e7801729c7bfa6fa436a2a4ceb554686b63fe94c7f2399f9c0ef5eda3"
+    },
+    {
+      "path": "tests/test_puppet_motion_sound.py",
+      "sha256": "5226bd2496f1c05a81c495f3ee1f599a1b9623c6903f92f9afefbd31255e8dca"
+    },
+    {
+      "path": "tests/test_puppet_motion_timeline.py",
+      "sha256": "f5eab45cf3f37d8270bcb142557de25bb10785164d420a918fe06c34e56874ab"
+    },
+    {
+      "path": "tests/test_puppet_mouse_gaze_driver.py",
+      "sha256": "a5415aeae61171f4fe8e41ad24fee78fe8b7dbc96150861a571ce5ed8177c5c7"
+    },
+    {
+      "path": "tests/test_puppet_offscreen_format.py",
+      "sha256": "47143f6d90fe966f3ff55d8f55f9c0de8b8db04111bc2c9e393842e74c26c8a1"
+    },
+    {
+      "path": "tests/test_puppet_operations.py",
+      "sha256": "4ffba028ba9b1659bb072cba6a6dfea8d3b9bd93e46d6da5672a58ade7056626"
+    },
+    {
+      "path": "tests/test_puppet_parameter_blend.py",
+      "sha256": "9588a626516cf2ab5a302756946220ce4fec4f0911168a845a4b99fb0928bcb1"
+    },
+    {
+      "path": "tests/test_puppet_parameter_dock.py",
+      "sha256": "d1dd407c9230b491af78b68a7513466d9fd0ed627fba1dd2adb504cd11eda9ec"
+    },
+    {
+      "path": "tests/test_puppet_parts.py",
+      "sha256": "50013fdbf0e91e5741aa8a766585cece45fa2540a25d2ca90099d173d46ab9ff"
+    },
+    {
+      "path": "tests/test_puppet_physics.py",
+      "sha256": "42b7d97753ffc81dfa4639f99d347c8970d2e18025f1f054cc189dae8fbe5319"
+    },
+    {
+      "path": "tests/test_puppet_physics_golden.py",
+      "sha256": "45b89fabe88d80592aa3094caa7d1cacbae4793451c2d0ddbd0348389c7e8960"
+    },
+    {
+      "path": "tests/test_puppet_plugin_skeleton.py",
+      "sha256": "5fe728e0cf08ea2cff6b289d7348fab6322f796342fd0129c1da3ce4269b69c9"
+    },
+    {
+      "path": "tests/test_puppet_pose_dock.py",
+      "sha256": "eb550309162576e9a8a6fc959c67610442384411996c05f847bbad869136c40a"
+    },
+    {
+      "path": "tests/test_puppet_psd_import.py",
+      "sha256": "8596af9cc32975fbf8e03fa73c0b2e6a2fb471f3bd19958857619bedd9085232"
+    },
+    {
+      "path": "tests/test_puppet_recorder.py",
+      "sha256": "cdba9b17eec266858165a52c107dee200c2d6b6feafb26ad61529bb5f510a441"
+    },
+    {
+      "path": "tests/test_puppet_render_prep.py",
+      "sha256": "8bd22b589d84850da2f303760ce291ebf84fd5bbeb3b440411ae9418afcf0536"
+    },
+    {
+      "path": "tests/test_puppet_requirements.py",
+      "sha256": "616179b96d005f11e30ff136bf4cac6851e23ef47c874565d03218c4fd029b83"
+    },
+    {
+      "path": "tests/test_puppet_rig_repair.py",
+      "sha256": "e39145c87957ed0d3355c5f741610fcffd84dd37c3b3b2be650cd1c3ae52ff08"
+    },
+    {
+      "path": "tests/test_puppet_runtime.py",
+      "sha256": "88ac56fe02267a32cf73e3abc8597f012d8eee21cafa43536526767e89ffd4e8"
+    },
+    {
+      "path": "tests/test_puppet_runtime_contract.py",
+      "sha256": "29567a347e03b72961fb7bbf9d9c5f4f5f4317e0667afbd5f9bc3d8b55537e54"
+    },
+    {
+      "path": "tests/test_puppet_spritesheet.py",
+      "sha256": "00d035f8c4d5bb8e7860cbaf17a1605366e1780cc6095f0ea8348588573fe282"
+    },
+    {
+      "path": "tests/test_puppet_standard_params.py",
+      "sha256": "f5504f816976003b23c0496efe5aa902f95cf5848bc35e1be395061b81d7b071"
+    },
+    {
+      "path": "tests/test_puppet_stream_ticks.py",
+      "sha256": "1519f3b4b600e974a697feab83d6a49d06a3431a2e3260b6c3785f85f031da28"
+    },
+    {
+      "path": "tests/test_puppet_streaming_outputs.py",
+      "sha256": "0566592a2244e0e4ae5defa2bf60d9959d35dc1cdd0ce58330fff4cba5782422"
+    },
+    {
+      "path": "tests/test_puppet_symmetrize.py",
+      "sha256": "797999252bc44e428e395510abaa0f1cc614f81b70156568303690d380bbe511"
+    },
+    {
+      "path": "tests/test_puppet_synth_motions.py",
+      "sha256": "daf07834f61918fa46c13b5484683c7bb3de8ab5795572539d1f72088ac93353"
+    },
+    {
+      "path": "tests/test_puppet_timeline_ease_simplify.py",
+      "sha256": "6668ef8ac008565213a66c54dab5fad2687da4e0b361a24753600ebae3eba498"
+    },
+    {
+      "path": "tests/test_puppet_validator.py",
+      "sha256": "9c00ee15027e9f277ae033b8aa8423caa4748689f9dabac72fa3a20c5bde728d"
+    },
+    {
+      "path": "tests/test_puppet_vertex_morphs.py",
+      "sha256": "30b1af63cfd22de62422d8a3a41118e001fb6ebc6e0e16abedbce7a2bb18cad5"
+    },
+    {
+      "path": "tests/test_puppet_viseme.py",
+      "sha256": "cc7b053da0b3e068436e9cb4098c6f47139a8bf65fb83d8acde79989965a58af"
+    },
+    {
+      "path": "tests/test_puppet_vts_api.py",
+      "sha256": "bc5c358ec8dd397b293b821f7911042b13ada257a03a2fb72e1b7e1db13ac68d"
+    },
+    {
+      "path": "tests/test_puppet_vts_origin.py",
+      "sha256": "92121a3c78664ca2e520c527a71b93b368516dd8961285d123ea29f33c85d2f7"
+    },
+    {
+      "path": "tests/test_puppet_webcam_model.py",
+      "sha256": "a36958c4b9f77ec837c159f32f2cea6806bc201d2c387abb5fef4d63c98a6543"
+    },
+    {
+      "path": "tests/test_puppet_webcam_preview_dialog.py",
+      "sha256": "ef0c389005f5601f8b7f2965f566fff05aed516ce1432cd01c7c5c935c7c86b9"
+    },
+    {
+      "path": "tests/test_puppet_webcam_pump.py",
+      "sha256": "8166755f4a104aec696d720eaea23ae6badcecf8de6486c017d2203ea7b7362d"
+    },
+    {
+      "path": "tests/test_puppet_webcam_tracker.py",
+      "sha256": "879f69ea1849ea0528538b4bac6803dbb235179c9a30801f72424465378fea4d"
+    },
+    {
+      "path": "tests/test_puppet_workspace.py",
+      "sha256": "3526de48b2db116dd38ef3f097e6068ccb888a8fae536d5313accd538fd1f6ac"
+    },
+    {
+      "path": "tests/test_puppet_workspace_authoring.py",
+      "sha256": "9ba8594e8d24b5a55017ff72ea0617358d2eba71e657bf0d7b845b9cb705905b"
+    },
+    {
+      "path": "tests/test_puppet_workspace_contracts.py",
+      "sha256": "1baa2b98b6314a07816222c2db5ebfef0f625e1b413a7c27b6c2fc2bca02d670"
+    },
+    {
+      "path": "tests/test_puppet_workspace_cubism_import.py",
+      "sha256": "2036f1a0ea41693a05a3c570cac18b1a04026ff321b70aec4ebd40ef49a447d3"
+    },
+    {
+      "path": "tests/test_puppet_workspace_hit_area.py",
+      "sha256": "df3058a5c16cc31a1c85ac7f5e1a138f1da8c4a732004c860143405e3a92d4b9"
+    },
+    {
+      "path": "tests/test_puppet_workspace_init_state.py",
+      "sha256": "8df6d056ea267c76ee0e97fe59504b3348fe89eddc7b9e9b841e030c23ebd358"
+    },
+    {
+      "path": "tests/test_puppet_workspace_menus.py",
+      "sha256": "ce33b322945b3fb5369ea2628762f2ef835a05082d563b0e5dcf4e2e6d5665c1"
+    },
+    {
+      "path": "tests/test_puppet_workspace_shutdown.py",
+      "sha256": "a1f8aadb90b2f62d8cd432b9dc5045bd6dff5e2f232de595c1166a53c6d810cf"
+    },
+    {
+      "path": "tests/test_review_puppet_fixes.py",
+      "sha256": "a9165d03e27ffbd79dbb6fbaacec6d405083a4a6fb9c21bb336b363a26b6f072"
+    }
+  ],
+  "static_import_edges": [
+    {
+      "file": "Imervue/puppet/batch_export.py",
+      "line": 20,
+      "target": "Imervue.system.qt_timers",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/batch_export.py",
+      "line": 20,
+      "target": "Imervue.system.qt_timers.call_later",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/bone_tree_dock.py",
+      "line": 37,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/bone_tree_dock.py",
+      "line": 37,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/canvas_frame.py",
+      "line": 24,
+      "target": "Imervue.gpu_image_view.gl_context",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/canvas_frame.py",
+      "line": 24,
+      "target": "Imervue.gpu_image_view.gl_context.make_current_guard",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/canvas_render.py",
+      "line": 187,
+      "target": "Imervue.desktop_pet.pet_shadow",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/canvas_render.py",
+      "line": 187,
+      "target": "Imervue.desktop_pet.pet_shadow.shadow_quad_geometry",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/canvas_render.py",
+      "line": 216,
+      "target": "Imervue.desktop_pet.pet_shadow",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/canvas_render.py",
+      "line": 216,
+      "target": "Imervue.desktop_pet.pet_shadow.DEFAULT_TEXTURE_SIZE",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/canvas_render.py",
+      "line": 216,
+      "target": "Imervue.desktop_pet.pet_shadow.make_shadow_pixels",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/canvas_render.py",
+      "line": 533,
+      "target": "Imervue.image.read_errors",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/canvas_render.py",
+      "line": 533,
+      "target": "Imervue.image.read_errors.IMAGE_READ_ERRORS",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/document_io.py",
+      "line": 19,
+      "target": "Imervue.system.atomic_write",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/document_io.py",
+      "line": 19,
+      "target": "Imervue.system.atomic_write.replace_atomically",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/expression_dock.py",
+      "line": 27,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/expression_dock.py",
+      "line": 27,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/motion_dock.py",
+      "line": 29,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/motion_dock.py",
+      "line": 29,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/motion_dock.py",
+      "line": 31,
+      "target": "Imervue.system.ui_scale",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/motion_dock.py",
+      "line": 31,
+      "target": "Imervue.system.ui_scale.scaled_px",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/motion_timeline.py",
+      "line": 35,
+      "target": "Imervue.system.qt_timers",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/motion_timeline.py",
+      "line": 35,
+      "target": "Imervue.system.qt_timers.call_later",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/motion_timeline.py",
+      "line": 36,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/motion_timeline.py",
+      "line": 36,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/parameter_dock.py",
+      "line": 26,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/parameter_dock.py",
+      "line": 26,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/parameter_dock.py",
+      "line": 27,
+      "target": "Imervue.system.ui_scale",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/parameter_dock.py",
+      "line": 27,
+      "target": "Imervue.system.ui_scale.scaled_px",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/pose_dock.py",
+      "line": 28,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/pose_dock.py",
+      "line": 28,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/psd_import.py",
+      "line": 23,
+      "target": "Imervue.paint.psd_io",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/psd_import.py",
+      "line": 23,
+      "target": "Imervue.paint.psd_io.load_psd",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/vts_api.py",
+      "line": 47,
+      "target": "Imervue.system.local_origin",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/vts_api.py",
+      "line": 47,
+      "target": "Imervue.system.local_origin.is_allowed_origin",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/webcam_preview_dialog.py",
+      "line": 34,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/webcam_preview_dialog.py",
+      "line": 34,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/webcam_tracker.py",
+      "line": 400,
+      "target": "Imervue.system.app_paths",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/webcam_tracker.py",
+      "line": 400,
+      "target": "Imervue.system.app_paths.app_dir",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace.py",
+      "line": 10,
+      "target": "Imervue.gui.control_tooltips",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace.py",
+      "line": 10,
+      "target": "Imervue.gui.control_tooltips.enable_control_tooltips",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace.py",
+      "line": 11,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace.py",
+      "line": 11,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace.py",
+      "line": 82,
+      "target": "Imervue.system.qt_timers",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace.py",
+      "line": 82,
+      "target": "Imervue.system.qt_timers.call_later",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_audio.py",
+      "line": 4,
+      "target": "Imervue.gui.file_filters",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_audio.py",
+      "line": 4,
+      "target": "Imervue.gui.file_filters.translated_filter",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_audio.py",
+      "line": 5,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_audio.py",
+      "line": 5,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_export.py",
+      "line": 7,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_export.py",
+      "line": 7,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_files.py",
+      "line": 8,
+      "target": "Imervue.gui.file_filters",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_files.py",
+      "line": 8,
+      "target": "Imervue.gui.file_filters.translated_filter",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_files.py",
+      "line": 9,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_files.py",
+      "line": 9,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_files.py",
+      "line": 10,
+      "target": "Imervue.user_settings.user_setting_dict",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_files.py",
+      "line": 10,
+      "target": "Imervue.user_settings.user_setting_dict.user_setting_dict",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_import.py",
+      "line": 16,
+      "target": "Imervue.gui.file_filters",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_import.py",
+      "line": 16,
+      "target": "Imervue.gui.file_filters.image_filter",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_import.py",
+      "line": 17,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_import.py",
+      "line": 17,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_import.py",
+      "line": 32,
+      "target": "Imervue.user_settings.user_setting_dict",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_import.py",
+      "line": 32,
+      "target": "Imervue.user_settings.user_setting_dict.user_setting_dict",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_input.py",
+      "line": 46,
+      "target": "Imervue.plugin.pip_installer",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_input.py",
+      "line": 46,
+      "target": "Imervue.plugin.pip_installer.ensure_dependencies",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_live.py",
+      "line": 15,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_live.py",
+      "line": 15,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_live.py",
+      "line": 18,
+      "target": "Imervue.gui.background_jobs",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_live.py",
+      "line": 18,
+      "target": "Imervue.gui.background_jobs.job_registry",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_live.py",
+      "line": 19,
+      "target": "Imervue.system.job_state",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_live.py",
+      "line": 19,
+      "target": "Imervue.system.job_state.JobState",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 14,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 14,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 15,
+      "target": "Imervue.user_settings.user_setting_dict",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 15,
+      "target": "Imervue.user_settings.user_setting_dict.user_setting_dict",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 213,
+      "target": "Imervue.gui.tool_icons",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 213,
+      "target": "Imervue.gui.tool_icons.tool_icon",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 214,
+      "target": "Imervue.system.ui_scale",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 214,
+      "target": "Imervue.system.ui_scale.scaled_px",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 267,
+      "target": "Imervue.system.app_paths",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_menus.py",
+      "line": 267,
+      "target": "Imervue.system.app_paths.examples_dir",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_motion_record.py",
+      "line": 6,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_motion_record.py",
+      "line": 6,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_reset.py",
+      "line": 4,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_reset.py",
+      "line": 4,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_reset.py",
+      "line": 5,
+      "target": "Imervue.system.best_effort",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_reset.py",
+      "line": 5,
+      "target": "Imervue.system.best_effort.best_effort",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_ui.py",
+      "line": 5,
+      "target": "Imervue.gui.panel_scroll",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_ui.py",
+      "line": 5,
+      "target": "Imervue.gui.panel_scroll.scroll_dock_content",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_ui.py",
+      "line": 6,
+      "target": "Imervue.gui.workspace_widgets",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_ui.py",
+      "line": 6,
+      "target": "Imervue.gui.workspace_widgets.WorkspaceWelcome",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_ui.py",
+      "line": 7,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_ui.py",
+      "line": 7,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_ui.py",
+      "line": 8,
+      "target": "Imervue.system.ui_scale",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_ui.py",
+      "line": 8,
+      "target": "Imervue.system.ui_scale.scaled_px",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_validation.py",
+      "line": 7,
+      "target": "Imervue.multi_language.language_wrapper",
+      "direction": "outbound"
+    },
+    {
+      "file": "Imervue/puppet/workspace_validation.py",
+      "line": 7,
+      "target": "Imervue.multi_language.language_wrapper.language_wrapper",
+      "direction": "outbound"
+    }
+  ],
+  "limitations": [
+    "Static imports only; inspect dynamic imports, resources, scripts and external repositories separately.",
+    "Snapshot is not an independently installable package."
+  ],
+  "inbound_files": [
+    "Imervue/desktop_pet/idle_minigame.py",
+    "Imervue/desktop_pet/music_rhythm.py",
+    "Imervue/desktop_pet/pet_canvas_drivers.py",
+    "Imervue/desktop_pet/pet_interaction.py",
+    "Imervue/desktop_pet/pet_shadow_controller.py",
+    "Imervue/desktop_pet/pet_window.py",
+    "Imervue/desktop_pet/pet_window_playback.py",
+    "Imervue/gui/main_window_layout.py",
+    "Imervue/mcp_server/tools_read.py",
+    "examples/puppet/imeru/build.py",
+    "examples/puppet/imeru/illustrated.py",
+    "examples/puppet/imeru/illustrated_mesh.py",
+    "examples/puppet/imeru/illustrated_rig.py",
+    "examples/puppet/imeru/motions.py",
+    "examples/puppet/imeru/rig.py",
+    "tests/test_batch_export_stale_timer.py",
+    "tests/test_control_tooltips.py",
+    "tests/test_cubism_import_contracts.py",
+    "tests/test_cubism_import_truncation.py",
+    "tests/test_cubism_native_convert_contracts.py",
+    "tests/test_desktop_pet_drop_dispatch.py",
+    "tests/test_desktop_pet_idle_minigame.py",
+    "tests/test_desktop_pet_music_rhythm.py",
+    "tests/test_desktop_pet_pose_menu.py",
+    "tests/test_desktop_pet_window.py",
+    "tests/test_example_imeru.py",
+    "tests/test_gl_context.py",
+    "tests/test_mesh_repair.py",
+    "tests/test_modern_remaining_tabs.py",
+    "tests/test_motion_compress.py",
+    "tests/test_puppet_archive_contracts.py",
+    "tests/test_puppet_archive_curves.py",
+    "tests/test_puppet_audio_lipsync.py",
+    "tests/test_puppet_auto_mesh.py",
+    "tests/test_puppet_auto_rig.py",
+    "tests/test_puppet_auto_rig_contracts.py",
+    "tests/test_puppet_batch_export.py",
+    "tests/test_puppet_bone_hierarchy.py",
+    "tests/test_puppet_bone_weights.py",
+    "tests/test_puppet_canvas.py",
+    "tests/test_puppet_canvas_contracts.py",
+    "tests/test_puppet_canvas_fit.py",
+    "tests/test_puppet_canvas_init_state.py",
+    "tests/test_puppet_canvas_physics.py",
+    "tests/test_puppet_canvas_render.py",
+    "tests/test_puppet_canvas_render_state.py",
+    "tests/test_puppet_clip_masks.py",
+    "tests/test_puppet_color_tint.py",
+    "tests/test_puppet_cubism_import.py",
+    "tests/test_puppet_cubism_native_bridge.py",
+    "tests/test_puppet_cubism_native_convert.py",
+    "tests/test_puppet_cubism_physics_dynamics.py",
+    "tests/test_puppet_cubism_physics_pose_cdi.py",
+    "tests/test_puppet_deformers.py",
+    "tests/test_puppet_document_io.py",
+    "tests/test_puppet_easing.py",
+    "tests/test_puppet_expression_dock.py",
+    "tests/test_puppet_expressions_pose.py",
+    "tests/test_puppet_face_landmark_mapper.py",
+    "tests/test_puppet_format_schema.py",
+    "tests/test_puppet_gl_release.py",
+    "tests/test_puppet_hit_area.py",
+    "tests/test_puppet_hit_area_play.py",
+    "tests/test_puppet_idle_driver.py",
+    "tests/test_puppet_idle_motion_cycler.py",
+    "tests/test_puppet_input_drivers.py",
+    "tests/test_puppet_input_engine.py",
+    "tests/test_puppet_input_engine_viseme.py",
+    "tests/test_puppet_lipsync_from_audio.py",
+    "tests/test_puppet_lookat_and_iris.py",
+    "tests/test_puppet_mesh_edit.py",
+    "tests/test_puppet_mesh_edit_cache.py",
+    "tests/test_puppet_motion_fade.py",
+    "tests/test_puppet_motion_groups.py",
+    "tests/test_puppet_motion_loop_flag.py",
+    "tests/test_puppet_motion_picker.py",
+    "tests/test_puppet_motion_player.py",
+    "tests/test_puppet_motion_player_contracts.py",
+    "tests/test_puppet_motion_recorder.py",
+    "tests/test_puppet_motion_sampler.py",
+    "tests/test_puppet_motion_sound.py",
+    "tests/test_puppet_motion_timeline.py",
+    "tests/test_puppet_mouse_gaze_driver.py",
+    "tests/test_puppet_offscreen_format.py",
+    "tests/test_puppet_operations.py",
+    "tests/test_puppet_parameter_blend.py",
+    "tests/test_puppet_parameter_dock.py",
+    "tests/test_puppet_parts.py",
+    "tests/test_puppet_physics.py",
+    "tests/test_puppet_physics_golden.py",
+    "tests/test_puppet_plugin_skeleton.py",
+    "tests/test_puppet_pose_dock.py",
+    "tests/test_puppet_psd_import.py",
+    "tests/test_puppet_recorder.py",
+    "tests/test_puppet_render_prep.py",
+    "tests/test_puppet_requirements.py",
+    "tests/test_puppet_rig_repair.py",
+    "tests/test_puppet_runtime.py",
+    "tests/test_puppet_runtime_contract.py",
+    "tests/test_puppet_spritesheet.py",
+    "tests/test_puppet_standard_params.py",
+    "tests/test_puppet_stream_ticks.py",
+    "tests/test_puppet_streaming_outputs.py",
+    "tests/test_puppet_symmetrize.py",
+    "tests/test_puppet_synth_motions.py",
+    "tests/test_puppet_timeline_ease_simplify.py",
+    "tests/test_puppet_validator.py",
+    "tests/test_puppet_vertex_morphs.py",
+    "tests/test_puppet_viseme.py",
+    "tests/test_puppet_vts_api.py",
+    "tests/test_puppet_vts_origin.py",
+    "tests/test_puppet_webcam_model.py",
+    "tests/test_puppet_webcam_preview_dialog.py",
+    "tests/test_puppet_webcam_pump.py",
+    "tests/test_puppet_webcam_tracker.py",
+    "tests/test_puppet_workspace.py",
+    "tests/test_puppet_workspace_authoring.py",
+    "tests/test_puppet_workspace_contracts.py",
+    "tests/test_puppet_workspace_cubism_import.py",
+    "tests/test_puppet_workspace_hit_area.py",
+    "tests/test_puppet_workspace_init_state.py",
+    "tests/test_puppet_workspace_menus.py",
+    "tests/test_puppet_workspace_shutdown.py",
+    "tests/test_review_puppet_fixes.py",
+    "tests/test_translations.py",
+    "tests/test_ux_service_status.py"
+  ]
+}

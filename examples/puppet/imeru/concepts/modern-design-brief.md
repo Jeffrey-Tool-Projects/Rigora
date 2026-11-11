@@ -1,5 +1,9 @@
 # Modern full-body Imeru
 
+This brief records the existing design. The next rendering direction for
+Rigora is in [rigora-art-direction-v2.md](rigora-art-direction-v2.md).
+That revision does not replace the current artwork or animation plates.
+
 The full-body illustration is a design reference. The executable model and its
 runtime previews are separate deliverables.
 
