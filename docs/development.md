@@ -45,7 +45,7 @@ camera, microphone, and network outputs need their own checks.
 
 ```powershell
 .venv\Scripts\python.exe -m build
-.venv\Scripts\python.exe scripts/verify_wheel.py dist/rigora-0.1.0-py3-none-any.whl
+.venv\Scripts\python.exe scripts/verify_wheel.py dist/rigora-0.1.1-py3-none-any.whl
 ```
 
 Use the wheel filename produced by your build if the version changes. Package
@@ -55,16 +55,29 @@ does not publish a package or a GitHub release.
 ## Build a Windows release
 
 The [Windows release workflow](https://github.com/Jeffrey-Tool-Projects/Rigora/actions/workflows/windows-release.yml)
-builds the portable application. A manual `workflow_dispatch` run uploads a
+compiles the portable application with Nuitka and MSVC. A manual `workflow_dispatch` run uploads a
 test artifact without publishing a release.
 
+To build locally, use 64-bit Python 3.12 and Visual Studio Build Tools with the
+C++ compiler installed:
+
+```powershell
+.venv\Scripts\python.exe -m pip install ".[gui]" -r packaging/requirements-windows.txt
+.venv\Scripts\python.exe scripts/build_windows.py --native
+```
+
+The build script uses four compiler jobs and writes the ZIP, checksum,
+smoke-test reports, and Nuitka compilation report to `dist/windows/`.
+The optional `--native` check renders a character through a hidden OpenGL window.
+CI runs the offscreen startup, resource, video-export, and shutdown checks.
+
 To publish a version, use a `v`-prefixed tag that matches the version in
-`pyproject.toml`, such as `v0.1.0` for package version `0.1.0`. The workflow
+`pyproject.toml`, such as `v0.1.1` for package version `0.1.1`. The workflow
 checks that match before publishing. Its release job uses the artifact built
 and verified in the same workflow run.
 
 Release assets are `Rigora-windows-x64.zip` and `SHA256SUMS.txt`. The ZIP keeps
-`Rigora.exe` and `_internal` together in a `Rigora` directory. The
+`Rigora.exe`, DLLs, and companion folders together in a `Rigora` directory. The
 [Windows guide]({{ '/windows/' | relative_url }}) covers the end-user steps and
 the features excluded from the portable build.
 

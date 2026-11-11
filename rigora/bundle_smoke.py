@@ -6,7 +6,6 @@ import json
 import os
 from pathlib import Path
 import subprocess
-import sys
 import tempfile
 import time
 import traceback
@@ -18,6 +17,7 @@ def require(condition: bool, message: str) -> None:
 
 
 def verify(report_path: Path, *, native: bool) -> dict:
+    import imageio.v2 as imageio
     import imageio_ffmpeg
     import numpy as np
     from PySide6.QtCore import QCoreApplication, QEvent, Qt, QTimer
@@ -27,7 +27,7 @@ def verify(report_path: Path, *, native: bool) -> dict:
     from rigora.puppet.format_schema import check_puppet_file
     from rigora.puppet.runtime import compose_all_drawables, default_parameter_values
     from rigora.system import settings
-    from rigora.system.app_paths import examples_dir
+    from rigora.system.app_paths import examples_dir, is_frozen
 
     settings.configure()
     app = QApplication([])
@@ -36,7 +36,10 @@ def verify(report_path: Path, *, native: bool) -> dict:
     window.setAttribute(Qt.WidgetAttribute.WA_DontShowOnScreen)
     window.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
     window.setWindowFlag(Qt.WindowType.WindowDoesNotAcceptFocus)
-    report = {"frozen": bool(getattr(sys, "frozen", False)), "platform": app.platformName()}
+    report = {
+        "frozen": is_frozen(), "compiler": "Nuitka" if "__compiled__" in globals() else None,
+        "platform": app.platformName(),
+    }
     try:
         schemas = examples_dir().parent / "schemas"
         for name in ("puppet", "motion", "expression", "physics"):
@@ -62,6 +65,17 @@ def verify(report_path: Path, *, native: bool) -> dict:
         )
         require(b"ffmpeg version" in ffmpeg.stdout, "Bundled video encoder unavailable")
         report["ffmpeg"] = True
+        with tempfile.TemporaryDirectory(prefix="rigora-video-") as temporary:
+            video = Path(temporary) / "smoke.mp4"
+            with imageio.get_writer(video, format="FFMPEG", fps=2) as writer:
+                writer.append_data(np.zeros((32, 32, 3), dtype=np.uint8))
+                writer.append_data(np.full((32, 32, 3), 255, dtype=np.uint8))
+            reader = imageio.get_reader(video, format="FFMPEG")
+            try:
+                require(reader.get_data(0).shape == (32, 32, 3), "Video round trip failed")
+            finally:
+                reader.close()
+        report["video_export"] = True
         if native:
             report["native"] = native_frame(window, app, report_path)
         else:

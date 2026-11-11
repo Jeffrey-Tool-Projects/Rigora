@@ -9,7 +9,7 @@ lang: zh-Hant
 
 64 位元 Windows 10／11 可使用包含 Python 的可攜版。下載並完整解壓縮
 `Rigora-windows-x64.zip`，再執行 `Rigora` 資料夾內的 `Rigora.exe`。
-請保留旁邊的 `_internal` 資料夾，不要只移動 EXE。
+請保留旁邊的所有 DLL 與資料夾，不要只移動 EXE。
 
 官方下載連結、校驗碼、未簽章提醒及選用功能限制，請見
 [Windows 使用說明]({{ '/windows/' | relative_url }}#traditional-chinese)。

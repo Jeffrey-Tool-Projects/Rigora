@@ -14,7 +14,7 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -42,6 +42,7 @@ jobs:
             dist/windows/Rigora-windows-x64.zip
             dist/windows/SHA256SUMS.txt
             dist/windows/smoke-report.json
+            dist/windows/compilation-report.xml
           if-no-files-found: error
           retention-days: 14
       - name: Preserve failed smoke evidence
@@ -51,7 +52,8 @@ jobs:
           name: windows-build-diagnostics
           path: |
             dist/windows/*report.json
-            build/windows/windows/warn-windows.txt
+            dist/windows/compilation-report.xml
+            nuitka-crash-report.xml
           if-no-files-found: ignore
 
   release:
@@ -82,9 +84,9 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           @'
-          Windows x64 portable build. Extract the entire ZIP and open Rigora/Rigora.exe.
+          Windows x64 portable build compiled with Nuitka. Extract the entire ZIP and open Rigora/Rigora.exe.
 
-          Python is not required for the bundled editor. Keep the _internal directory beside the executable.
+          Python is not required for the bundled editor. Keep all DLLs and companion folders beside the executable.
           Usage: https://jeffrey-tool-projects.github.io/Rigora/windows/
           This build is unsigned. SHA256SUMS.txt verifies the downloaded ZIP.
           '@ | Set-Content release/notes.md -Encoding utf8

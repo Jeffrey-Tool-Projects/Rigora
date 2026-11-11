@@ -16,7 +16,8 @@ parameters, motions, expressions, and physics in one archive.
 Download `Rigora-windows-x64.zip` and `SHA256SUMS.txt` from the
 [latest GitHub release](https://github.com/Jeffrey-Tool-Projects/Rigora/releases/latest).
 Verify the checksum, extract the entire ZIP, and open `Rigora/Rigora.exe`.
-Keep the `_internal` folder beside the executable. Python is included.
+Keep all DLLs and companion folders beside the executable. Python is included.
+Version 0.1.1 and later use Nuitka standalone compilation.
 
 The portable build targets 64-bit Windows 10 and 11. It includes the core
 editor, Imeru, and export features. Optional live-input and output packages are

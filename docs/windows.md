@@ -12,6 +12,7 @@ permalink: /windows/
 Use 64-bit Windows 10 version 1809 or later, or Windows 11, with a working
 OpenGL graphics driver.
 The portable build includes Python and the core GUI dependencies.
+Version 0.1.1 and later are compiled with Nuitka in standalone mode.
 
 1. Open the [latest GitHub release](https://github.com/Jeffrey-Tool-Projects/Rigora/releases/latest).
 2. Download `Rigora-windows-x64.zip` and `SHA256SUMS.txt` from **Assets**.
@@ -24,12 +25,17 @@ The extracted layout includes:
 ```text
 Rigora/
   Rigora.exe
-  _internal/
+  python312.dll
+  PySide6/
+  rigora/
+  licenses/
 ```
 
-Keep the entire folder together. Do not run the executable inside the ZIP or
-move `Rigora.exe` away from `_internal`. This is a portable application, not an
+Keep the entire folder together, including all DLLs and companion folders.
+Do not run the executable inside the ZIP or move `Rigora.exe` by itself.
+This is a portable application, not an
 installer. You do not need to install Python or create a virtual environment.
+The older 0.1.0 release uses PyInstaller and keeps its dependencies in `_internal`.
 
 ## Open a character
 
@@ -84,7 +90,7 @@ replacing the program folder does not replace the application-data directory.
 
 | Symptom | Check |
 | --- | --- |
-| Missing DLL or `_internal` file | Extract the full ZIP again. Keep the executable and its companion files together. |
+| Missing DLL or companion file | Extract the full ZIP again. Keep the executable and its companion files together. |
 | Blank canvas or graphics error | Update the graphics driver and check OpenGL support in the current desktop session. |
 | A camera, microphone, or output feature is unavailable | These optional packages are not included in the portable build. Use a source installation with the required extras. |
 | No Windows asset on a release | Use a release that includes `Rigora-windows-x64.zip`, or install from source. GitHub's automatic source-code ZIP is not the application. |
@@ -99,6 +105,7 @@ recorded in `%LOCALAPPDATA%\Rigora\startup.log`.
 
 Windows 可攜版適用於 64 位元 Windows 10 1809 以上版本或 Windows 11，包含 Python 與核心 GUI 相依套件，
 不需另行安裝 Python。顯示驅動程式仍須支援 OpenGL。
+0.1.1 起使用 Nuitka standalone 模式編譯。
 
 1. 開啟[最新 GitHub Release](https://github.com/Jeffrey-Tool-Projects/Rigora/releases/latest)。
 2. 在 **Assets** 下載 `Rigora-windows-x64.zip` 與同一版本的 `SHA256SUMS.txt`。
@@ -106,8 +113,9 @@ Windows 可攜版適用於 64 位元 Windows 10 1809 以上版本或 Windows 11�
 4. 將整份 ZIP 解壓縮到可寫入的資料夾。
 5. 開啟解壓後的 `Rigora` 資料夾，執行 `Rigora.exe`。
 
-請保留 `Rigora.exe` 與 `_internal` 的相對位置，不要只移動 EXE，也不要在 ZIP
+請保留 `Rigora.exe`、所有 DLL 與同層資料夾，不要只移動 EXE，也不要在 ZIP
 內直接執行。這是可攜式資料夾，不是安裝程式。
+舊版 0.1.0 使用 PyInstaller，須保留它的 `_internal` 資料夾。
 
 啟動後選擇 **File > Examples > Imeru**，即可播放內附角色的動作。也可以開啟自己
 的 `.puppet`，或依上方範例在命令列傳入模型路徑。

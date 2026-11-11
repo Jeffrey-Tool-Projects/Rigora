@@ -45,7 +45,7 @@ def _dispatch(method: str, params: dict) -> dict:
         return {
             "protocolVersion": PROTOCOL_VERSION,
             "capabilities": {"tools": {"listChanged": False}},
-            "serverInfo": {"name": "rigora", "version": "0.1.0"},
+            "serverInfo": {"name": "rigora", "version": "0.1.1"},
         }
     if method == "ping":
         return {}

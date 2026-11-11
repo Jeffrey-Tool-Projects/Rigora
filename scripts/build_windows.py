@@ -13,11 +13,12 @@ import subprocess
 import sys
 import tempfile
 import tomllib
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_LICENSES = (
     "numpy", "Pillow", "PySide6", "PySide6_Addons", "PySide6_Essentials",
-    "shiboken6", "PyOpenGL", "imageio", "imageio-ffmpeg", "PyInstaller", "setuptools",
+    "shiboken6", "PyOpenGL", "imageio", "imageio-ffmpeg", "Nuitka",
 )
 
 
@@ -48,8 +49,9 @@ def verify_executable(executable: Path, report: Path, *, native: bool = False) -
             timeout=90, creationflags=subprocess.CREATE_NO_WINDOW,
         )
     result = json.loads(report.read_text(encoding="utf-8"))
-    if result.get("status") != "passed" or not result.get("frozen"):
-        raise RuntimeError(f"Frozen verification failed: {result}")
+    if (result.get("status") != "passed" or result.get("compiler") != "Nuitka"
+            or not result.get("frozen")):
+        raise RuntimeError(f"Compiled executable verification failed: {result}")
 
 
 def main() -> None:
@@ -68,16 +70,27 @@ def main() -> None:
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     subprocess.run(
-        [sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean",
-         "--distpath", str(output), "--workpath", str(ROOT / "build" / "windows"),
-         str(ROOT / "packaging" / "windows.spec")], cwd=ROOT, check=True,
+        [sys.executable, "-m", "nuitka", "--mode=standalone", "--msvc=latest", "--jobs=4",
+         "--assume-yes-for-downloads", "--enable-plugin=pyside6", "--windows-console-mode=disable",
+         "--output-filename=Rigora.exe", "--output-folder-name=Rigora", f"--output-dir={output}",
+         f"--report={output / 'compilation-report.xml'}", "--include-distribution-metadata=rigora",
+         f"--include-data-dir={ROOT / 'rigora' / 'resources'}=rigora/resources",
+         f"--include-data-files={ROOT / 'rigora' / 'puppet' / 'FORMAT.md'}=rigora/puppet/FORMAT.md",
+         "--include-module=OpenGL.platform.win32", "--include-module=OpenGL.arrays.numpymodule",
+         "--include-module=imageio.plugins.ffmpeg", "--include-module=imageio.plugins.pillow",
+         "--nofollow-import-to=cv2,mediapipe,sounddevice,pyvirtualcam,NDIlib,pynput",
+         str(ROOT / "packaging" / "windows_entry.py")], cwd=ROOT, check=True,
     )
-    bundle = output / "Rigora"
+    bundle = output / "Rigora.dist"
     copy_licenses(bundle)
     verify_executable(bundle / "Rigora.exe", output / "smoke-report.json")
     if args.native:
         verify_executable(bundle / "Rigora.exe", output / "native-report.json", native=True)
-    archive = Path(shutil.make_archive(str(output / "Rigora-windows-x64"), "zip", output, "Rigora"))
+    archive = output / "Rigora-windows-x64.zip"
+    with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as packaged:
+        for path in sorted(bundle.rglob("*")):
+            if path.is_file():
+                packaged.write(path, Path("Rigora") / path.relative_to(bundle))
     with archive.open("rb") as stream:
         checksum = hashlib.file_digest(stream, "sha256").hexdigest()
     (output / "SHA256SUMS.txt").write_text(f"{checksum}  {archive.name}\n", encoding="utf-8")
