@@ -1,6 +1,6 @@
 # Puppet 指南 — 直播與動畫製作
 
-請在已獲授權的 Rigora checkout 執行 `python -m pip install ".[gui]"`，再執行 `python -m rigora`。Rigora 目前為私人專案，尚未公開發行套件。本指南的編輯器也可在已安裝 Rigora 的 Imervue Puppet 分頁使用。套件範例由 `rigora.system.app_paths.examples_dir()` 定位；以下 `examples/` 路徑指 Rigora 原始碼 checkout。
+請在公開的 Rigora 原始碼 checkout 執行 `python -m pip install ".[gui]"`，再執行 `python -m rigora`。此處從原始碼安裝，不依賴 PyPI 發行版本。本指南的編輯器也可在已安裝 Rigora 的 Imervue Puppet 分頁使用。套件範例由 `rigora.system.app_paths.examples_dir()` 定位；以下 `examples/` 路徑指 Rigora 原始碼 checkout。
 
 從「我想做 VTuber 風直播或短動畫」走到「我已經在 OBS 上直播 / 我手上有一個 MP4 檔」的完整流程，用 Rigora 的 **Puppet** 分頁完成。
 
@@ -57,7 +57,7 @@ Puppet 工具列有 6 個即時輸入 toggle（**Live** 選單也有同樣 6 個
 
 典型臉部追蹤 VTuber 設定：開 **Webcam tracking** + **Auto-blink** + **Mic lip-sync**。打開 *Webcam tracking* 時會跳出預覽視窗，顯示攝影機畫面 + 偵測到的 landmark — 用來確認 tracker 真的有看到你。
 
-> **首次使用注意** — webcam tracking 需要 `mediapipe` 的 face-landmark 模型。Rigora 第一次啟用會自動下載（~3.7 MB，從 Google Cloud Storage）到 `<app_dir>/models/face_landmarker.task`，之後直接用快取。
+> **首次使用注意** — webcam tracking 需要 `mediapipe` 的 face-landmark 模型。Rigora 第一次啟用會自動下載（~3.7 MB，從 Google Cloud Storage）到 `<Rigora data directory>/models/face_landmarker.task`，之後直接用快取。
 
 **Output > VTS API** 是另一種輸入：它在 `ws://127.0.0.1:8001`（只限本機）開一個精簡版 VTube Studio Public API 伺服器，支援這個協定的臉部追蹤程式連上後，可以列出 rig 的參數並寫入數值。伺服器會自動發放並接受 token。
 

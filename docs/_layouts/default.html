@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="{{ page.lang | default: 'en' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title | escape }} · {{ site.title | escape }}</title>
+  <meta name="description" content="{{ page.description | default: site.description | escape }}">
+  <meta name="theme-color" content="#102e35">
+  <link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
+  <link rel="canonical" href="{{ page.url | absolute_url }}">
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="{{ '/' | relative_url }}" aria-label="Rigora documentation home"><span class="brand-mark" aria-hidden="true">R</span>Rigora <span class="brand-label">Documentation</span></a>
+      <a class="source-link" href="https://github.com/Jeffrey-Tool-Projects/Rigora">Source on GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  <div class="page-shell">
+    <nav class="sidebar" aria-label="Documentation">
+      <p class="nav-label">Explore Rigora</p>
+      {% assign routes = 'Overview|/,Getting started|/getting-started/,User guide|/user-guide/,Reference|/reference/,Development|/development/,繁體中文入門|/getting-started-zh-tw/' | split: ',' %}
+      {% for route in routes %}
+        {% assign item = route | split: '|' %}
+        <a href="{{ item[1] | relative_url }}"{% if page.url == item[1] %} class="active" aria-current="page"{% endif %}>{{ item[0] }}</a>
+      {% endfor %}
+      <div class="sidebar-note"><span class="status-dot" aria-hidden="true"></span>Open source · MIT<br><span>Python 3.11+</span></div>
+    </nav>
+    <main id="content" class="content" tabindex="-1">
+      {% unless page.home %}<div class="page-heading"><p class="eyebrow">Rigora handbook</p><h1>{{ page.title }}</h1>{% if page.description %}<p class="lead">{{ page.description }}</p>{% endif %}</div>{% endunless %}
+      {{ content }}
+      <footer class="page-footer">
+        <span>Rigora · 2D characters in motion</span>
+        <a href="https://github.com/Jeffrey-Tool-Projects/Rigora/blob/main/docs/{{ page.path | remove_first: 'docs/' }}">Edit this page</a>
+        <a href="https://github.com/Jeffrey-Tool-Projects/Rigora/issues">Report an issue</a>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

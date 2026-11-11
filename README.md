@@ -1,35 +1,61 @@
 # Rigora
 
-Rigora is a 2D character rigging, animation and desktop-companion application.
-It owns the `.puppet` format implementation, animation and physics runtime,
-Cubism/PSD import, character editor, live inputs, recording and desktop pets.
-The implementation was extracted from
-[Imervue](https://github.com/Jeffrey-Tool-Projects/Imervue), which retains optional
-tabs and commands that use this package.
+**Create, animate, and perform with 2D characters.**
 
-## Install and launch
+Rigora combines a character editor, animation and physics runtime, live inputs,
+recording, and desktop companions. Its `.puppet` files keep textured meshes,
+parameters, motions, expressions, and physics in one archive.
 
-The repository is currently private and no public package release is claimed.
-From an authorized checkout, install into the Python 3.11+ environment that will
-run Rigora or its embedding application:
+[Documentation](https://jeffrey-tool-projects.github.io/Rigora/) ·
+[Getting started](https://jeffrey-tool-projects.github.io/Rigora/getting-started/) ·
+[User guide](https://jeffrey-tool-projects.github.io/Rigora/user-guide/) ·
+[Issues](https://github.com/Jeffrey-Tool-Projects/Rigora/issues)
+
+## Install from source
+
+Use Python 3.11 or newer. These commands install the public source checkout;
+they do not require a PyPI release.
 
 ```powershell
-python -m pip install ".[gui]"
-python -m rigora
+git clone https://github.com/Jeffrey-Tool-Projects/Rigora.git
+cd Rigora
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install ".[gui]"
+.venv\Scripts\python.exe -m rigora
 ```
 
-`rigora-editor` also launches the editor. To open a document directly, run
-`python -m rigora path/to/model.puppet`. Install without extras for headless
-model, archive and schema operations. Optional extras are `webcam`, `lipsync`,
-`virtual-camera`, `ndi` and `hotkeys`. The editor can install missing optional
-dependencies when a feature needs them.
+On macOS or Linux, use `.venv/bin/python` in place of
+`.venv\Scripts\python.exe`. Keep installation and launch commands on the same
+interpreter. See [setup and troubleshooting](https://jeffrey-tool-projects.github.io/Rigora/getting-started/)
+for optional inputs and headless use.
 
-An authorized build can also supply a wheel. Install that wheel and its `gui`
-extra in the same environment; consumer packages require a separate authorized Rigora installation while it remains unpublished.
-
-## Commands and MCP
+Open **File > Examples > Imeru** to try the bundled character, then select a
+motion in the **Motions** dock. To open your own document at launch:
 
 ```powershell
+.venv\Scripts\python.exe -m rigora path/to/model.puppet
+```
+
+## What is included
+
+| Area | Capabilities |
+| --- | --- |
+| Character editing | Textured meshes, parameters, deformers, bones, parts, and hit areas |
+| Animation | Motions, expressions, physics, timeline editing, and recording |
+| Import and export | PNG, PSD and Cubism import; image, animation, and video output |
+| Live performance | Mouse tracking, automatic blinking, microphone and webcam input, virtual camera, and NDI output |
+| Desktop companions | Character loading, interaction, scripts, scheduling, and optional hotkeys |
+| Automation | Headless CLI operations and an MCP server over standard input and output |
+
+Some live features need optional packages or external software. Proprietary
+Cubism SDK binaries are not included. See the
+[feature and dependency reference](https://jeffrey-tool-projects.github.io/Rigora/reference/).
+
+## Command-line tools
+
+After activating the environment, the `rigora` command provides:
+
+```text
 rigora puppet-from-png character.png --destination character.puppet --cell-size 64
 rigora puppet-inspect character.puppet
 rigora puppet-validate character.puppet --json
@@ -38,49 +64,30 @@ rigora editor
 rigora mcp
 ```
 
-`rigora-mcp` serves the same four headless operations over standard input and
-output. Core imports and commands do not initialize Qt or OpenGL.
+`rigora-mcp` exposes the same four model operations through MCP. Installing
+without extras supports headless model, archive, and schema operations without
+initializing Qt or OpenGL.
 
-## Examples, settings and documentation
-
-The editor's Examples menu opens the installed Imeru rig. Code can locate it
-through `rigora.system.app_paths.examples_dir() / "puppet" / "imeru.puppet"`.
-Example source artwork and build scripts remain in `examples/` in this checkout.
-Installed runtime examples are under `rigora/resources/examples/`.
-
-Rigora owns its settings and writable model cache. `RIGORA_DATA_DIR` overrides
-the data directory and `RIGORA_SETTINGS_PATH` overrides the settings file.
-Imervue imports relevant old preferences on first embedded use without sharing
-its settings file. Existing `.puppet` documents, MIME and schema IDs remain
-compatible.
-
-Read the [Puppet guide](puppet_guide.md),
-[Traditional Chinese guide](puppet_guide.zh-TW.md),
-[Simplified Chinese guide](puppet_guide.zh-CN.md),
-[format specification](rigora/puppet/FORMAT.md) and
-[architecture](architecture.md). Source import provenance is in
-[migration/PROVENANCE.md](migration/PROVENANCE.md).
-
-Imeru remains the example character; Rigora is the application name. The next
-[illustration direction](examples/puppet/imeru/concepts/rigora-art-direction-v2.md)
-is separate from the existing animation plates. A preview does not replace
-the rig's production artwork.
-
-## Development and verification
+## Development
 
 ```powershell
-python -m pip install ".[dev]"
-python -m pytest tests/ -q
-python -m build
+.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.venv\Scripts\python.exe -m pytest tests/ -q
+.venv\Scripts\python.exe -m build
 ```
 
-Run desktop tests with `QT_QPA_PLATFORM=offscreen` when no visible window is
-allowed. Native OpenGL tests are skipped in that mode; they do not count as
-rendering acceptance. Verify wheel installation in a clean environment outside
-the checkout without Imervue installed. Consumers own their integration tests.
+The [development guide](https://jeffrey-tool-projects.github.io/Rigora/development/)
+covers checks, package verification, and the source layout. The
+[format specification](rigora/puppet/FORMAT.md) and [JSON schemas](docs/schemas/)
+describe the archive contract. Source artwork and builders are in `examples/`;
+installed runtime examples are in `rigora/resources/examples/`.
+
+Rigora was extracted from [Imervue](https://github.com/Jeffrey-Tool-Projects/Imervue),
+which can embed the editor and runtime. See [architecture](architecture.md)
+and [source provenance](migration/PROVENANCE.md) for that boundary.
 
 ## License
 
-[MIT](LICENSE), with original attribution retained.
-See [third-party notices](THIRD_PARTY_LICENSES.md). Proprietary Cubism SDK binaries
-and private character/model files are not supplied.
+[MIT](LICENSE). Original attribution is retained in
+[third-party notices](THIRD_PARTY_LICENSES.md). Proprietary SDK binaries and
+private character files are not distributed with this repository.

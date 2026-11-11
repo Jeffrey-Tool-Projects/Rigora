@@ -1,6 +1,6 @@
 # Puppet Guide — Live Streaming & Animation Production
 
-Install the authorized Rigora checkout with `python -m pip install ".[gui]"`, then run `python -m rigora`. Rigora is currently private and has no public package release. The editor described here also runs in Imervue’s Puppet tab when Rigora is installed. Packaged examples are resolved with `rigora.system.app_paths.examples_dir()`; the `examples/` paths below refer to the Rigora source checkout.
+Install the public Rigora source checkout with `python -m pip install ".[gui]"`, then run `python -m rigora`. These instructions install from source and do not assume a PyPI release. The editor described here also runs in Imervue’s Puppet tab when Rigora is installed. Packaged examples are resolved with `rigora.system.app_paths.examples_dir()`; the `examples/` paths below refer to the Rigora source checkout.
 
 A walkthrough for getting from "I want to do VTuber-style streaming
 or make a short animation" to "I'm live on OBS / I have an MP4
@@ -76,7 +76,7 @@ tracker actually sees your face.
 
 > **First-run note** — webcam tracking needs `mediapipe`'s
 > face-landmark model. Rigora downloads it (~3.7 MB from Google
-> Cloud Storage) to `<app_dir>/models/face_landmarker.task` the
+> Cloud Storage) to `<Rigora data directory>/models/face_landmarker.task` the
 > first time you enable the toggle. Subsequent launches use the
 > cached copy.
 
@@ -162,7 +162,7 @@ Plus:
 Wiring:
 
 1. In the Puppet tab, toggle **Output > NDI output**. Status bar
-   shows the source name (default *Imervue Puppet*).
+   shows the source name (default *Imervue Puppet*, retained for existing receiver configurations).
 2. In OBS: **Sources > + > NDI Source** → pick the source name
    from step 1.
 

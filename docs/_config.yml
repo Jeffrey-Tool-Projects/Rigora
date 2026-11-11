@@ -1,0 +1,18 @@
+title: Rigora
+description: A guide to 2D character editing, animation, live performance, and desktop companions.
+url: "https://jeffrey-tool-projects.github.io"
+baseurl: "/Rigora"
+repository: Jeffrey-Tool-Projects/Rigora
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - _site
