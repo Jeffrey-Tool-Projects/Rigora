@@ -44,3 +44,12 @@ def post_json(url: str, payload: dict, timeout: float) -> dict:
     with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310  # scheme + host validated above
         raw = resp.read()
     return json.loads(raw.decode("utf-8"))
+
+
+def get_json(url: str, timeout: float) -> dict:
+    """GET ``url`` (same URL policy as :func:`post_json`) and decode the JSON reply."""
+    validate_base_url(url)
+    req = urllib.request.Request(url, method="GET")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310  # scheme + host validated above
+        raw = resp.read()
+    return json.loads(raw.decode("utf-8"))

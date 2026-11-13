@@ -23,7 +23,17 @@ def _parse_motion(name: str, raw: dict) -> Motion:
         fade_out_duration=float(raw.get("fade_out_duration", 0.0)),
         sound_path=raw.get("sound_path"),
         group=raw.get("group"),
+        take=_parse_take(raw.get("take"), name),
     )
+
+
+def _parse_take(raw: object, name: str) -> dict | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict) or not isinstance(raw.get("id"), str) \
+            or not isinstance(raw.get("source"), str):
+        raise PuppetFormatError(f"motion {name}: take needs an id and a source")
+    return dict(raw)
 
 
 def _parse_track(raw: dict) -> MotionTrack:
@@ -69,6 +79,8 @@ def _motion_json_bytes(motion: Motion) -> bytes:
         payload["sound_path"] = motion.sound_path
     if motion.group:
         payload["group"] = motion.group
+    if motion.take:
+        payload["take"] = dict(motion.take)
     return _dumps(payload)
 
 

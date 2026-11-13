@@ -2,6 +2,15 @@
 
 from __future__ import annotations
 
+if __name__ == "__main__":
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from rigora.app import main
+
+    raise SystemExit(main())
+
 from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtWidgets import QMainWindow, QMessageBox, QTabWidget, QWidget
 
@@ -81,5 +90,8 @@ class EditorWindow(QMainWindow):
                 flush()
 
     def closeEvent(self, event) -> None:
+        if not self._shutdown and not self.editor.confirm_discard_changes():
+            event.ignore()
+            return
         self.shutdown()
         super().closeEvent(event)

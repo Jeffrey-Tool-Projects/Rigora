@@ -67,7 +67,7 @@ def test_unknown_message_type_returns_api_error(qapp):
         handler = VTubeStudioHandler(canvas)
         response = handler.handle_message(_request("NotAThing"))
         assert response["messageType"] == "APIError"
-        assert response["data"]["errorID"] == 1
+        assert response["data"]["errorID"] == 5          # VTS RequestTypeUnknown
     finally:
         canvas.deleteLater()
 
@@ -116,7 +116,7 @@ def test_wrong_token_is_rejected(qapp):
         handler = VTubeStudioHandler(canvas)
         handler.handle_message(_request(
             "AuthenticationTokenRequest",
-            {"pluginName": "X", "pluginDeveloper": "Y"},
+            {"pluginName": "Xplugin", "pluginDeveloper": "Ydev"},
         ))
         resp = handler.handle_message(_request(
             "AuthenticationRequest",
@@ -154,7 +154,7 @@ def test_parameter_value_requires_auth(qapp):
             "ParameterValueRequest", {"name": "ParamAngleX"},
         ))
         assert resp["messageType"] == "APIError"
-        assert resp["data"]["errorID"] == 50
+        assert resp["data"]["errorID"] == 8
     finally:
         canvas.deleteLater()
 
@@ -162,7 +162,7 @@ def test_parameter_value_requires_auth(qapp):
 def _authenticate(handler):
     token = handler.handle_message(_request(
         "AuthenticationTokenRequest",
-        {"pluginName": "t", "pluginDeveloper": "t"},
+        {"pluginName": "Tracker", "pluginDeveloper": "Suite"},
     ))["data"]["authenticationToken"]
     handler.handle_message(_request(
         "AuthenticationRequest", {"authenticationToken": token},

@@ -20,6 +20,7 @@ class PuppetKeyframesMixin:
         forms = snapshot_current_forms(doc)
         ok = set_key_at_value(doc, param_id, value, forms)
         if ok:
+            self._commit_edit("Set parameter key")
             self._announce(
                 "puppet_key_set", "Set key on {id} at {value:.2f}",
                 id=param_id, value=value,
@@ -51,8 +52,9 @@ class PuppetKeyframesMixin:
         )
 
     def _on_bone_hierarchy_changed(self) -> None:
-        """Re-render the canvas after a reparent so the new FK order
-        is reflected on screen without a manual reload."""
+        """Record a reparent or reorder as one Undo step and re-render so
+        the new FK order shows without a manual reload."""
         doc = self._canvas.document()
         if doc is not None:
+            self._commit_edit("Edit deformer hierarchy")
             self._canvas.load_document(doc)

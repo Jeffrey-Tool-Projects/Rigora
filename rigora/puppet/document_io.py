@@ -45,7 +45,7 @@ def load_puppet(path: str | Path) -> PuppetDocument:
             return _load_from_zip(zf, max_uncompressed=_MAX_UNCOMPRESSED_BYTES)
     except PuppetFormatError:
         raise
-    except (KeyError, TypeError, AttributeError, ValueError, IndexError,
+    except (KeyError, TypeError, AttributeError, ValueError, IndexError, OverflowError,
             zipfile.BadZipFile) as exc:
         # The format parsers are strict but not exhaustive: a manifest
         # that is a JSON list (AttributeError on .get), a non-numeric size
@@ -91,6 +91,13 @@ def to_zip_bytes(doc: PuppetDocument) -> bytes:
 
 
 def from_zip_bytes(data: bytes) -> PuppetDocument:
-    """Inverse of :func:`to_zip_bytes`."""
-    with zipfile.ZipFile(io.BytesIO(data), "r") as zf:
-        return _load_from_zip(zf, max_uncompressed=_MAX_UNCOMPRESSED_BYTES)
+    """Inverse of :func:`to_zip_bytes`. Malformed data raises
+    :class:`PuppetFormatError`, as :func:`load_puppet` does."""
+    try:
+        with zipfile.ZipFile(io.BytesIO(data), "r") as zf:
+            return _load_from_zip(zf, max_uncompressed=_MAX_UNCOMPRESSED_BYTES)
+    except PuppetFormatError:
+        raise
+    except (KeyError, TypeError, AttributeError, ValueError, IndexError, OverflowError,
+            zipfile.BadZipFile) as exc:
+        raise PuppetFormatError(f"malformed puppet archive: {exc}") from exc

@@ -209,7 +209,11 @@ def _to_float32(samples: np.ndarray | bytes) -> np.ndarray:
         return arr
     arr = np.asarray(samples)
     if arr.dtype == np.int16:
-        return arr.astype(np.float32) / 32768.0
-    if arr.dtype != np.float32:
-        return arr.astype(np.float32)
+        arr = arr.astype(np.float32) / 32768.0
+    elif arr.dtype != np.float32:
+        arr = arr.astype(np.float32)
+    if arr.ndim > 1:
+        # Audio callbacks deliver (frames, channels); mix down to mono so the
+        # spectrum is taken over time, not over the channel axis.
+        arr = arr.reshape(arr.shape[0], -1).mean(axis=1).astype(np.float32)
     return arr

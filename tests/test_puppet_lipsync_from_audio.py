@@ -82,11 +82,19 @@ def test_an_unsupported_wav_is_refused(tmp_path):
 
 
 def _host(document):
+    from rigora.puppet.takes import store_take
     said, loaded, picked = [], [], []
     canvas = SimpleNamespace(document=lambda: document, load_document=loaded.append)
+
+    def store(motion, conflict):
+        stored = store_take(document, motion, conflict or "rename")
+        loaded.append(document)
+        return stored
+
     host = SimpleNamespace(
         _canvas=canvas, _motion_dock=SimpleNamespace(select_motion=picked.append),
         _announce=lambda key, fallback, **fmt: said.append((key, fmt)),
+        store_motion_take=store,
     )
     return host, said, loaded, picked
 
@@ -98,8 +106,9 @@ def _mouth(**kw) -> Parameter:
 def test_the_handler_adds_the_motion_and_picks_it(tmp_path):
     doc = PuppetDocument(motions=[Motion(name="lipsync_line", duration=9.0)])
     host, said, loaded, picked = _host(doc)
-    PuppetWorkspace._add_lipsync_motion(host, _quiet_then_loud(tmp_path / "line.wav"), _mouth())
-    assert [m.name for m in doc.motions] == ["lipsync_line"]          # same name is replaced
+    PuppetWorkspace._add_lipsync_motion(host, _quiet_then_loud(tmp_path / "line.wav"), _mouth(),
+                                        conflict="replace")
+    assert [m.name for m in doc.motions] == ["lipsync_line"]          # replaced, as chosen
     assert doc.motions[0].duration == pytest.approx(1.0, abs=0.05)
     assert loaded == [doc] and picked == ["lipsync_line"]
     assert said[0][0] == "puppet_lipsync_audio_done"

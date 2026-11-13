@@ -44,7 +44,14 @@ def _parameter_name(entry: Any, label: str) -> str:
     return param
 
 
+MAX_CANVAS_SIDE = 65_536
+
+
 def _parse_size(raw: Any) -> tuple[int, int]:
     if not isinstance(raw, list) or len(raw) != 2:
         raise PuppetFormatError(f"size must be [w, h], got {raw!r}")
-    return (int(raw[0]), int(raw[1]))
+    width, height = int(raw[0]), int(raw[1])
+    if not (1 <= width <= MAX_CANVAS_SIDE and 1 <= height <= MAX_CANVAS_SIDE):
+        raise PuppetFormatError(
+            f"size {width}x{height} is outside 1..{MAX_CANVAS_SIDE} pixels per side")
+    return (width, height)

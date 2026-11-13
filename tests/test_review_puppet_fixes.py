@@ -231,7 +231,8 @@ def test_authenticated_vts_rejects_non_array_injection(data):
 
 def test_vts_invalid_request_does_not_break_authenticated_session():
     handler = VTubeStudioHandler(Canvas())
-    token = handler.handle_message({'messageType': 'AuthenticationTokenRequest'})
+    token = handler.handle_message({'messageType': 'AuthenticationTokenRequest', 'data': {
+        'pluginName': 'Review', 'pluginDeveloper': 'Suite'}})
     auth = handler.handle_message({'messageType': 'AuthenticationRequest', 'data': token['data']})
     assert auth['data']['authenticated']
     invalid = handler.handle_message({'messageType': [], 'data': {}})

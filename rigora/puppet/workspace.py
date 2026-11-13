@@ -25,8 +25,13 @@ from rigora.puppet.parameter_dock import ParameterDock
 from rigora.puppet.pose_dock import PoseDock
 from rigora.puppet.recorder import RecordingSession
 from rigora.puppet.webcam_tracker import WebcamTracker
+from rigora.puppet.workspace_assets import PuppetAssetsMixin
+from rigora.puppet.workspace_mesh_tools import PuppetMeshToolsMixin
+from rigora.puppet.workspace_rig_tools import PuppetRigToolsMixin
+from rigora.puppet.workspace_animation import PuppetAnimationMixin
 from rigora.puppet.workspace_import import PuppetImportMixin
 from rigora.puppet.workspace_live import PuppetLiveMixin
+from rigora.puppet.workspace_live_io import PuppetLiveIOMixin
 from rigora.puppet.workspace_menus import RECENT_KEY, PuppetMenusMixin
 from rigora.puppet.workspace_files import PuppetFilesMixin
 from rigora.puppet.workspace_authoring import PuppetAuthoringMixin
@@ -39,15 +44,18 @@ from rigora.puppet.workspace_motion_edit import PuppetMotionEditMixin
 from rigora.puppet.workspace_motion_record import PuppetMotionRecordMixin
 from rigora.puppet.workspace_audio import PuppetAudioMixin
 from rigora.puppet.workspace_files import _push_recent
+from rigora.puppet.workspace_session import PuppetSessionMixin
 
 __all__ = ["PuppetWorkspace", "_push_recent", "RECENT_KEY", "QFileDialog"]
 
 
 class PuppetWorkspace(
-    PuppetFilesMixin, PuppetAuthoringMixin, PuppetKeyframesMixin, PuppetResetMixin,
+    PuppetSessionMixin, PuppetFilesMixin, PuppetAuthoringMixin, PuppetKeyframesMixin,
+    PuppetResetMixin,
     PuppetInputMixin, PuppetValidationMixin, PuppetExportMixin, PuppetMotionEditMixin,
     PuppetMotionRecordMixin, PuppetAudioMixin, PuppetMenusMixin, PuppetLiveMixin,
-    PuppetImportMixin, QMainWindow,
+    PuppetImportMixin, PuppetAssetsMixin, PuppetMeshToolsMixin, PuppetRigToolsMixin,
+    PuppetAnimationMixin, PuppetLiveIOMixin, QMainWindow,
 ):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -69,6 +77,8 @@ class PuppetWorkspace(
         self._build_docks()
         self._build_controllers()
         self._build_status_bar()
+        self._init_session()
+        self._update_session_actions()
         self._refresh_status_for_no_document()
         from rigora.puppet.workspace_ui import build_welcome, configure_inspectors
         self._welcome = build_welcome(self)
@@ -152,12 +162,15 @@ class PuppetWorkspace(
         self._motion_recorder = MotionRecorder(self._canvas, self)
         self._motion_recorder.finished.connect(self._on_motion_recorded)
         self._canvas.hit_area_triggered.connect(self._on_hit_area_triggered)
+        self._init_live_io()
 
     def _build_status_bar(self) -> None:
         """Status bar with the stretching message label."""
         self._status_label = QLabel("")
+        self._document_state_label = QLabel("")
         bar = QStatusBar()
         bar.addWidget(self._status_label, stretch=1)
+        bar.addPermanentWidget(self._document_state_label)
         self.setStatusBar(bar)
 
     def canvas(self) -> PuppetCanvas:
@@ -184,6 +197,9 @@ class PuppetWorkspace(
         return self._input_engine
 
     def closeEvent(self, event):  # noqa: N802 - Qt naming
+        if not getattr(self, "_shutdown_complete", False) and not self.confirm_discard_changes():
+            event.ignore()
+            return
         self.shutdown()
         super().closeEvent(event)
 

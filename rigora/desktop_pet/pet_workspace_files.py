@@ -50,6 +50,20 @@ def _resolve_bundled_example() -> Path | None:
     return None
 
 
+def script_context(window) -> dict:
+    """What the behavior checks need to know about this character's rig and keys."""
+    document = window.document() if window is not None else None
+    context = {"hotkeys": dict(pet_settings.load().get("hotkeys") or {}),
+               "music_enabled": bool(window.music_rhythm_enabled()) if window else False}
+    if document is not None:
+        context.update(
+            motions={m.name for m in document.motions},
+            groups={m.group for m in document.motions if m.group},
+            expressions={e.name for e in document.expressions},
+            hit_areas={h.id for h in document.hit_areas})
+    return context
+
+
 class PetWorkspaceFilesMixin:
     """Rig / script loading slots of :class:`PetWorkspace`."""
 
@@ -169,7 +183,7 @@ class PetWorkspaceFilesMixin:
 
         window = self._ensure_pet_window()
         current = window._script_engine.script()   # noqa: SLF001
-        dialog = PetScriptEditorDialog(current, parent=self)
+        dialog = PetScriptEditorDialog(current, parent=self, context=script_context(window))
         if dialog.exec() != PetScriptEditorDialog.DialogCode.Accepted:
             return
         edited = dialog.script()

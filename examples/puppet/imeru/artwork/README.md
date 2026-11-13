@@ -4,9 +4,14 @@ The four PNG files are stored source artwork, not runtime downloads. The builder
 references their original pixels through authored UV meshes. Transparent pixels
 can retain colored RGB values; their alpha channel controls visibility.
 
+The current four plates were generated with the built-in image tool on
+2026-11-11 using the [cel-art prompts](generation-v2.md). Each original plate
+served as its own layout reference, retaining the rig's coordinate system.
+
 The original design brief is in
 [`../concepts/modern-design-brief.md`](../concepts/modern-design-brief.md).
-The following edit prompts produced the animation plates from that design.
+The following historical edit prompts produced the earlier animation plates
+from that design, before the cel-art update.
 
 ## Master cutout
 

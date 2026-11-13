@@ -137,13 +137,17 @@ def test_model3_with_active_document_merges_via_apply_bundle(
 ):
     """When the user already has a rig open, a ``.model3.json`` import
     must layer JSON-only metadata onto it (motions, expressions, …)
-    via ``apply_bundle`` — not blow the existing rig away."""
+    via ``apply_bundle`` — not blow the existing rig away. The bundle is
+    applied to a copy first so a failing merge cannot leave the open rig
+    half-changed; the result then lands on the same document object."""
+    from rigora.puppet.document import Motion
     model3 = tmp_path / "Baz.model3.json"
     model3.write_text("{}", encoding="utf-8")
 
     bundle_calls: list[tuple[PuppetDocument, object]] = []
     def _fake_apply_bundle(doc, bundle):
         bundle_calls.append((doc, bundle))
+        doc.motions.append(Motion("merged", 1.0))
 
     def _fake_load_model3(_path):
         return object()
@@ -162,7 +166,9 @@ def test_model3_with_active_document_merges_via_apply_bundle(
         ok = ws.import_cubism(model3)
         assert ok is True
         assert len(bundle_calls) == 1
-        assert bundle_calls[0][0] is existing
+        assert bundle_calls[0][0] is not existing
+        assert ws._canvas.document() is existing   # noqa: SLF001
+        assert [m.name for m in existing.motions] == ["merged"]
     finally:
         ws.deleteLater()
 

@@ -61,12 +61,23 @@ class PuppetMenusMixin:
         act = self._action
         self._open_action = act("puppet_open", "Open Puppet…", self._open_via_dialog)
         self._save_action = act("puppet_save_as", "Save As…", self._save_via_dialog)
+        self._save_current_action = act("puppet_save", "Save", self.save_current_document)
+        self._save_current_action.setShortcut("Ctrl+S")
+        self._recovery_action = act("puppet_recover", "Recover document…", self._recover_document)
+        self._autosave_action = act(
+            "puppet_autosave", "Autosave interval…", self._configure_autosave)
         self._import_png_action = act(
             "puppet_import_png", "Import PNG…", self._import_png_via_dialog)
         self._import_psd_action = act(
             "puppet_import_psd", "Import PSD…", self._import_psd_via_dialog)
         self._import_cubism_action = act(
             "puppet_import_cubism", "Import Cubism…", self._import_cubism_via_dialog)
+        self._update_art_action = act(
+            "puppet_update_art", "Update art from PSD…", self._update_art_via_dialog)
+        self._relink_textures_action = act(
+            "puppet_relink_textures", "Relink textures…", self._relink_textures_via_dialog)
+        self._relink_sounds_action = act(
+            "puppet_relink_sounds", "Relink sounds…", self._relink_sounds_via_dialog)
         self._install_deps_action = act(
             "puppet_install_deps", "Install dependencies…", self._install_all_optional_deps)
 
@@ -83,6 +94,10 @@ class PuppetMenusMixin:
     def _build_edit_actions(self) -> None:
         """Rig-editing actions: deformers, parameters, mirroring, motion and mesh edit."""
         act = self._action
+        self._undo_action = act("puppet_undo", "Undo", self.undo)
+        self._redo_action = act("puppet_redo", "Redo", self.redo)
+        self._undo_action.setShortcut("Ctrl+Z")
+        self._redo_action.setShortcut("Ctrl+Shift+Z")
         self._add_rot_action = act(
             "puppet_add_rotation", "Add Rotation Deformer", self._add_rotation_deformer)
         self._add_warp_action = act(
@@ -93,8 +108,35 @@ class PuppetMenusMixin:
             "puppet_mirror_drawable", "Mirror drawable…", self._mirror_drawable_via_dialog)
         self._edit_motion_action = act(
             "puppet_edit_motion", "Edit motion…", self._edit_active_motion)
+        self._compositions_action = act(
+            "puppet_compositions", "Compositions…", self.edit_compositions_via_dialog)
         self._mesh_edit_toggle = act(
             "puppet_mesh_edit", "Edit mesh", self._toggle_mesh_edit, checkable=True)
+        self._build_mesh_tool_actions()
+
+    def _build_mesh_tool_actions(self) -> None:
+        """Mesh menu: selection, locks, weight tools and vertex deletion."""
+        act = self._action
+        self._mesh_select_all_action = act(
+            "puppet_mesh_select_all", "Select all vertices", self._mesh_select_all)
+        self._mesh_lock_action = act(
+            "puppet_mesh_lock", "Lock selected vertices", self._mesh_lock_selection)
+        self._mesh_unlock_action = act(
+            "puppet_mesh_unlock_all", "Unlock all vertices", self._mesh_unlock_all)
+        self._mesh_smooth_action = act(
+            "puppet_mesh_smooth", "Smooth weights", self.mesh_smooth_weights)
+        self._mesh_normalize_action = act(
+            "puppet_mesh_normalize", "Normalize weights", self.mesh_normalize_weights)
+        self._mesh_mirror_weights_action = act(
+            "puppet_mesh_mirror_weights", "Mirror weights left → right",
+            self.mesh_mirror_weights)
+        self._mesh_mirror_vertices_action = act(
+            "puppet_mesh_mirror_vertices", "Mirror selected vertices",
+            self.mesh_mirror_vertices)
+        self._mesh_delete_action = act(
+            "puppet_mesh_delete", "Delete selected vertices…", self.mesh_delete_vertices)
+        self._mesh_weights_action = act(
+            "puppet_mesh_show_weights", "Show weights…", self._mesh_show_weights)
 
     def _build_live_actions(self) -> None:
         """Live-state toggles (tracking, blink, lip-sync, idle) and lip-sync from a file."""
@@ -113,6 +155,11 @@ class PuppetMenusMixin:
             "puppet_auto_idle", "Auto idle", self._toggle_idle, checkable=True)
         self._idle_motion_toggle = act(
             "puppet_idle_motions", "Idle motions", self._toggle_idle_motions, checkable=True)
+        self._input_settings_action = act(
+            "puppet_input_settings", "Input devices and calibration…",
+            self.input_settings_via_dialog)
+        self._input_sources_action = act(
+            "puppet_input_sources", "Input sources…", self.show_input_sources)
 
     def _build_output_actions(self) -> None:
         """Capture, recording, export and the streaming-output toggles."""
@@ -124,6 +171,8 @@ class PuppetMenusMixin:
         self._motion_record_toggle = act(
             "puppet_record_motion", "Record motion", self._toggle_motion_record,
             checkable=True)
+        self._export_animation_action = act(
+            "puppet_export_animation", "Export animation…", self.export_animation_via_dialog)
         self._batch_export_action = act(
             "puppet_batch_export", "Export all motions…", self._batch_export_via_dialog)
         self._virtual_camera_toggle = act(
@@ -133,12 +182,20 @@ class PuppetMenusMixin:
             "puppet_ndi_output", "NDI output", self._toggle_ndi, checkable=True)
         self._vts_toggle = act(
             "puppet_vts_api", "VTS API", self._toggle_vts_api, checkable=True)
+        self._live_status_action = act(
+            "puppet_live_status", "Live status…", self.show_output_status)
 
     def _build_tool_actions(self) -> None:
         """Validate, fit-to-window and reset-to-rest."""
         act = self._action
         self._validate_action = act("puppet_validate", "Validate", self._run_validator)
         self._repair_action = act("puppet_repair_rig", "Repair Rig", self._run_rig_repair)
+        self._physics_action = act(
+            "puppet_physics_chains", "Physics chains…", self.edit_physics_via_dialog)
+        self._doctor_action = act(
+            "puppet_rig_doctor", "Rig doctor…", self.run_rig_doctor_via_dialog)
+        self._templates_action = act(
+            "puppet_part_templates", "Part templates…", self.part_templates_via_dialog)
         self._fit_action = act("puppet_fit_view", "Fit to Window", self._canvas_reset_view)
 
         # Reset-to-rest — single shortcut for "wipe every live-state
@@ -161,20 +218,30 @@ class PuppetMenusMixin:
         file_menu.addMenu(self._examples_menu)
         file_menu.addMenu(self._recent_menu)
         file_menu.addAction(self._save_action)
+        file_menu.addAction(self._save_current_action)
+        file_menu.addAction(self._recovery_action)
+        file_menu.addAction(self._autosave_action)
         file_menu.addSeparator()
         file_menu.addAction(self._import_png_action)
         file_menu.addAction(self._import_psd_action)
         file_menu.addAction(self._import_cubism_action)
+        file_menu.addAction(self._update_art_action)
+        file_menu.addAction(self._relink_textures_action)
+        file_menu.addAction(self._relink_sounds_action)
         file_menu.addSeparator()
         file_menu.addAction(self._install_deps_action)
 
         edit_menu = bar.addMenu(lang.get("puppet_menu_edit", "Edit"))
+        edit_menu.addAction(self._undo_action)
+        edit_menu.addAction(self._redo_action)
+        edit_menu.addSeparator()
         edit_menu.addAction(self._add_rot_action)
         edit_menu.addAction(self._add_warp_action)
         edit_menu.addAction(self._add_param_action)
         edit_menu.addSeparator()
         edit_menu.addAction(self._mirror_action)
         edit_menu.addAction(self._edit_motion_action)
+        edit_menu.addAction(self._compositions_action)
         edit_menu.addAction(self._mesh_edit_toggle)
         edit_menu.addSeparator()
         edit_menu.addAction(self._reset_action)
@@ -188,20 +255,42 @@ class PuppetMenusMixin:
         live_menu.addSeparator()
         live_menu.addAction(self._idle_toggle)
         live_menu.addAction(self._idle_motion_toggle)
+        live_menu.addSeparator()
+        live_menu.addAction(self._input_settings_action)
+        live_menu.addAction(self._input_sources_action)
 
         output_menu = bar.addMenu(lang.get("puppet_menu_output", "Output"))
         output_menu.addAction(self._capture_action)
         output_menu.addAction(self._record_action)
         output_menu.addAction(self._motion_record_toggle)
         output_menu.addAction(self._batch_export_action)
+        output_menu.addAction(self._export_animation_action)
         output_menu.addSeparator()
         output_menu.addAction(self._virtual_camera_toggle)
         output_menu.addAction(self._ndi_toggle)
         output_menu.addAction(self._vts_toggle)
+        output_menu.addAction(self._live_status_action)
+
+        mesh_menu = bar.addMenu(lang.get("puppet_menu_mesh", "Mesh"))
+        mesh_menu.addAction(self._mesh_edit_toggle)
+        mesh_menu.addSeparator()
+        for action in (self._mesh_select_all_action, self._mesh_lock_action,
+                       self._mesh_unlock_action):
+            mesh_menu.addAction(action)
+        mesh_menu.addSeparator()
+        for action in (self._mesh_weights_action, self._mesh_smooth_action,
+                       self._mesh_normalize_action, self._mesh_mirror_weights_action):
+            mesh_menu.addAction(action)
+        mesh_menu.addSeparator()
+        mesh_menu.addAction(self._mesh_mirror_vertices_action)
+        mesh_menu.addAction(self._mesh_delete_action)
 
         tools_menu = bar.addMenu(lang.get("puppet_menu_tools", "Tools"))
         tools_menu.addAction(self._validate_action)
         tools_menu.addAction(self._repair_action)
+        tools_menu.addAction(self._physics_action)
+        tools_menu.addAction(self._doctor_action)
+        tools_menu.addAction(self._templates_action)
         tools_menu.addAction(self._fit_action)
 
         return bar

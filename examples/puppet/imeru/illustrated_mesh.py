@@ -33,6 +33,8 @@ def region(
     rgba = plate(source)
     x0, y0, x1, y1 = bounds
     topology = np.array(rgba[y0:y1, x0:x1], copy=True)
+    # Alpha-one export specks must not create detached mesh islands.
+    topology[..., 3][topology[..., 3] == 1] = 0
     if polygon:
         mask = Image.new("L", (x1 - x0, y1 - y0))
         ImageDraw.Draw(mask).polygon([(x - x0, y - y0) for x, y in polygon], fill=255)

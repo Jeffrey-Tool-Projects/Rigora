@@ -9,9 +9,11 @@ the canvas; a Cubism import shows its conversion notes or a readable error.
 from __future__ import annotations
 
 import logging
+from copy import deepcopy
+from dataclasses import fields
 from pathlib import Path
 
-from PySide6.QtWidgets import QCheckBox, QFileDialog, QInputDialog, QMessageBox
+from PySide6.QtWidgets import QCheckBox, QDialog, QFileDialog, QInputDialog, QMessageBox
 
 from rigora.gui.file_filters import image_filter
 from rigora.i18n.language_wrapper import language_wrapper
@@ -28,7 +30,12 @@ from rigora.puppet.cubism_import import (
 )
 from rigora.puppet.cubism_native_bridge import CubismBridgeError
 from rigora.puppet.cubism_native_convert import cubism_to_puppet
-from rigora.puppet.psd_import import puppet_from_psd
+from rigora.puppet.cubism_preview import preview_cubism_model
+from rigora.puppet.import_preview_dialog import (
+    build_cubism_preview_dialog,
+    build_psd_preview_dialog,
+)
+from rigora.puppet.psd_import import PsdImportPlan, plan_psd_import
 from rigora.system.settings import user_setting_dict
 
 
@@ -76,6 +83,10 @@ _CUBISM_SDK_HINT_FALLBACK = (
 class PuppetImportMixin:
     """PNG, PSD and Cubism import of :class:`~rigora.puppet.workspace.PuppetWorkspace`."""
 
+    last_import_preview = None
+    """The :class:`~rigora.puppet.psd_import_report.PsdImportPreview` of the
+    last successful PSD import, listing what it could not carry over."""
+
     def _import_png_via_dialog(self) -> None:
         lang = language_wrapper.language_word_dict
         path, _ = QFileDialog.getOpenFileName(
@@ -114,34 +125,71 @@ class PuppetImportMixin:
         )
         if not path:
             return
-        self.import_psd(path)
+        revision = self._begin_document_work()
+        plan = self._plan_psd(path)
+        if plan is None:
+            return
+        if not self._exec_preview_dialog(build_psd_preview_dialog(self, plan.preview)):
+            self._announce("puppet_import_cancelled", "Import cancelled; nothing changed.")
+            return
+        self._apply_psd_plan(plan, revision)
 
     def import_psd(self, path: str | Path) -> bool:
         """Load ``path`` (a PSD) as a multi-drawable puppet. Returns
-        ``True`` on success."""
+        ``True`` on success. :attr:`last_import_preview` keeps what the
+        import could not carry over."""
+        revision = self._begin_document_work()
+        plan = self._plan_psd(path)
+        return plan is not None and self._apply_psd_plan(plan, revision)
+
+    def _plan_psd(self, path: str | Path) -> PsdImportPlan | None:
         try:
-            doc = puppet_from_psd(path)
+            return plan_psd_import(path)
         except (ValueError, OSError) as exc:
-            logger.warning("PSD import failed for %s: %s", path, exc)
-            self._status_label.setText(
-                language_wrapper.language_word_dict.get(
-                    "puppet_psd_import_failed",
-                    "PSD import failed: {error}",
-                ).format(error=str(exc)),
-            )
-            return False
-        self._canvas.load_document(doc)
+            self._report_psd_failure(path, exc)
+            return None
+
+    def _report_psd_failure(self, path, exc: Exception) -> None:
+        logger.warning("PSD import failed for %s: %s", path, exc)
         self._status_label.setText(
             language_wrapper.language_word_dict.get(
-                "puppet_status_psd_imported",
-                "Imported {name} ({w}×{h}, {n} drawables)",
-            ).format(
-                name=Path(str(path)).name,
-                w=doc.size[0], h=doc.size[1],
-                n=len(doc.drawables),
-            ),
+                "puppet_psd_import_failed",
+                "PSD import failed: {error}",
+            ).format(error=str(exc)),
         )
+
+    def _apply_psd_plan(self, plan: PsdImportPlan, revision) -> bool:
+        try:
+            doc = plan.build()
+        except (ValueError, OSError) as exc:
+            self._report_psd_failure(plan.source, exc)
+            return False
+        if not self._accept_document_result(revision) or not self._replace_document(doc):
+            return False
+        self.last_import_preview = plan.preview
+        text = language_wrapper.language_word_dict.get(
+            "puppet_status_psd_imported",
+            "Imported {name} ({w}×{h}, {n} drawables)",
+        ).format(
+            name=Path(plan.source).name,
+            w=doc.size[0], h=doc.size[1],
+            n=len(doc.drawables),
+        )
+        warnings = len(plan.preview.warnings)
+        if warnings:
+            text += " · " + language_wrapper.language_word_dict.get(
+                "puppet_import_warning_count",
+                "{n} source features changed; see the import preview",
+            ).format(n=warnings)
+        self._status_label.setText(text)
         return True
+
+    def _exec_preview_dialog(self, dialog: QDialog) -> bool:
+        """Run an import preview; ``True`` when the user confirmed."""
+        try:
+            return dialog.exec() == QDialog.DialogCode.Accepted
+        finally:
+            dialog.deleteLater()
 
     def _import_cubism_via_dialog(self) -> None:
         # The advisory comes BEFORE the file picker so a user who's
@@ -159,7 +207,27 @@ class PuppetImportMixin:
         )
         if not path:
             return
-        self.import_cubism(path)
+        if self._confirm_cubism_preview(path):
+            self.import_cubism(path)
+
+    def _confirm_cubism_preview(self, path: str) -> bool:
+        """Show what a ``.moc3`` / ``.model3.json`` import will do. Single
+        asset files skip the preview: they add exactly one item."""
+        lower = path.lower()
+        if not lower.endswith((".moc3", ".model3.json")):
+            return True
+        document = self._canvas.document()
+        merge = lower.endswith(".model3.json") and document is not None
+        try:
+            model3 = path if lower.endswith(".model3.json") else self._guess_model3_for_moc3(path)
+            preview = preview_cubism_model(model3, document=document if merge else None)
+        except (CubismFormatError, OSError) as exc:
+            self._show_cubism_error_dialog(exc)
+            return False
+        if self._exec_preview_dialog(build_cubism_preview_dialog(self, preview)):
+            return True
+        self._announce("puppet_import_cancelled", "Import cancelled; nothing changed.")
+        return False
 
     def _show_cubism_import_notice(self) -> bool:
         """Display the format / SDK advisory before launching the file
@@ -246,6 +314,7 @@ class PuppetImportMixin:
 
         Returns ``True`` on success."""
         path_str = str(path)
+        revision = self._begin_document_work()
         doc = self._canvas.document()
         lower = path_str.lower()
         wants_full_conversion = (
@@ -259,7 +328,8 @@ class PuppetImportMixin:
             )
             return False
         try:
-            new_doc = self._dispatch_cubism_import(doc, path_str)
+            imported = deepcopy(doc)
+            new_doc = self._dispatch_cubism_import(imported, path_str)
         except (
             CubismFormatError,
             CubismBridgeError,
@@ -273,8 +343,16 @@ class PuppetImportMixin:
             )
             self._show_cubism_error_dialog(exc)
             return False
-        target_doc = new_doc if new_doc is not None else doc
-        self._canvas.load_document(target_doc)
+        if not self._accept_document_result(revision):
+            return False
+        if new_doc is not None:
+            if not self._replace_document(new_doc):
+                return False
+        else:
+            with self.session.transaction("Import Cubism asset"):
+                for field in fields(imported):
+                    setattr(doc, field.name, getattr(imported, field.name))
+            self._canvas.load_document(doc)
         self._announce(
             "puppet_cubism_imported", "Imported Cubism asset {name}",
             name=Path(path_str).name,
@@ -334,6 +412,7 @@ class PuppetImportMixin:
     def import_png(self, path: str | Path, *, cell_size: int = DEFAULT_CELL_SIZE) -> bool:
         """Build a single-drawable puppet from ``path``'s PNG and load
         it into the canvas. Returns ``True`` on success."""
+        revision = self._begin_document_work()
         try:
             doc = puppet_from_png(path, cell_size=cell_size)
         except (ValueError, OSError) as exc:
@@ -345,7 +424,8 @@ class PuppetImportMixin:
                 ).format(error=str(exc)),
             )
             return False
-        self._canvas.load_document(doc)
+        if not self._accept_document_result(revision) or not self._replace_document(doc):
+            return False
         n_verts = len(doc.drawables[0].vertices)
         n_tris = len(doc.drawables[0].indices) // 3
         self._status_label.setText(

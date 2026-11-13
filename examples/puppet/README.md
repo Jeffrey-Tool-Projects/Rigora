@@ -9,11 +9,11 @@ or **Desktop Pet > Load bundled Imeru**.
 
 ## `imeru.puppet`
 
-Imeru uses a complete modern anime illustration with flowing teal hair,
+Imeru uses an ink-line cel illustration with flowing teal hair,
 an asymmetric fitted jacket, gathered sleeves, layered side sash and detailed
 boots. The design combines fashion tailoring, restrained techwear and celestial
-Art Deco ornaments. Her entire silhouette follows the
-[full-body design reference](imeru/concepts/modern-full-body.png).
+Art Deco ornaments. The [current artwork](imeru/artwork/master.png) follows the
+[cel-animation direction](imeru/concepts/rigora-art-direction-v2.md).
 
 ![Imeru rendered by the Puppet runtime](imeru/preview.png)
 
@@ -34,6 +34,7 @@ Rebuild the archive from these stored assets with:
 
 ```
 py -3 examples/puppet/imeru/build.py
+Copy-Item examples/puppet/imeru.puppet rigora/resources/examples/puppet/imeru.puppet
 ```
 
 The illustrated build does not require Blender or an image-generation service.

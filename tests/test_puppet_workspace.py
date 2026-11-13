@@ -90,7 +90,7 @@ def test_open_puppet_returns_false_on_corrupt_file(qapp, tmp_path):
     try:
         assert ws.open_puppet(bad) is False
         # Status reflects the failure
-        assert "Failed" in ws._status.text() or "error" in ws._status.text().lower()  # noqa: SLF001
+        assert ws._status.text().startswith("Open failed:")   # noqa: SLF001
     finally:
         ws.deleteLater()
 
@@ -191,10 +191,8 @@ def test_examples_menu_lists_bundled_puppets(qapp, tmp_path, monkeypatch):
     (examples_root / "puppet").mkdir(parents=True)
     _write_minimal_puppet(examples_root / "puppet" / "imeru_2nd_outfit.puppet")
     _write_minimal_puppet(examples_root / "puppet" / "imeru.puppet")
-    monkeypatch.setattr(
-        "rigora.system.app_paths.app_dir",
-        lambda: tmp_path,
-    )
+    # Examples ship inside the package (``examples_dir``), not under app_dir.
+    monkeypatch.setattr("rigora.system.app_paths.examples_dir", lambda: examples_root)
 
     ws = ws_mod.PuppetWorkspace()
     try:
@@ -217,10 +215,7 @@ def test_examples_menu_shows_disabled_placeholder_when_empty(
     that nothing was bundled rather than silently showing no menu."""
     import rigora.puppet.workspace as ws_mod
     # No examples/puppet/ directory at all under tmp_path.
-    monkeypatch.setattr(
-        "rigora.system.app_paths.app_dir",
-        lambda: tmp_path,
-    )
+    monkeypatch.setattr("rigora.system.app_paths.examples_dir", lambda: tmp_path / "examples")
 
     ws = ws_mod.PuppetWorkspace()
     try:

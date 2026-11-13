@@ -49,6 +49,8 @@ from rigora.desktop_pet.pet_shadow_controller import PetShadowController
 from rigora.desktop_pet.pet_features import build_integration_controllers
 from rigora.desktop_pet.pet_feature_toggles import PetFeatureTogglesMixin
 from rigora.desktop_pet.pet_window_flags import PetWindowFlagsMixin
+from rigora.desktop_pet.pet_window_behavior import PetWindowBehaviorMixin
+from rigora.desktop_pet.pet_resources import FramePacer, resource_stats, shared_rigs
 from rigora.desktop_pet.pet_window_host import (
     PET_IDLE_CYCLE_DURATION_S,
     SIZE_PRESETS,
@@ -64,7 +66,6 @@ from rigora.desktop_pet.pet_window_voice import PetVoiceMixin
 from rigora.desktop_pet.pet_script import PetScriptEngine
 from rigora.desktop_pet.speech_bubble import SpeechBubble
 from rigora.puppet.canvas import PuppetCanvas
-from rigora.puppet.document_io import load_puppet
 
 if TYPE_CHECKING:
     from rigora.puppet.document import PuppetDocument
@@ -122,7 +123,7 @@ keep working. The authoritative copy lives in
 
 class PetWindow(
     PetWindowFlagsMixin, PetFeatureTogglesMixin, PetVoiceMixin,
-    PetPlaybackMixin, PetHostMixin, QWidget,
+    PetPlaybackMixin, PetHostMixin, PetWindowBehaviorMixin, QWidget,
 ):
     """The on-desktop puppet overlay.
 
@@ -240,6 +241,7 @@ class PetWindow(
         self._speech_enabled: bool = bool(self._settings["speech_enabled"])
         self._speech: SpeechBubble | None = None
         self._script_engine = PetScriptEngine()
+        self._init_behaviors()
         self._restore_persisted_script()
 
         # 30 FPS paint tick + a 1 Hz heartbeat for scheduled chimes
@@ -251,6 +253,9 @@ class PetWindow(
         self._script_tick = QTimer(self)
         self._script_tick.setInterval(SCRIPT_TICK_INTERVAL_MS)
         self._script_tick.timeout.connect(self._on_script_tick)
+        self._script_tick.timeout.connect(self._apply_frame_pacing)
+        self._pacer = FramePacer()
+        self._paused_while_hidden: list[QTimer] = []
 
     def _init_feature_controllers(self) -> None:
         """Wire the fullscreen detector plus the integration /
@@ -323,6 +328,8 @@ class PetWindow(
         # The 1 Hz script tick wakes up for scheduled chimes.
         self._tick.start()
         self._script_tick.start()
+        self._resume_hidden_drivers()
+        self._pacer.note_activity()
         self._watch_fullscreen_on_show()
         # Force a fresh canvas repaint on show. Qt does call paintGL
         # automatically after showEvent, but a delayed singleShot
@@ -338,10 +345,48 @@ class PetWindow(
         # Stop the tick timer so the dormant pet doesn't repaint.
         self._tick.stop()
         self._script_tick.stop()
+        self._pause_hidden_drivers()
         self._watch_fullscreen_on_hide()
         if self._speech is not None:
             self._speech.close_bubble()
         self.visibility_changed.emit(False)
+
+    # ---- frame pacing and hidden pause (R5.6) ---------------------------
+
+    def _apply_frame_pacing(self) -> None:
+        # Idle motions play all the time, so playback alone is not activity;
+        # clicks, drags, behavior events and speech are.
+        busy = (self._interaction.dragging
+                or (self._speech is not None and self._speech.isVisible()))
+        interval = self._pacer.interval(visible=self.isVisible(), busy=busy)
+        if interval is not None and self._tick.interval() != interval:
+            self._tick.setInterval(interval)
+
+    def _driver_timers(self) -> list[QTimer]:
+        """Timers of the drivers that only move the rig (no point while hidden)."""
+        timers = []
+        for driver in (self._idle_driver, self._idle_cycler, self._mouse_gaze):
+            timer = getattr(driver, "_timer", None) if driver is not None else None
+            if timer is not None:
+                timers.append(timer)
+        blink = getattr(self._input_engine, "_blink_timer", None)
+        if blink is not None:
+            timers.append(blink)
+        return timers
+
+    def _pause_hidden_drivers(self) -> None:
+        for timer in self._driver_timers():
+            if timer.isActive():
+                timer.stop()
+                self._paused_while_hidden.append(timer)
+
+    def _resume_hidden_drivers(self) -> None:
+        paused, self._paused_while_hidden = self._paused_while_hidden, []
+        for timer in paused:
+            timer.start()
+
+    def resource_stats(self) -> dict:
+        return resource_stats(self)
 
     def shutdown(self) -> None:
         """Stop every background worker / OS hook this pet owns.
@@ -356,6 +401,9 @@ class PetWindow(
         if getattr(self, "_shutdown_complete", False):
             return
         self._shutdown_complete = True
+        if getattr(self, "_behavior_timers", None) is not None:
+            with best_effort("stop pet behaviors"):
+                self.stop_behaviors()
         for name in ("_tick", "_script_tick", "_fullscreen_detector"):
             timer = getattr(self, name, None)
             if timer is not None:
@@ -391,7 +439,8 @@ class PetWindow(
         Returns ``True`` on success and persists the path so the
         next launch reopens the same rig."""
         try:
-            document = load_puppet(path)
+            # Characters showing the same file share its parsed textures.
+            document = shared_rigs.load(path)
         except Exception as exc:   # noqa: BLE001 - load_puppet has many failure modes
             logger.warning("desktop-pet failed to load %s: %s", path, exc)
             return False

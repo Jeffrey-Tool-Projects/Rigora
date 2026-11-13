@@ -31,6 +31,7 @@ from rigora.puppet.standard_params import (
     PARAM_BODY_ANGLE_Z,
     PARAM_BREATH,
 )
+from rigora.puppet.input_arbitration import submit_values
 
 if TYPE_CHECKING:
     from rigora.puppet.canvas import PuppetCanvas
@@ -140,4 +141,4 @@ class IdleDriver(QObject):
         canvas_values = self._canvas.parameter_values()
         batch = {pid: v for pid, v in values.items() if pid in canvas_values}
         if batch:
-            self._canvas.set_parameter_values(batch)
+            submit_values(self._canvas, "idle", batch)

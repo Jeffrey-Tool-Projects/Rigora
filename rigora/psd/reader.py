@@ -24,11 +24,12 @@ def load_psd(path: str | Path) -> PsdDocument:
     height, width, channels = _parse_header(cursor)
     for _ in range(2):
         cursor.read(cursor.read_u32())
-    layers, groups = _parse_layer_and_mask_section(cursor, height, width)
+    layers, groups, empty_records = _parse_layer_and_mask_section(cursor, height, width)
     if not layers:
         composite = _parse_image_data_section(cursor, height, width, channels=channels)
         layers = [PsdLayer(name="Background", image=composite)]
-    return PsdDocument(size=(width, height), layer_stack=layers, groups=groups)
+    return PsdDocument(size=(width, height), layer_stack=layers, groups=groups,
+                       empty_records=empty_records)
 
 
 def _parse_header(cursor: _Cursor) -> tuple[int, int, int]:

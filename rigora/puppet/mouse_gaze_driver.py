@@ -32,6 +32,7 @@ from rigora.puppet.standard_params import (
     PARAM_EYE_BALL_X,
     PARAM_EYE_BALL_Y,
 )
+from rigora.puppet.input_arbitration import submit_values
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QWidget
@@ -236,4 +237,4 @@ class MouseGazeDriver(QObject):
             if pid in canvas_values:
                 batch[pid] = new
         if batch:
-            self._canvas.set_parameter_values(batch)
+            submit_values(self._canvas, "mouse", batch)

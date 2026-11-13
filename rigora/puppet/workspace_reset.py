@@ -98,7 +98,15 @@ class PuppetResetMixin:
             if recorder is not None:
                 with best_effort(f"stop {name}", logger):
                     recorder.stop()
+        if hasattr(self, "_shutdown_exports"):
+            with best_effort("cancel exports", logger):
+                self._shutdown_exports()
+        if hasattr(self, "_shutdown_live_io"):
+            with best_effort("stop device supervision", logger):
+                self._shutdown_live_io()
         self._shutdown_drivers()
+        if hasattr(self, "session"):
+            self._close_session()
         dock = getattr(self, "_motion_dock", None)
         if dock is not None:
             with best_effort("stop motion playback", logger):

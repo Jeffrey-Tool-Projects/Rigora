@@ -17,6 +17,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+from pathlib import Path
+
 from rigora.puppet.document import PuppetDocument
 
 Severity = Literal["error", "warning", "info"]
@@ -202,6 +204,13 @@ def _check_motions(document: PuppetDocument, issues: list[Issue]) -> None:
             issues.append(Issue(
                 "warning", "motion_zero_duration",
                 f"motion {motion.name!r} has duration {motion.duration}",
+                f"motion:{motion.name}",
+            ))
+        if motion.sound_path and not Path(motion.sound_path).is_file():
+            issues.append(Issue(
+                "warning", "motion_sound_missing",
+                f"motion {motion.name!r} plays {motion.sound_path!r}, which is missing; "
+                "it plays silently until the sound is relinked",
                 f"motion:{motion.name}",
             ))
         for track in motion.tracks:

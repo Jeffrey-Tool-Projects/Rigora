@@ -23,6 +23,9 @@ class PuppetInputMixin:
             self._reset_toggle(self._lipsync_toggle)
             return
         ok = self._input_engine.set_lipsync_enabled(enabled)
+        supervisor = getattr(self, "_mic_supervisor", None)
+        if supervisor is not None:
+            supervisor.request(enabled and ok)
         if enabled and not ok:
             # sounddevice is importable but mic open failed (no device,
             # permission denied …) — bounce the toggle with the

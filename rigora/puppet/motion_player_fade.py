@@ -9,6 +9,7 @@ from __future__ import annotations
 import time
 
 from rigora.puppet.document import Motion
+from rigora.puppet.input_arbitration import submit_values
 
 
 class MotionPlayerFadeMixin:
@@ -49,7 +50,7 @@ class MotionPlayerFadeMixin:
             ) * progress
             for pid, source in self._fade_out_source.items()
         }
-        self._canvas.set_parameter_values(batch)
+        submit_values(self._canvas, "motion", batch)
         if progress >= 1.0:
             self._snap_stop()
 

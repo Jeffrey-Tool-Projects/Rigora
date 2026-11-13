@@ -45,9 +45,18 @@ class PuppetCanvasPhysicsMixin:
         self._physics_outputs = {}
         refresh_rig(self)
 
+    def set_external_physics(self, external: bool) -> None:
+        """When set, physics outputs arrive with the parameter values (an offline
+        exporter steps its own fixed-step engine) and the canvas clock stays off."""
+        self._physics_external = bool(external)
+        if external:
+            self._physics_outputs = {}
+        self._sync_physics_timer()
+
     def _sync_physics_timer(self) -> None:
         """Run the physics clock only while a shown rig has physics chains."""
-        wanted = bool(self._physics.chain_ids()) and self.isVisible()
+        wanted = (bool(self._physics.chain_ids()) and self.isVisible()
+                  and not getattr(self, "_physics_external", False))
         if wanted == self._physics_timer.isActive():
             return
         if wanted:

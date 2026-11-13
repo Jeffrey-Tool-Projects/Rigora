@@ -35,6 +35,7 @@ from rigora.desktop_pet.pet_workspace_hotkeys import (
     saved_hotkeys,
 )
 from rigora.desktop_pet.pet_workspace_toggles import PetWorkspaceTogglesMixin, _set_quietly
+from rigora.desktop_pet.pet_workspace_characters import PetWorkspaceCharactersMixin
 from rigora.desktop_pet.pet_workspace_ui import PetWorkspaceUiMixin
 from rigora.i18n.language_wrapper import language_wrapper
 
@@ -75,6 +76,7 @@ _SELF_RESTORED_DRIVERS = ("auto_idle", "idle_motion", "auto_blink", "drag_track"
 
 
 class PetWorkspace(
+    PetWorkspaceCharactersMixin,
     PetWorkspaceUiMixin,
     PetWorkspaceFilesMixin,
     PetWorkspaceTogglesMixin,
@@ -91,8 +93,11 @@ class PetWorkspace(
         super().__init__(parent)
         self._pet_window: PetWindow | None = None
         self._tray = None  # set by the main window after construction
+        self._init_companions()
         self._build_ui()
         self._restore_persisted_session()
+        self._companions.start_enabled()
+        self._start_screen_watch()
         enable_control_tooltips(self)
 
     # ---- persisted session restore -----------------------------
@@ -142,6 +147,9 @@ class PetWorkspace(
 
     def shutdown(self) -> None:
         """Release the independent overlay and tray owned by this workspace."""
+        if getattr(self, "_companions", None) is not None:
+            with best_effort("shut down companion characters", logger):
+                self._shutdown_companions()
         pet, self._pet_window = self._pet_window, None
         if pet is not None:
             with best_effort("shut down desktop pet", logger):

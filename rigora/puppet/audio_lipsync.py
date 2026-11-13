@@ -108,6 +108,20 @@ def mouth_open_curve_from_wav(
     return mouth_open_curve(samples, rate, fps, gate=gate)
 
 
+def waveform_peaks(path: str | Path, buckets: int = 800) -> tuple[list[tuple[float, float]],
+                                                                    float]:
+    """``(min, max)`` sample pairs per bucket across the file, and its length in
+    seconds — enough to draw a waveform under a motion's curves."""
+    samples, rate = load_wav_mono(path)
+    seconds = samples.size / rate if rate > 0 else 0.0
+    if samples.size == 0 or buckets <= 0:
+        return [], seconds
+    edges = np.linspace(0, samples.size, min(buckets, samples.size) + 1).astype(int)
+    peaks = [(float(samples[a:b].min()), float(samples[a:b].max()))
+             for a, b in zip(edges, edges[1:], strict=False) if b > a]
+    return peaks, seconds
+
+
 def lipsync_motion(
     path: str | Path,
     *,
@@ -115,6 +129,8 @@ def lipsync_motion(
     param_id: str,
     mouth_range: tuple[float, float] = (0.0, 1.0),
     fps: float = LIPSYNC_FPS,
+    lead: float = 0.0,
+    gate: float = DEFAULT_GATE,
 ) -> Motion | None:
     """A motion that opens *param_id* with the loudness of the WAV at *path*.
 
@@ -124,16 +140,54 @@ def lipsync_motion(
     the file is silent. Raises ``ValueError`` / ``wave.Error`` / ``OSError``
     for a file it cannot read.
     """
-    curve = mouth_open_curve_from_wav(path, fps)
+    if fps <= 0 or lead < 0:
+        raise ValueError("fps must be positive and lead not negative")
+    curve = mouth_open_curve_from_wav(path, fps, gate=gate)
     if not curve or max(curve) <= 0.0:
         return None
     closed, wide = mouth_range
     duration = len(curve) / fps
-    points = [(i / fps, closed + value * (wide - closed)) for i, value in enumerate(curve)]
+    # ``lead`` opens the mouth slightly before the sound, which reads as in sync.
+    points = [(max(0.0, i / fps - lead), closed + value * (wide - closed))
+              for i, value in enumerate(curve)]
+    points = [p for i, p in enumerate(points) if i == 0 or p[0] > points[i - 1][0]]
     points.append((duration, closed))
     track = MotionTrack(param_id, [
         MotionSegment("linear", a, b) for a, b in zip(points, points[1:], strict=False)
     ])
     track = compress_track(track, tol=LIPSYNC_TOLERANCE * abs(wide - closed))
+    from rigora.puppet.takes import new_take_info
     return Motion(name=name, duration=duration, tracks=[track],
-                  sound_path=str(Path(path).resolve()))
+                  sound_path=str(Path(path).resolve()),
+                  take=new_take_info("lip-sync from audio", fps=fps))
+
+
+def find_missing_sounds(document) -> list[tuple[str, str]]:
+    """``(motion name, sound path)`` for motions whose sound file is gone."""
+    return [(m.name, m.sound_path) for m in document.motions
+            if m.sound_path and not Path(m.sound_path).is_file()]
+
+
+def locate_sounds(missing: list[tuple[str, str]], folders) -> dict[str, Path]:
+    """First file under ``folders`` with the same file name as each missing sound."""
+    found: dict[str, Path] = {}
+    wanted = {name: Path(path).name.lower() for name, path in missing}
+    for folder in folders:
+        root = Path(folder)
+        if not root.is_dir():
+            continue
+        for candidate in sorted(root.rglob("*")):
+            lowered = candidate.name.lower()
+            for motion_name, file_name in wanted.items():
+                if motion_name not in found and lowered == file_name and candidate.is_file():
+                    found[motion_name] = candidate
+    return found
+
+
+def relink_sound(document, motion_name: str, path: str | Path) -> None:
+    """Point a motion at a sound file; it must be a readable WAV."""
+    load_wav_mono(path)
+    motion = next((m for m in document.motions if m.name == motion_name), None)
+    if motion is None:
+        raise ValueError(f"no motion {motion_name!r}")
+    motion.sound_path = str(Path(path).resolve())

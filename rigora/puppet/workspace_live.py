@@ -149,6 +149,9 @@ class PuppetLiveMixin:
             self._reset_toggle(self._webcam_toggle)
             return
         self._webcam.set_enabled(enabled)
+        supervisor = getattr(self, "_webcam_supervisor", None)
+        if supervisor is not None:
+            supervisor.request(enabled)
         self._on_webcam_state_changed()
         # Pop a live preview window so the user can see what the
         # camera is producing. The dialog polls the tracker via timer;

@@ -8,6 +8,7 @@ from __future__ import annotations
 import time
 
 from rigora.puppet.motion_sampler import sample_motion
+from rigora.puppet.input_arbitration import submit_values
 
 
 class MotionPlayerTimelineMixin:
@@ -23,6 +24,7 @@ class MotionPlayerTimelineMixin:
         self._apply_at(self._elapsed)
         if was_playing:
             self._wall_anchor = time.monotonic() - self._elapsed
+            self._seek_sound(self._elapsed)
         self.state_changed.emit()
 
     def step(self, dt: float) -> None:
@@ -40,7 +42,7 @@ class MotionPlayerTimelineMixin:
             self.pause()
             return
         now = time.monotonic()
-        self._elapsed = now - self._wall_anchor
+        self._elapsed = self._follow_sound_clock(now - self._wall_anchor, now)
         if not self._loop and self._elapsed >= self.duration():
             self._elapsed = self.duration()
             self._apply_at(self._elapsed)
@@ -60,11 +62,11 @@ class MotionPlayerTimelineMixin:
                 ) * progress
                 for pid, value in sampled.items()
             }
-            self._canvas.set_parameter_values(batch)
+            submit_values(self._canvas, "motion", batch)
             return
         if self._fade_in_total > 0.0 and t_sec >= self._fade_in_total:
             # First post-fade application — clear the fade so future
             # seeks back into the fade window don't reintroduce it.
             self._fade_in_total = 0.0
             self._fade_source = {}
-        self._canvas.set_parameter_values(sampled)
+        submit_values(self._canvas, "motion", sampled)

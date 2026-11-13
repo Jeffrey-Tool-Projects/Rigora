@@ -266,6 +266,10 @@ class Motion:
     Cubism ``.model3.json`` imports populate it from the motion entry's
     ``Sound`` field. The player loads it through ``QSoundEffect`` and
     degrades silently when ``PySide6.QtMultimedia`` isn't available."""
+    take: dict | None = None
+    """Take record for recorded or generated motions: ``id``, ``source``,
+    ``recorded_at`` and optionally ``fps``, ``inputs``, ``captured_seconds``,
+    ``replaced`` (see :mod:`puppet.takes`). ``None`` for authored motions."""
     group: str | None = None
     """Name of the motion group this belongs to (Cubism ``Idle`` /
     ``TapHead`` / ``Shake`` …). When a HitArea or idle ticker fires
@@ -343,6 +347,42 @@ class HitArea:
 
 
 # ---------------------------------------------------------------------------
+# Compositions (multi-track clip arrangements; see puppet.composition)
+# ---------------------------------------------------------------------------
+
+LayerBlend = Literal["override", "additive"]
+
+
+@dataclass
+class Clip:
+    motion: str
+    start: float = 0.0
+    offset: float = 0.0
+    length: float | None = None
+    loop: bool = False
+    fade_in: float = 0.0
+    fade_out: float = 0.0
+    weight: float = 1.0
+    muted: bool = False
+
+
+@dataclass
+class CompositionLayer:
+    id: str
+    clips: list[Clip] = field(default_factory=list)
+    blend: LayerBlend = "override"
+    weight: float = 1.0
+    muted: bool = False
+
+
+@dataclass
+class Composition:
+    name: str
+    duration: float
+    layers: list[CompositionLayer] = field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
 # Top-level document
 # ---------------------------------------------------------------------------
 
@@ -368,6 +408,8 @@ class PuppetDocument:
     hit_areas: list[HitArea] = field(default_factory=list)
     parameter_blends: list[ParameterBlend] = field(default_factory=list)
     parts: list[Part] = field(default_factory=list)
+    compositions: list[Composition] = field(default_factory=list)
+    """Multi-track arrangements of the motions (optional manifest key)."""
     display_names: dict[str, str] = field(default_factory=dict)
     """Friendly labels for parameters and parts, keyed by their id.
     Sourced from a Cubism ``.cdi3.json`` or authored by hand; the

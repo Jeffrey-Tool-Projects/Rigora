@@ -456,7 +456,7 @@ def test_the_built_tab_wires_every_driver_and_orders_its_pages(qapp, monkeypatch
     try:
         tabs = ws.findChild(QTabWidget, "petSettingsTabs")
         assert [tabs.tabText(i) for i in range(tabs.count())] == [
-            "Window", "Live drivers", "Pet script", "Global hotkeys"]
+            "Window", "Live drivers", "Pet script", "Global hotkeys", "Characters"]
         for attr, handler in _DRIVER_HANDLERS.items():
             getattr(ws, attr).setChecked(True)
             assert calls[-1] == (handler, True), attr

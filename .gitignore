@@ -24,3 +24,4 @@ CubismSdkForNative*/
 **/cubism_converted_*.puppet
 examples/puppet/char/
 examples/puppet/imeru/render/
+/.idea

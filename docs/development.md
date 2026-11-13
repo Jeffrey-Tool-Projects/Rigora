@@ -38,8 +38,29 @@ framebuffer images to `.audit/`:
 .venv\Scripts\python.exe scripts/verify_gui.py --source --output .audit/native-gui
 ```
 
-This verifier checks a specific rendering path. Desktop overlays, tray behavior,
-camera, microphone, and network outputs need their own checks.
+The run chains the editor-session, asset, rig, animation, live-input
+(`verify_live_workflow.py`) and desktop-companion (`verify_pet_workflow.py`)
+checks. Capture devices are replaced at the driver boundary, so no camera,
+microphone or visible window is used. Visible desktop overlays, tray behavior,
+real cameras, microphones and stream receivers still need their own checks.
+
+`py -3 examples/run_examples.py` builds and checks every example; add
+`--render` for the GPU export. Release steps, including clean-environment
+installs, upgrade/downgrade checks and checksums, are in
+[releasing](releasing.md).
+
+## Measure performance
+
+`scripts/benchmark.py` measures cold start, open, save, motion sampling, CPU
+frame time, memory and a soak run on generated scenes (many drawables, a deep
+deformer chain, clip masks, physics chains, four pets) plus the bundled example.
+`--gl` adds hidden-window GPU render, read-back and PNG export throughput on
+Windows. The report records the machine, versions, source revision and every
+scene's actual size; compare runs only from the same machine.
+
+```powershell
+.venv\Scripts\python.exe scripts/benchmark.py --gl --soak 300 --output .audit/benchmark
+```
 
 ## Build a distribution
 
@@ -89,7 +110,8 @@ the features excluded from the portable build.
 | `rigora/editor_window.py` | Editor window and desktop-pet tab |
 | `rigora/puppet/` | Document model, runtime, editor workspace, import, and output |
 | `rigora/desktop_pet/` | Desktop companions and their controls |
-| `rigora/commands.py` | Headless operations shared by CLI and MCP |
+| `rigora/commands.py`, `rigora/command_ops.py` | Headless operations shared by CLI and MCP |
+| `rigora/host_api.py` | Versioned host interface |
 | `rigora/resources/` | Installed examples and schemas |
 | `examples/` | Source artwork, model builders, and examples |
 | `tests/` | Runtime, UI, archive, and integration checks |

@@ -29,6 +29,13 @@ PNG conversion creates a textured mesh and standard parameters. Refine the
 mesh and bindings in the editor to suit the drawing. Layered artwork gives you
 more control over parts that need to move independently.
 
+PSD and Cubism imports open a preview first. It lists every layer or referenced
+file and each feature the rig cannot reproduce, such as layer masks, unsupported
+blend modes or motion curves the runtime does not model, so nothing is dropped
+silently. When the artwork changes later, **File > Update art from PSD…** swaps
+the pixels into the existing rig and keeps meshes, weights and motions;
+**File > Relink textures…** repairs missing textures. Both are a single Undo step.
+
 Cubism import has separate requirements for source data and proprietary SDK
 components. Those binaries are not bundled. Consult the
 [detailed import guide](https://github.com/Jeffrey-Tool-Projects/Rigora/blob/main/puppet_guide.md#importing-rigs)
@@ -37,14 +44,22 @@ before preparing Cubism assets.
 ## Record and export animation
 
 1. Open a rig and set its starting pose.
-2. Use the recording controls to capture parameter changes during a performance.
-3. Review the motion in the timeline and adjust its keys.
-4. Play the motion to check transitions and expression changes.
-5. Use the output controls to export the image or animation format you need.
+2. Choose **Output > Record motion** and perform. When the name is taken,
+   choose whether the new take replaces the motion, is kept beside it, or is
+   discarded.
+3. Open **Edit > Edit motion…** to adjust keys: box-select, copy and paste,
+   move, scale time, snap and set tangents. A motion's sound is drawn as a
+   waveform behind its keys.
+4. Arrange several motions in **Edit > Compositions…** — layers, clips, fades
+   and weights — and preview them without changing the rig.
+5. Choose **Output > Export animation…** to render a motion or composition
+   frame by frame as a PNG sequence, GIF, MP4 or WebM, with or without
+   transparency and sound.
 
-The editor supports animation and video output, including GIF, MP4, and WebM.
-Video support uses the dependencies installed by the `gui` extra. Save the
-`.puppet` document as well as the rendered output so you can continue editing.
+Exports run in a queue that shows progress and can be cancelled or retried; a
+cancelled export leaves no partial file. Video support uses the dependencies
+installed by the `gui` extra. Save the `.puppet` document as well as the
+rendered output so you can continue editing.
 
 ## Perform live
 
@@ -60,9 +75,19 @@ inputs you need.
 | Webcam tracking | Drive facial parameters from face landmarks. |
 | Auto idle and idle motions | Add movement while no motion is being performed. |
 
+**Live > Input devices and calibration…** chooses the camera and microphone,
+sets sensitivity, dead zone and smoothing, captures your neutral pose, and
+decides how the rig returns to rest when tracking is lost. When several inputs
+drive the same parameter, one controls it at a time; **Live > Input sources…**
+shows which. Unplugged devices are retried automatically, and **Output > Live
+status…** shows each output's real name, resolution, frame rate, dropped frames
+and errors.
+
 Virtual camera and NDI output can send the rendered character to compatible
 streaming software. Install the relevant extra and configure the receiving
-application. The [reference]({{ '/reference/' | relative_url }}#optional-features)
+application. The VTS API accepts parameter input from compatible trackers; see
+[VTS API support](https://github.com/Jeffrey-Tool-Projects/Rigora/blob/main/docs/vts-api-support.md)
+for what it covers. The [reference]({{ '/reference/' | relative_url }}#optional-features)
 lists their dependencies.
 
 ## Load a desktop companion
@@ -70,6 +95,13 @@ lists their dependencies.
 Open the **Desktop Pet** tab and select **Load bundled Imeru**, or load your
 own supported model. Use its controls to adjust visibility and interaction.
 Desktop companions also support scripts, schedules, and optional hotkeys.
+
+The **Characters** tab runs several characters at once, each with its own rig,
+script and settings, and saves their arrangement as layouts. Scripts can hold
+behavior rules — events such as clicks, drops, hotkeys, beats and timers,
+with conditions and actions — that the script editor checks and previews
+before they run. The [desktop companions guide]({{ '/desktop-companions/' | relative_url }})
+covers characters, behavior rules, the local LLM, monitors and resource use.
 
 Global hotkeys need the `hotkeys` extra. System tray availability and desktop
 window behavior depend on the operating system and desktop session.

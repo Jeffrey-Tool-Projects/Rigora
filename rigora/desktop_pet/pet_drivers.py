@@ -31,6 +31,7 @@ from rigora.desktop_pet.llm_dialogue import (
     DEFAULT_PERSONA as LLM_DEFAULT_PERSONA,
     LlmDialogueClient,
 )
+from rigora.desktop_pet.llm_dialogue import DialogueHistory, parse_reply
 from rigora.desktop_pet.music_rhythm import MusicRhythmDriver
 from rigora.desktop_pet.pet_feature_base import FeatureHost
 
@@ -97,7 +98,11 @@ class MusicRhythmController(CanvasDriverController):
     driver_key = "music_rhythm"
 
     def _build_driver(self) -> MusicRhythmDriver:
-        return MusicRhythmDriver(self._host.canvas(), parent=self._host)
+        driver = MusicRhythmDriver(self._host.canvas(), parent=self._host)
+        fire = getattr(self._host, "fire_behavior", None)
+        if fire is not None:
+            driver.beat.connect(lambda: fire("beat"))
+        return driver
 
 
 class IdleMinigameController(CanvasDriverController):
@@ -178,6 +183,16 @@ class ClickSfxController:
         self._player.play(event)
 
 
+def allowed_actions(host) -> dict[str, set[str]]:
+    """The motions, motion groups and expressions of the pet's own rig."""
+    document = host.document() if hasattr(host, "document") else None
+    if document is None:
+        return {}
+    return {"motion": {m.name for m in document.motions},
+            "motion_group": {m.group for m in document.motions if m.group},
+            "expression": {e.name for e in document.expressions}}
+
+
 class LlmDialogueController:
     """Local-LLM-backed speech generation.
 
@@ -197,6 +212,10 @@ class LlmDialogueController:
         self._on_line = on_line
         self._on_failed = on_failed
         self._client: LlmDialogueClient | None = None
+        self._allowed: dict = {}
+        self._situation = ""
+        keep = bool(host.setting("llm_keep_history", False))
+        self.history = DialogueHistory(host.setting("llm_history", []) if keep else ())
 
     def set_enabled(self, enabled: bool) -> bool:
         """Configure / disable LLM speech, persisting the actual flag.
@@ -225,7 +244,7 @@ class LlmDialogueController:
         edit takes effect on the next request without a restart."""
         if self._client is None:
             self._client = LlmDialogueClient(parent=self._host)
-            self._client.line_received.connect(self._on_line)
+            self._client.line_received.connect(self._on_reply)
             self._client.request_failed.connect(self._on_failed)
         self._client.set_endpoint(
             base_url=str(self._host.setting("llm_base_url", "") or LLM_DEFAULT_BASE_URL),
@@ -237,8 +256,50 @@ class LlmDialogueController:
         return self._client
 
     def request_line(self, situation: str) -> None:
-        """Fire an async line request for ``situation`` tag."""
-        self.ensure_client().request_line(situation)
+        """Fire an async line request for ``situation`` tag. The model may
+        only ask for the rig's own motions and expressions (R5.5)."""
+        self._allowed = allowed_actions(self._host)
+        self._situation = situation
+        self.ensure_client().request_line(situation, history=self.history.entries(),
+                                          allowed=self._allowed)
+
+    def _on_reply(self, text: str) -> None:
+        line, actions = parse_reply(text, self._allowed)
+        if line:
+            self.history.add(self._situation, line)
+            if self.keeps_history():
+                self._host.persist(llm_history=self.history.to_list())
+            self._on_line(line)
+        perform = getattr(self._host, "_perform_behavior_step", None)
+        if perform is not None and self.is_enabled():
+            from rigora.desktop_pet.pet_behavior import Step
+            for kind, name in actions:
+                perform(Step(kind, name))
+
+    def status(self) -> tuple[str, str]:
+        if self._client is None:
+            return "idle", ""
+        return self._client.state, self._client.detail
+
+    def check_connection(self) -> None:
+        self.ensure_client().check_connection()
+
+    def cancel(self) -> None:
+        if self._client is not None:
+            self._client.cancel()
+
+    def keeps_history(self) -> bool:
+        return bool(self._host.setting("llm_keep_history", False))
+
+    def set_keep_history(self, keep: bool) -> None:
+        """Keeping history saves recent lines with the pet's settings; turning
+        it off deletes what was saved."""
+        self._host.persist(llm_keep_history=bool(keep),
+                           llm_history=self.history.to_list() if keep else [])
+
+    def clear_history(self) -> None:
+        self.history.clear()
+        self._host.persist(llm_history=[])
 
     def shutdown(self) -> None:
         """Mark any in-flight request dead so it can't emit on the client after

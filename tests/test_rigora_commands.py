@@ -82,7 +82,9 @@ def test_stdio_handshake_and_tool_call():
     responses = [json.loads(line) for line in result.stdout.splitlines()]
     assert [response["id"] for response in responses] == [1, 2, 3]
     assert responses[0]["result"]["serverInfo"]["name"] == "rigora"
-    assert len(responses[1]["result"]["tools"]) == 4
+    names = {tool["name"] for tool in responses[1]["result"]["tools"]}
+    assert {"puppet_from_png", "puppet_inspect", "puppet_validate", "puppet_schema",
+            "job_start", "job_status", "job_cancel", "job_result"} <= names
     assert responses[2]["result"]["structuredContent"]["name"] == "motion"
 
 

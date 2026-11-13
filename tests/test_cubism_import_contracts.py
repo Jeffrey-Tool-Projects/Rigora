@@ -74,7 +74,7 @@ def _motion_dict(name, *, fade_in=0.5, fade_out=0.25, group=None, sound=None) ->
     return {
         "name": name, "duration": 2.0, "loop": True, "tracks": _EXPECTED_TRACKS,
         "fade_in_duration": fade_in, "fade_out_duration": fade_out,
-        "group": group, "sound_path": sound,
+        "group": group, "sound_path": sound, "take": None,
     }
 
 

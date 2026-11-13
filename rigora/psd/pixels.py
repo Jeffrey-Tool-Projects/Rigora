@@ -54,19 +54,27 @@ def _read_layer_channel_data(
         blend_mode=blend_mode,
         visible=not bool(flags & _LAYER_FLAG_HIDDEN),
         lock_alpha=bool(flags & _LAYER_FLAG_TRANSPARENCY_PROTECTED),
+        source_blend_key=record["blend_key"].decode("latin-1"),
+        clipping=bool(record.get("clipping", 0)),
+        has_mask=bool(record.get("has_mask", False)),
+        fill_opacity=record.get("fill_opacity", 255) / 255.0,
+        info_keys=tuple(record.get("info_keys", ())),
+        bounds=(top, left, bottom, right),
     )
 
 
 def _read_layer_channels(
     cursor, channels: list[tuple[int, int]], layer_h: int, layer_w: int,
 ) -> dict[int, np.ndarray]:
-    """Read every channel plane for one layer record. Empty bounds are
-    tolerated (section dividers ride the same record shape) — the
-    cursor is advanced past each channel either way."""
+    """Read every colour / transparency plane for one layer record. Empty
+    bounds are tolerated (section dividers ride the same record shape) and
+    mask planes (ids -2 / -3) use the mask rectangle rather than the layer
+    bounds, so they are skipped undecoded; the record notes their presence.
+    The cursor is advanced past each channel either way."""
     channels_raw: dict[int, np.ndarray] = {}
     for ch_id, ch_size in channels:
         ch_end = cursor.pos + ch_size
-        if layer_h > 0 and layer_w > 0:
+        if layer_h > 0 and layer_w > 0 and ch_id in CHANNEL_ORDER:
             channels_raw[ch_id] = _read_one_channel_plane(
                 cursor, layer_h, layer_w,
             )

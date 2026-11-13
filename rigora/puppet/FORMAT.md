@@ -6,9 +6,9 @@ diffs humanly through git, has no proprietary binary, and is fully
 documented here.
 
 The format is open: this specification, the JSON Schemas in
-[`docs/schemas/`](../../docs/schemas/) and the reference reader
+[`resources/schemas/`](../resources/schemas/) and the reference reader
 [`docs/examples/read_puppet.py`](../../docs/examples/read_puppet.py) are
-MIT-licensed like the rest of Imervue, and any program may read or write
+MIT-licensed like the rest of Rigora, and any program may read or write
 `.puppet` files. *Implementing the format* at the end lists what a reader
 and a writer must do.
 
@@ -47,7 +47,7 @@ written before it existed have none. An archive whose `mimetype` holds a
 different type is not a `.puppet`.
 
 Every JSON file of the archive may carry a `"$schema"` key naming its
-JSON Schema (see *JSON Schemas*); Imervue writes it so that editors check
+JSON Schema (see *JSON Schemas*); Rigora writes it so that editors check
 the file as it is typed. Readers ignore it.
 
 ## Version policy
@@ -56,8 +56,8 @@ the file as it is typed. Readers ignore it.
 the schema gains a breaking change. v1 is frozen by this document.
 
 * Loaders **must** reject unknown future versions cleanly, saying which
-  version the file uses. Imervue answers "this file uses .puppet format
-  vN, newer than the v1 this Imervue reads; update Imervue to open it".
+  version the file uses and the newest version the reader supports, and
+  explain that the reader must be updated to open the file.
   A `version` that is not an integer (JSON `true` included) is rejected
   as unsupported.
 * Future versions append fields; existing fields keep their meaning so
@@ -80,7 +80,8 @@ the schema gains a breaking change. v1 is frozen by this document.
   "hit_areas": [ … ],
   "parameter_blends": [ … ],
   "parts": [ … ],
-  "display_names": {"ParamAngleX": "Head X"}
+  "display_names": {"ParamAngleX": "Head X"},
+  "compositions": [ … ]
 }
 ```
 
@@ -100,6 +101,7 @@ the schema gains a breaking change. v1 is frozen by this document.
 | `parameter_blends` | array | no | Keyforms over several parameters at once (see *Parameter blend* below) |
 | `parts` | array | no | Visibility / opacity tree over drawables (see *Part* below) |
 | `display_names` | object | no | Parameter or part id → friendly label. A Cubism `.cdi3.json` import fills it; it is stored and written back, and the Puppet tab's docks show the raw ids |
+| `compositions` | array | no | Multi-track arrangements of motions (see *Composition* below). Writers omit the key when there are none |
 
 ## Drawable
 
@@ -453,6 +455,19 @@ highest `draw_order` wins.
 | `fade_out_duration` | float | no | Seconds to ease this motion's parameters back to their defaults on **Stop**; `0` (default) uses the player's default |
 | `sound_path` | string | no | Absolute path to a WAV that plays once when playback starts; the file stays outside the zip |
 | `group` | string | no | Motion group (`Idle`, `TapHead`, …) used by *Idle motions* and hit areas |
+| `take` | object | no | Where a recorded motion came from (see below). Absent on hand-made and imported motions |
+
+`take` records provenance only; playback ignores it.
+
+| Field | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | yes | Unique id of this take |
+| `source` | string | yes | What produced it: `record`, `lipsync`, `composition`, `unknown`, … |
+| `recorded_at` | string | no | ISO 8601 time the take was made |
+| `fps` | number > 0 | no | Sampling rate of the take |
+| `inputs` | array of strings | no | Live inputs active while recording (`webcam`, `mic`, …) |
+| `captured_seconds` | number ≥ 0 | no | Length actually captured |
+| `replaced` | string or null | no | `id` of the take this one replaced under the same motion name |
 
 Each segment has a `type` (`linear`, `stepped`, `inverse-stepped`,
 `cubic-bezier`) and `p0` / `p1` `[time, value]` points; `cubic-bezier`
@@ -462,6 +477,62 @@ jumps to `p1`'s. Writers keep segments contiguous — `p0[0]` of segment
 N+1 equals `p1[0]` of segment N; the loader doesn't check this. Before
 the first segment a track holds its first value, and after the last it
 holds its last.
+
+## Composition
+
+A composition arranges existing motions on layers and is sampled like a
+motion. It is stored inline in `puppet.json` under `compositions`.
+
+```json
+{
+  "name": "greeting",
+  "duration": 6.0,
+  "layers": [
+    {"id": "body", "blend": "override", "weight": 1.0, "muted": false,
+     "clips": [{"motion": "wave", "start": 0.5, "offset": 0.0, "length": 2.0,
+                "loop": false, "fade_in": 0.2, "fade_out": 0.3,
+                "weight": 1.0, "muted": false}]},
+    {"id": "face", "blend": "additive", "clips": [{"motion": "smile", "start": 1.0}]}
+  ]
+}
+```
+
+| Field | Type | Required | Meaning |
+|---|---|---|---|
+| `name` | string | yes | Unique among the file's compositions |
+| `duration` | number | yes | Length in seconds |
+| `layers[].id` | string | yes | Layer name; later layers sit above earlier ones |
+| `layers[].blend` | string | no | `override` (default): replaces lower layers' values, mixed by the clip's envelope × weight. `additive`: adds its change from each parameter's default |
+| `layers[].weight` / `muted` | number / bool | no | Layer strength (default `1`) and whether it is skipped |
+| `clips[].motion` | string | yes | Name of a motion in this file |
+| `clips[].start` | number | no | Composition time where the clip begins (default `0`) |
+| `clips[].offset` | number | no | Seconds skipped at the start of the motion |
+| `clips[].length` | number or omitted | no | Seconds played; omitted plays to the motion's end |
+| `clips[].loop` | bool | no | Repeat the motion to fill `length` |
+| `clips[].fade_in` / `fade_out` | number | no | Envelope ramps in seconds |
+| `clips[].weight` / `muted` | number / bool | no | Clip strength and whether it is skipped |
+
+Within a layer a later clip cross-fades over an earlier one while both
+are active. Outside every clip a layer contributes nothing.
+
+### Compatibility of `compositions` and `take`
+
+Both were added to v1 without a version change because they are
+optional and only add information:
+
+* A reader that does not know them ignores the keys, as the version
+  policy requires; the file opens with all motions intact. Saving it with
+  such a reader drops the compositions and take records, nothing else.
+* Rigora refuses to open a file whose composition lacks a name, uses an
+  unknown `blend` or has non-numeric timing, with an error naming the
+  composition. A clip naming a motion the file lacks is kept but plays
+  nothing; the Compositions dialog lists it as a problem and will not
+  save until it is fixed. A `take` that is not an object with string
+  `id` and `source` is refused the same way; other malformed take fields
+  are reported by the schema check (`rigora puppet-validate`).
+* A composition can be baked into an ordinary motion (**Save and bake
+  into motion** in the Compositions dialog, or `rigora bake-composition`)
+  for players that do not understand compositions.
 
 ## Expression (`expressions/<name>.json`)
 
@@ -551,7 +622,8 @@ field will arrive in v2 with a stated migration path.
 ## JSON Schemas
 
 Four JSON Schemas (draft 2020-12) describe the JSON files, generated from
-`Imervue/puppet/format_schema.py` into `docs/schemas/`:
+`rigora/puppet/format_schema.py` into `rigora/resources/schemas/`.
+The following schema IDs remain permanent identifiers from the original implementation:
 
 | File | Schema URL (`$id`) |
 |---|---|
@@ -571,8 +643,8 @@ physics present in the archive — the loader checks.
 ## Checking a file
 
 ```
-py -m Imervue.cli puppet-validate examples/puppet/imeru.puppet --json
-py -m Imervue.cli puppet-schema --name motion
+rigora puppet-validate examples/puppet/imeru.puppet --json
+rigora puppet-schema --name motion
 ```
 
 `puppet-validate` (the MCP tool `puppet_validate`) runs the schemas over

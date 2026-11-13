@@ -348,6 +348,7 @@ def test_dialog_title_tabs_and_snapshot(qapp):
         tabs = dialog.findChild(QTabWidget)
         assert [tabs.tabText(i) for i in range(tabs.count())] == [
             "Greetings", "Time of day", "Hit responses", "Motion lines", "Scheduled",
+            "Behaviors",
         ]
         assert list(dialog._time_of_day_editors) == list(TIME_OF_DAY_BANDS)   # noqa: SLF001
         assert dialog.script() == script_from_form_data({"name": "n"})
