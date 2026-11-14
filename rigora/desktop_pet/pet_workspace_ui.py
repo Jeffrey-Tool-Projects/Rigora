@@ -58,7 +58,8 @@ class PetWorkspaceUiMixin:
         self._settings_tabs = QTabWidget()
         self._settings_tabs.setObjectName("petSettingsTabs")
         for builder in (self._build_window_group, self._build_drivers_group,
-                        self._build_script_group, self._build_hotkey_group):
+                        self._build_script_group, self._build_hotkey_group,
+                        self._build_characters_group):
             group = builder()
             title = group.title()
             page = QWidget()

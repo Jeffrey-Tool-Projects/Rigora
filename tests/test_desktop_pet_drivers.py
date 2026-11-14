@@ -261,7 +261,7 @@ class _FakeLlmClient:
             raise ValueError("bad base url")
         self.endpoints += 1
 
-    def request_line(self, situation: str) -> None:
+    def request_line(self, situation: str, *, history=(), allowed=None) -> None:
         self.requests.append(situation)
 
 

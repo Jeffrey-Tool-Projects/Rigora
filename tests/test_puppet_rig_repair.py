@@ -98,9 +98,15 @@ def test_mismatched_uvs_skip_the_mesh_but_not_the_weights():
 
 
 def _host(document):
+    from rigora.puppet.document_session import DocumentSession
     said, loaded = [], []
     canvas = SimpleNamespace(document=lambda: document, load_document=loaded.append)
-    host = SimpleNamespace(_canvas=canvas, _announce=lambda key, fallback, **fmt: said.append((key, fmt)))
+    session = DocumentSession()
+    session.bind(document, path="r.puppet", saved=True)
+    host = SimpleNamespace(_canvas=canvas, session=session,
+                           _begin_document_work=lambda: session.revision,
+                           _update_session_actions=lambda: None,
+                           _announce=lambda key, fallback, **fmt: said.append((key, fmt)))
     return host, said, loaded
 
 

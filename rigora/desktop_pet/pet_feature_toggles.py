@@ -65,6 +65,8 @@ class PetFeatureTogglesMixin:
         """Route a hotkey hit to the matching toggle. Lives in
         :class:`PetWindow` because every action needs window-state
         access (visibility, click-through, anchor)."""
+        if getattr(self, "_behavior_timers", None) is not None:
+            self.fire_behavior(f"hotkey:{action}")
         if action == ACTION_TOGGLE_VISIBLE:
             if self.isVisible():
                 self.hide()
@@ -142,6 +144,9 @@ class PetFeatureTogglesMixin:
         """Reset the idle clock — pet window mouse / drag handlers
         call this so the minigame knows the user is still there."""
         self._idle_minigame.notify_activity()
+        pacer = getattr(self, "_pacer", None)
+        if pacer is not None:
+            pacer.note_activity()
 
 
     def speak_notification(self, line: str) -> None:   # pragma: no cover - Qt UI

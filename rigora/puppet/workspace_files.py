@@ -29,17 +29,22 @@ class PuppetFilesMixin:
     def open_puppet(self, path: str | Path) -> bool:
         """Load ``path`` into the canvas. Returns ``True`` on success."""
         path_str = str(path)
+        revision = self._begin_document_work()
         try:
             doc = load_puppet(path_str)
-        except (FileNotFoundError, PuppetFormatError) as exc:
+        except (OSError, PuppetFormatError) as exc:
             logger.warning("failed to open puppet %s: %s", path_str, exc)
             self._status_label.setText(
                 language_wrapper.language_word_dict.get(
-                    "puppet_open_failed", "Failed to open puppet: {error}",
+                    "puppet_open_failed_action",
+                    "Open failed: {error}. Check the file path and format, then try again.",
                 ).format(error=str(exc)),
             )
             return False
-        self._canvas.load_document(doc)
+        if not self._accept_document_result(revision):
+            return False
+        if not self._replace_document(doc, path=path, saved=True):
+            return False
         self._status_label.setText(
             language_wrapper.language_word_dict.get(
                 "puppet_status_loaded",
@@ -48,15 +53,20 @@ class PuppetFilesMixin:
                 name=Path(path_str).name,
                 w=doc.size[0], h=doc.size[1],
                 n=len(doc.drawables),
-            ),
+            ) + self._missing_texture_hint(doc),
         )
         _push_recent(path_str)
         return True
 
-    def _save_via_dialog(self) -> None:
+    def save_current_document(self) -> bool:
+        if self.session.path is None:
+            return self._save_via_dialog()
+        return self.save_puppet(self.session.path)
+
+    def _save_via_dialog(self) -> bool:
         doc = self._canvas.document()
         if doc is None:
-            return
+            return False
         lang = language_wrapper.language_word_dict
         path, _ = QFileDialog.getSaveFileName(
             self,
@@ -65,25 +75,31 @@ class PuppetFilesMixin:
             translated_filter("file_filter_puppet", "Puppet files", ("puppet",)),
         )
         if not path:
-            return
+            return False
         if not path.lower().endswith(".puppet"):
             path = f"{path}.puppet"
-        self.save_puppet(path)
+        return self.save_puppet(path)
 
     def save_puppet(self, path: str | Path) -> bool:
         doc = self._canvas.document()
         if doc is None:
             return False
+        self._canvas.end_mesh_edit_drag()
+        self._commit_edit()
         try:
             save_puppet(doc, path)
-        except OSError as exc:
+        except (OSError, ValueError) as exc:
             logger.warning("puppet save failed: %s", exc)
             self._status_label.setText(
                 language_wrapper.language_word_dict.get(
-                    "puppet_save_failed", "Save failed: {error}",
+                    "puppet_save_failed_action",
+                    "Save failed: {error}. Use Save As to choose a writable destination.",
                 ).format(error=str(exc)),
             )
             return False
+        self.session.mark_saved(path)
+        self._discard_recovery()
+        self._update_session_actions()
         self._status_label.setText(
             language_wrapper.language_word_dict.get(
                 "puppet_save_done", "Saved to {name}",

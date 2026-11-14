@@ -36,7 +36,7 @@ def desktop_state() -> dict:
     return {"foreground_hwnd": user32.GetForegroundWindow(), "cursor": [point.x, point.y]}
 
 
-def verify(output: Path) -> dict:
+def verify(output: Path, *, workflows: bool = True) -> dict:
     import numpy as np
     import rigora
     from OpenGL.GL import GL_RENDERER, GL_VERSION, glGetString
@@ -163,6 +163,17 @@ def verify(output: Path) -> dict:
             report["roundtrip"]["sha256"] == report["neutral"]["sha256"],
             "Save/reopen changed neutral frame",
         )
+        from verify_editor_session import check_editor_session
+        report["editor_session"] = check_editor_session(window, saved.parent)
+        if workflows:
+            from verify_asset_workflow import check_asset_workflow
+            report["asset_workflow"] = check_asset_workflow(window, saved.parent)
+            from verify_rig_workflow import check_rig_workflow
+            report["rig_workflow"] = check_rig_workflow(window, saved.parent)
+            from verify_animation_workflow import check_animation_workflow
+            report["animation_workflow"] = check_animation_workflow(window, saved.parent)
+            from verify_live_workflow import check_live_workflow
+            report["live_workflow"] = check_live_workflow(window, saved.parent)
         require(window._pet is None, "Verification failed: window._pet is None")
         # Only the OS tray is suppressed; PetWorkspace itself is real.
         available = PetTrayIcon.is_available
@@ -176,6 +187,9 @@ def verify(output: Path) -> dict:
             "Verification failed: window._pet is not None and window._pet.pet_window() is None",
         )
         report["pet_control_page"] = True
+        if workflows:
+            from verify_pet_workflow import check_pet_workflow
+            report["pet_workflow"] = check_pet_workflow(window, saved.parent)
         window.shutdown()
         window.shutdown()
         window.close()
@@ -219,6 +233,8 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=Path(".audit/native-gui"))
     parser.add_argument("--source", action="store_true")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--skip-workflows", action="store_true",
+                        help="only render, round-trip and shut down (no R2-R5 workflow checks)")
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -234,17 +250,19 @@ def main() -> int:
         ]
         if args.source:
             command.append("--source")
+        if args.skip_workflows:
+            command.append("--skip-workflows")
         try:
             result = subprocess.run(
                 command,
                 check=False,
                 capture_output=True,
                 text=True,
-                timeout=90,
+                timeout=420,
                 creationflags=subprocess.CREATE_NO_WINDOW,
             )
         except subprocess.TimeoutExpired:
-            print("Native GUI verification exceeded 90 seconds", file=sys.stderr)
+            print("Native GUI verification exceeded 420 seconds", file=sys.stderr)
             return 1
         (output / "process.log").write_text(result.stdout + result.stderr, encoding="utf-8")
         print(result.stdout, end="")
@@ -258,7 +276,7 @@ def main() -> int:
         os.environ["RIGORA_DATA_DIR"] = temporary
         os.environ["RIGORA_SETTINGS_PATH"] = str(Path(temporary) / "settings.json")
         try:
-            report = verify(output)
+            report = verify(output, workflows=not args.skip_workflows)
         except Exception:  # noqa: BLE001 - serialize any verification failure, then exit nonzero
             report_file = output / "report.json"
             report = (

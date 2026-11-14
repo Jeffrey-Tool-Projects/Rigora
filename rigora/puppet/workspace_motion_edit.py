@@ -16,12 +16,27 @@ class PuppetMotionEditMixin:
         ranges = {p.id: (p.min, p.max) for p in doc.parameters} if doc is not None else {}
         dialog = MotionTimelineDialog(motion, self, ranges=ranges)
         dialog.widget().track_modified.connect(self._on_timeline_edit_committed)
-        dialog.exec()
+        dialog.widget().edit_started.connect(self._begin_timeline_edit)
+        dialog.widget().edit_finished.connect(self._finish_timeline_edit)
+        try:
+            dialog.exec()
+        finally:
+            self._finish_timeline_edit()
+            dialog.deleteLater()
+
+    def _begin_timeline_edit(self) -> None:
+        self._timeline_editing = True
+
+    def _finish_timeline_edit(self) -> None:
+        self._timeline_editing = False
+        self._commit_edit("Edit motion")
 
     def _on_timeline_edit_committed(self) -> None:
         """Force the player to re-apply the (now edited) motion at the
         current playhead so the canvas reflects the new curve without
         needing the user to press Play."""
+        if not getattr(self, "_timeline_editing", False):
+            self._commit_edit("Edit motion")
         player = self._motion_dock.player()
         if player.motion() is None:
             return

@@ -10,6 +10,8 @@ returns ``False`` in that case so the workspace can show a hint.
 """
 from __future__ import annotations
 
+import contextlib
+
 import logging
 import threading
 import time
@@ -19,6 +21,7 @@ import numpy as np
 from PySide6.QtCore import QObject, QTimer, Signal
 
 from rigora.puppet.face_landmark_mapper import landmarks_to_params
+from rigora.puppet.input_arbitration import submit_values
 from rigora.puppet.webcam_status import WebcamPhase, WebcamStatus
 
 if TYPE_CHECKING:
@@ -60,6 +63,10 @@ class WebcamTracker(QObject):
         self._pump_timer = QTimer(self)
         self._pump_timer.setInterval(int(1000 / _TARGET_FPS))
         self._pump_timer.timeout.connect(self._pump_to_canvas)
+        self._calibrator = None
+        self._frame_serial = 0
+        self._pumped_serial = -1
+        self._raw_samples: list[dict[str, float]] | None = None
 
     # ---- public --------------------------------------------------------
 
@@ -108,6 +115,29 @@ class WebcamTracker(QObject):
             self._status = WebcamStatus(device=index)
         self._publish_status()
         return True
+
+    def set_calibrator(self, calibrator) -> None:
+        """Calibrate tracked values before they reach the canvas (R4.1)."""
+        self._calibrator = calibrator
+
+    def calibrator(self):
+        return self._calibrator
+
+    def start_neutral_capture(self) -> None:
+        """Begin collecting raw frames for a neutral-pose calibration."""
+        self._raw_samples = []
+
+    def finish_neutral_capture(self) -> list[dict[str, float]]:
+        samples, self._raw_samples = self._raw_samples or [], None
+        return samples
+
+    def wait_released(self, timeout: float = 2.0) -> bool:
+        """Block up to ``timeout`` seconds for the capture thread to exit and
+        release the device; ``True`` once it has (R4.3)."""
+        thread = self._thread
+        if thread is not None:
+            thread.join(timeout)
+        return thread is None or not thread.is_alive()
 
     def can_configure(self) -> bool:
         """Whether device selection and restart are safe after worker cleanup."""
@@ -236,6 +266,9 @@ class WebcamTracker(QObject):
         except ImportError as exc:
             logger.warning("webcam dependency failed: %s", exc)
             self._set_status(WebcamPhase.MISSING_DEPENDENCY, str(exc))
+        except _WebcamSetupError as exc:
+            logger.warning("face model unavailable: %s", exc)
+            self._set_status(WebcamPhase.MODEL_UNAVAILABLE, str(exc))
         except _CameraAccessDeniedError as exc:
             logger.warning("webcam access denied: %s", exc)
             self._set_status(WebcamPhase.PERMISSION_DENIED, str(exc))
@@ -267,7 +300,7 @@ class WebcamTracker(QObject):
             if self._stop_evt.is_set():
                 break
             if not ok or frame is None:
-                self._set_status(WebcamPhase.FAILED, "Camera stopped delivering frames")
+                self._set_status(WebcamPhase.DEVICE_LOST, "Camera stopped delivering frames")
                 return
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             landmarks_norm = _detect_face(landmarker, mp, rgb)
@@ -275,6 +308,7 @@ class WebcamTracker(QObject):
                 self._latest_params = (
                     landmarks_to_params(landmarks_norm) if landmarks_norm is not None else {}
                 )
+                self._frame_serial += 1
             elapsed = time.monotonic() - start
             inst_fps = 1.0 / elapsed if elapsed > 0 else 0.0
             fps_ema = inst_fps if fps_ema is None else (0.9 * fps_ema + 0.1 * inst_fps)
@@ -299,13 +333,26 @@ class WebcamTracker(QObject):
             return
         with self._params_lock:
             params = dict(self._latest_params)
+            serial = self._frame_serial
+        fresh = serial != self._pumped_serial
+        self._pumped_serial = serial
+        if params and fresh and self._raw_samples is not None and len(self._raw_samples) < 600:
+            self._raw_samples.append(params)
+        if self._calibrator is not None:
+            now = time.monotonic()
+            if params and fresh:
+                params = self._calibrator.apply(params, now)
+            elif not params:
+                params = self._calibrator.lost(now)
+            else:
+                return
         if not params:
             return
         # Push the whole frame's parameters in one batch. Setting them one at a
         # time re-ran the full mesh deform + repaint per parameter (~15 per
         # frame), collapsing the frame rate on a large rig; set_parameter_values
         # recomputes once for the batch.
-        self._canvas.set_parameter_values(params)
+        submit_values(self._canvas, "webcam", params)
 
 
 class _CameraAccessDeniedError(PermissionError):
@@ -400,11 +447,20 @@ def _face_landmarker_model_path():
     from rigora.system.app_paths import app_dir
 
     target = app_dir() / "models" / "face_landmarker.task"
-    if target.is_file():
-        if _sha256_of(target.read_bytes()) == _FACE_LANDMARKER_SHA256:
+    try:
+        cached = target.read_bytes() if target.is_file() else None
+    except OSError as exc:
+        logger.warning("cached %s is unreadable (%s); downloading again", target, exc)
+        cached = None
+    if cached is not None:
+        if _sha256_of(cached) == _FACE_LANDMARKER_SHA256:
             return target
         logger.warning("cached %s does not match its checksum; downloading again", target)
-    target.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise _WebcamSetupError(
+            f"cannot create the model folder {target.parent}: {exc}") from exc
     logger.info("downloading face_landmarker.task to %s", target)
     try:
         with _https_urlopen(_FACE_LANDMARKER_MODEL_URL) as resp:
@@ -422,6 +478,8 @@ def _face_landmarker_model_path():
         partial.write_bytes(data)
         os.replace(partial, target)
     except OSError as exc:
+        with contextlib.suppress(OSError):
+            partial.unlink(missing_ok=True)
         raise _WebcamSetupError(f"failed to save face_landmarker.task: {exc}") from exc
     return target
 

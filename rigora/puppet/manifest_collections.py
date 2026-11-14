@@ -1,6 +1,7 @@
 """Ordered codecs for required and optional puppet manifest collections."""
 from __future__ import annotations
 
+from rigora.puppet.composition import composition_to_json, parse_composition
 from rigora.puppet.drawable_codec import _drawable_to_json, _parse_drawable
 from rigora.puppet.parameter_codec import (
     _parameter_blend_to_json,
@@ -28,4 +29,5 @@ _OPTIONAL_COLLECTIONS = (
     ("hit_areas", _parse_hit_area, _hit_area_to_json),
     ("parameter_blends", _parse_parameter_blend, _parameter_blend_to_json),
     ("parts", _parse_part, _part_to_json),
+    ("compositions", parse_composition, composition_to_json),
 )

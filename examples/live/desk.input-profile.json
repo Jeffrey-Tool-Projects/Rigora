@@ -1,0 +1,31 @@
+{
+  "name": "Desk",
+  "camera_index": 0,
+  "camera_name": "",
+  "mic_device": "",
+  "sensitivity": 1.2,
+  "dead_zone": 0.02,
+  "smoothing": 0.4,
+  "channels": {
+    "ParamAngleX": {
+      "neutral": 0.05,
+      "sensitivity": 1.4,
+      "dead_zone": 0.03,
+      "smoothing": 0.35,
+      "invert": false
+    },
+    "ParamEyeLOpen": {
+      "neutral": 0.9,
+      "sensitivity": 1.0,
+      "dead_zone": 0.0,
+      "smoothing": 0.2,
+      "invert": false
+    }
+  },
+  "mic_gain": 1.5,
+  "mic_gate": 0.06,
+  "mic_smoothing": 0.3,
+  "lost_after": 0.6,
+  "return_seconds": 0.8,
+  "neutral_pose": {}
+}

@@ -151,6 +151,8 @@ class PetScript:
     hit_responses: dict[str, list[str]] = field(default_factory=dict)
     motion_lines: dict[str, list[str]] = field(default_factory=dict)
     scheduled: list[ScheduledEvent] = field(default_factory=list)
+    # Event → condition → action rules (see pet_behavior); None = none.
+    behaviors: dict[str, Any] | None = None
 
     @classmethod
     def default(cls) -> PetScript:
@@ -175,6 +177,7 @@ class PetScript:
             "hit_responses": {k: list(v) for k, v in self.hit_responses.items()},
             "motion_lines": {k: list(v) for k, v in self.motion_lines.items()},
             "scheduled": [_scheduled_to_dict(ev) for ev in self.scheduled],
+            **({"behaviors": self.behaviors} if self.behaviors else {}),
         }
 
 
@@ -208,6 +211,13 @@ def load_script(path: str | Path) -> PetScript:
         raise PetScriptError(f"{p}: invalid JSON ({exc})") from exc
     if not isinstance(raw, dict):
         raise PetScriptError(f"{p}: top-level must be a JSON object")
+    # Behavior rules run actions, so unlike the lines they are not coerced:
+    # a script with a broken rule is refused, naming where the problem is.
+    from rigora.desktop_pet.pet_behavior import validate
+    problems = validate(raw.get("behaviors"))
+    if problems:
+        listed = "; ".join(str(problem) for problem in problems[:5])
+        raise PetScriptError(f"{p}: behaviors: {listed}")
     return _coerce_script(raw)
 
 
@@ -233,6 +243,7 @@ def _coerce_script(raw: dict[str, Any]) -> PetScript:
         hit_responses=_coerce_str_list_dict(raw.get("hit_responses")),
         motion_lines=_coerce_str_list_dict(raw.get("motion_lines")),
         scheduled=_coerce_scheduled(raw.get("scheduled")),
+        behaviors=raw.get("behaviors") if isinstance(raw.get("behaviors"), dict) else None,
     )
 
 
@@ -320,6 +331,8 @@ class PetScriptEngine:
     """
 
     def __init__(self, script: PetScript | None = None) -> None:
+        from rigora.desktop_pet.pet_behavior import BehaviorEngine
+        self.behaviors = BehaviorEngine()
         self._script: PetScript = script or PetScript.default()
         # Per-list cursors. Keyed by an opaque list-identity tag
         # so each named line bucket cycles independently — clicking
@@ -332,6 +345,10 @@ class PetScriptEngine:
         self._sched_anchors: list[float] = [
             time.monotonic() for _ in self._script.scheduled
         ]
+        try:
+            self.behaviors.load(self._script.behaviors)
+        except ValueError:
+            self.behaviors.load(None)
 
     # ---- public API --------------------------------------------
 
@@ -341,6 +358,11 @@ class PetScriptEngine:
         self._script = script
         self._cursors.clear()
         self._sched_anchors = [time.monotonic() for _ in script.scheduled]
+        try:
+            self.behaviors.load(script.behaviors)
+        except ValueError:
+            # Scripts are validated when loaded; one built in code may not be.
+            self.behaviors.load(None)
 
     def script(self) -> PetScript:
         return self._script

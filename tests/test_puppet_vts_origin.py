@@ -49,7 +49,7 @@ def _accept(*sockets):
     pending = list(sockets)
     server = SimpleNamespace(hasPendingConnections=lambda: bool(pending),
                              nextPendingConnection=lambda: pending.pop(0))
-    host = SimpleNamespace(_server=server, _sessions={}, _canvas=None,
+    host = SimpleNamespace(_server=server, _sessions={}, _canvas=None, tokens=None,
                            _on_text=lambda *_a: None, _on_disconnect=lambda *_a: None)
     VTubeStudioServer._on_new_connection(host)
     return host._sessions

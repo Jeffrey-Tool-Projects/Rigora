@@ -56,14 +56,33 @@ class _Clock:
 
 
 class _Effect:
+    """Records calls like a QMediaPlayer."""
+
+    class PlaybackState:
+        PlayingState = "playing"
+        StoppedState = "stopped"
+
     def __init__(self, fail_stop: bool = False):
         self.calls: list[tuple] = []
         self._fail_stop = fail_stop
+        self.state = "stopped"
+        self.position_ms = 0
 
-    def setSource(self, url):  # noqa: N802 - mirrors QSoundEffect
+    def setSource(self, url):  # noqa: N802 - mirrors QMediaPlayer
         self.calls.append(("source", url.toLocalFile()))
 
+    def setPosition(self, ms):  # noqa: N802 - mirrors QMediaPlayer
+        self.position_ms = ms
+        self.calls.append(("position", ms))
+
+    def position(self):
+        return self.position_ms
+
+    def playbackState(self):  # noqa: N802 - mirrors QMediaPlayer
+        return self.state
+
     def play(self):
+        self.state = "playing"
         self.calls.append(("play",))
 
     def stop(self):
@@ -579,7 +598,8 @@ def test_play_starts_the_motion_sound(qapp, clock, tmp_path):
         player._sound_effect = effect  # noqa: SLF001
         player.set_motion(_motion(sound=str(wav)))
         player.play()
-        assert effect.calls == [("source", str(wav).replace("\\", "/")), ("play",)]
+        assert effect.calls == [("source", str(wav).replace("\\", "/")), ("position", 0),
+                                ("play",)]
     finally:
         player._timer.stop()  # noqa: SLF001
         player.deleteLater()

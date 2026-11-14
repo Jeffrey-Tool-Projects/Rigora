@@ -19,7 +19,7 @@ from _qt_skip import pytestmark  # noqa: F401 - pytest module marker
 def test_standalone_editor_renders_and_closes_without_surviving_timers(tmp_path):
     script = Path(__file__).resolve().parents[1] / "scripts" / "verify_gui.py"
     result = subprocess.run(
-        [sys.executable, str(script), "--source", "--output", str(tmp_path)],
+        [sys.executable, str(script), "--source", "--skip-workflows", "--output", str(tmp_path)],
         check=False,
         capture_output=True,
         text=True,

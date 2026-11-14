@@ -148,6 +148,22 @@ def _puppet_defs() -> dict[str, Any]:
         "hit_area": _object(("id", "drawables"), {
             "id": _STRING, "drawables": _STRINGS, "motion": _STRING, "expression": _STRING,
         }),
+        "composition": _object(("name", "duration"), {
+            "name": _STRING,
+            "duration": {"type": "number", "exclusiveMinimum": 0},
+            "layers": {"type": "array", "items": _object(("id",), {
+                "id": _STRING,
+                "blend": {"enum": ["override", "additive"]},
+                "weight": _NUMBER,
+                "muted": {"type": "boolean"},
+                "clips": {"type": "array", "items": _object(("motion",), {
+                    "motion": _STRING, "start": _NON_NEGATIVE, "offset": _NON_NEGATIVE,
+                    "length": {"type": "number", "exclusiveMinimum": 0},
+                    "loop": {"type": "boolean"}, "fade_in": _NON_NEGATIVE,
+                    "fade_out": _NON_NEGATIVE, "weight": _NUMBER, "muted": {"type": "boolean"},
+                })},
+            })},
+        }),
         "pose_group": _object(("id", "drawables"), {"id": _STRING, "drawables": _STRINGS}),
     }
 
@@ -176,6 +192,7 @@ PUPPET_SCHEMA: dict[str, Any] = _document("puppet", ".puppet puppet.json (v1)", 
         "hit_areas": _array_of("hit_area"),
         "parameter_blends": _array_of("parameter_blend"),
         "parts": _array_of("part"),
+        "compositions": _array_of("composition"),
         "display_names": {"type": "object", "additionalProperties": {"type": "string"}},
     }),
     "$defs": _puppet_defs(),
@@ -198,6 +215,12 @@ MOTION_SCHEMA: dict[str, Any] = _document("motion", ".puppet motions/<name>.json
         "fade_out_duration": _NON_NEGATIVE,
         "sound_path": _STRING,
         "group": _STRING,
+        "take": _object(("id", "source"), {
+            "id": _STRING, "source": _STRING, "recorded_at": _STRING,
+            "fps": {"type": "number", "exclusiveMinimum": 0},
+            "inputs": _STRINGS, "captured_seconds": _NON_NEGATIVE,
+            "replaced": {"type": ["string", "null"]},
+        }),
     }),
 })
 

@@ -20,6 +20,11 @@ class PuppetCanvasParametersMixin:
         ``default``.
         """
         self._document = document
+        self._mesh_edit_target = None
+        if hasattr(self, "_vertex_selection"):
+            self._box_select = None
+            self._prune_mesh_tool_state()
+        self._selected_deformer = None
         self._draw_list = build_draw_list(document) if document is not None else []
         # Frees run off paintGL (file-open / undo / pet rig swap) — need a
         # current GL context or the textures/VBOs leak on every reload.
@@ -32,6 +37,8 @@ class PuppetCanvasParametersMixin:
         )
         self._active_expressions = []
         self._active_pose = {}
+        if getattr(self, "_input_arbiter", None) is not None:
+            self._input_arbiter.clear()
         self._physics.bind_document(document)
         self._physics_outputs = {}
         self._sync_physics_timer()
@@ -45,6 +52,26 @@ class PuppetCanvasParametersMixin:
 
     def parameter_values(self) -> dict[str, float]:
         return dict(self._parameter_values)
+
+    def input_arbiter(self):
+        """The arbiter deciding which live input controls each parameter (R4.2)."""
+        arbiter = getattr(self, "_input_arbiter", None)
+        if arbiter is None:
+            from rigora.puppet.input_arbitration import InputArbiter
+            arbiter = self._input_arbiter = InputArbiter()
+        return arbiter
+
+    def submit_input(self, source: str, values: dict[str, float], *,
+                     force: bool = False) -> dict[str, float]:
+        """Write live-input values for ``source``; parameters a higher-priority
+        source controls are skipped. Returns what was applied."""
+        accepted = self.input_arbiter().submit(source, values)
+        if accepted:
+            self._write_parameters(accepted, force=force)
+        return accepted
+
+    def release_input(self, source: str) -> None:
+        self.input_arbiter().release(source)
 
     def set_parameter_value(self, param_id: str, value: float) -> None:
         """Push a slider / motion / physics output into the parameter

@@ -95,6 +95,7 @@ class MotionRecorder(QObject):
         self._motion_name: str = "recorded"
         self._loop: bool = True
         self._is_recording: bool = False
+        self._document = None
 
     # ---- public --------------------------------------------------------
 
@@ -103,12 +104,15 @@ class MotionRecorder(QObject):
 
     def start(
         self, name: str, *, fps: int = DEFAULT_CAPTURE_FPS, loop: bool = True,
+        inputs: list[str] | None = None,
     ) -> bool:
         if self._is_recording:
             return False
         if not name.strip():
             return False
         self._motion_name = name.strip()
+        self.inputs: list[str] = list(inputs or [])
+        self._document = self._canvas.document()
         self._capture_fps = max(1, int(fps))
         self._loop = bool(loop)
         self._samples = []
@@ -124,6 +128,9 @@ class MotionRecorder(QObject):
     def stop(self) -> Motion | None:
         if not self._is_recording:
             return None
+        if self._canvas.document() is not self._document:
+            self.cancel()
+            return None
         self._timer.stop()
         self._is_recording = False
         # Capture a final frame so the take ends on the user's last edit.
@@ -131,8 +138,18 @@ class MotionRecorder(QObject):
         motion = bake_to_motion(
             self._motion_name, self._samples, loop=self._loop,
         )
+        from rigora.puppet.takes import new_take_info
+        motion.take = new_take_info(
+            "live recording", fps=self._capture_fps, inputs=self.inputs,
+            captured_seconds=time.monotonic() - self._start_wall)
         self.finished.emit(motion)
         return motion
+
+    def cancel(self) -> None:
+        """Drop a take belonging to a replaced document without emitting it."""
+        self._timer.stop()
+        self._is_recording = False
+        self._samples = []
 
     # ---- internals -----------------------------------------------------
 

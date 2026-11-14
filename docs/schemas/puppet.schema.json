@@ -94,6 +94,12 @@
         "$ref": "#/$defs/part"
       }
     },
+    "compositions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/composition"
+      }
+    },
     "display_names": {
       "type": "object",
       "additionalProperties": {
@@ -628,6 +634,97 @@
         "expression": {
           "type": "string",
           "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "composition": {
+      "type": "object",
+      "required": [
+        "name",
+        "duration"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "duration": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "layers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "blend": {
+                "enum": [
+                  "override",
+                  "additive"
+                ]
+              },
+              "weight": {
+                "type": "number"
+              },
+              "muted": {
+                "type": "boolean"
+              },
+              "clips": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "motion"
+                  ],
+                  "properties": {
+                    "motion": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "start": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "offset": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "length": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "loop": {
+                      "type": "boolean"
+                    },
+                    "fade_in": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "fade_out": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "weight": {
+                      "type": "number"
+                    },
+                    "muted": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false

@@ -30,7 +30,8 @@ class PuppetCanvasPointerMixin:
             event.position().x(), event.position().y(),
         )
         if self._mesh_edit_enabled:
-            self.begin_mesh_edit_at(ix, iy)
+            additive = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+            self.begin_mesh_edit_at(ix, iy, additive=additive)
             return
         self.try_trigger_hit_area_at(ix, iy)
 
@@ -65,6 +66,9 @@ class PuppetCanvasPointerMixin:
         )
         if self._mesh_edit_enabled and self._mesh_edit_target is not None:
             self.update_mesh_edit_drag(ix, iy)
+            return
+        if self._mesh_edit_enabled and getattr(self, "_box_select", None) is not None:
+            self.update_box_select(ix, iy)
             return
         self.cursor_moved.emit(ix, iy)
 

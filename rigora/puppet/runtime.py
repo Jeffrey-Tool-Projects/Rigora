@@ -17,6 +17,7 @@ from rigora.puppet.runtime_morphs import (
     _rest_vertices_array,
 )
 from rigora.puppet.runtime_geometry import (
+    compose_document_vertices,
     compose_drawable_vertices,
 )
 from rigora.puppet.runtime_deformer_order import (
@@ -64,11 +65,18 @@ def compose_all_drawables(
     overrides = merge_parameter_samples(document, values)
     parameters_by_id = {p.id: p for p in document.parameters}
     sorted_deformers = topologically_sorted_deformers(document.deformers)
-    return {
-        d.id: compose_drawable_vertices(
-            d, document.deformers, overrides,
-            parameter_values=values, parameters_by_id=parameters_by_id,
-            sorted_deformers=sorted_deformers,
-        )
-        for d in document.drawables
-    }
+    if len({d.id for d in document.drawables}) != len(document.drawables):
+        # Duplicate ids (an invalid document): keep the per-drawable path, where
+        # the last drawable with an id wins, exactly as before.
+        return {
+            d.id: compose_drawable_vertices(
+                d, document.deformers, overrides,
+                parameter_values=values, parameters_by_id=parameters_by_id,
+                sorted_deformers=sorted_deformers,
+            )
+            for d in document.drawables
+        }
+    return compose_document_vertices(
+        document.drawables, sorted_deformers, overrides,
+        parameter_values=values, parameters_by_id=parameters_by_id,
+    )

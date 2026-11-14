@@ -73,13 +73,22 @@ rigora puppet-from-png character.png --destination character.puppet --cell-size 
 rigora puppet-inspect character.puppet
 rigora puppet-validate character.puppet --json
 rigora puppet-schema --name motion
+rigora psd-preview layered.psd
+rigora puppet-from-psd layered.psd --destination character.puppet
+rigora rig-doctor character.puppet --fixes "[\"safe\"]" --destination fixed.puppet
+rigora export-animation character.puppet --motion wave --destination frames
 rigora editor
 rigora mcp
 ```
 
-`rigora-mcp` exposes the same four model operations through MCP. Installing
-without extras supports headless model, archive, and schema operations without
-initializing Qt or OpenGL.
+`rigora-mcp` exposes the same operations through MCP, plus jobs for long
+work such as exports. Every command writes only to its `--destination`, keeps
+existing files unless `--overwrite` is given, and reports failures with stable
+exit statuses and JSON error codes; the
+[reference](https://jeffrey-tool-projects.github.io/Rigora/reference/) lists
+them all. Installing without extras supports the model, archive and schema
+commands without initializing Qt or OpenGL; `export-animation` needs a
+desktop session with OpenGL.
 
 ## Development
 

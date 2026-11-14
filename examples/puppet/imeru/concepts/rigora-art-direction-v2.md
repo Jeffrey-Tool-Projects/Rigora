@@ -1,14 +1,14 @@
 # Imeru for Rigora: ink-line cel-animation direction
 
-This is the next illustration brief, prepared for the request on 2026-11-11.
-It has not yet been rendered or accepted as final artwork.
+This illustration brief was applied on 2026-11-11 to all four animation plates.
+The generated artwork is stored in `../artwork/` and packed in the bundled
+`imeru.puppet`. Generation prompts are recorded in `../artwork/generation-v2.md`.
 Rigora is the application name. Imeru remains the character name.
 
 The previous brief and `modern-full-body.png` document the existing design.
-The prompts in `../artwork/README.md` document how the current animation plates
-were made. They remain historical records, not instructions to silently replace
-those plates. A new master needs a separately checked set of animation plates;
-the existing meshes and UV coordinates do not automatically fit a new drawing.
+The prompts in `../artwork/README.md` document the earlier animation plates.
+The cel-art update uses each plate as a layout reference, then rebuilds the
+meshes and checks the resulting rig rather than replacing the master alone.
 
 ## Art direction
 

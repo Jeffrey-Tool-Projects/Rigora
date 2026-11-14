@@ -7,12 +7,15 @@ those tools can connect to ``ws://127.0.0.1:8001`` and start
 injecting parameter values — the same wire the real VTube Studio
 app exposes.
 
-Scope is deliberately small. We handle the message types needed to
-get a tracker from "connect" to "InjectParameterDataRequest":
+Scope is deliberately small and is not equivalent to the full VTube Studio
+API; ``docs/vts-api-support.md`` lists what is and is not supported. We
+handle the message types needed to get a tracker from "connect" to
+"InjectParameterDataRequest":
 
 * ``APIStateRequest`` — capability probe
-* ``AuthenticationTokenRequest`` — auto-issue a token
-* ``AuthenticationRequest`` — auto-accept any submitted token
+* ``AuthenticationTokenRequest`` — issue a token (see :mod:`vts_session`)
+* ``AuthenticationRequest`` — accept a token this server issued and that
+  has not expired or been revoked
 * ``CurrentModelRequest`` — minimal model info
 * ``Live2DParameterListRequest`` — list document parameters
 * ``ParameterValueRequest`` — read one parameter
@@ -25,8 +28,9 @@ imports ``QtWebSockets`` lazily so test environments without the
 module still exercise the protocol handler.
 
 Security: the server binds ``127.0.0.1`` only (never ``0.0.0.0``).
-The auto-issued token grants full parameter-write access — this is
-a developer puppet plugin, not a public service. Binding to localhost
+A token grants parameter-write access; tokens live in memory, expire, and
+are revoked when the server stops. Injection is rate limited per session and
+a parameter driven by one plug-in is refused to another while it is held. Binding to localhost
 does not keep out web pages: a browser lets any site open a WebSocket to
 ``127.0.0.1``, so remote web origins, opaque ``null`` origins and malformed
 origins are refused (see :mod:`rigora.system.local_origin`). Native clients
@@ -38,12 +42,13 @@ from __future__ import annotations
 import contextlib
 import json
 import logging
-import secrets
 import time
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, Signal
 
+from rigora.puppet import vts_session as vs
+from rigora.puppet.input_arbitration import release_source, submit_values
 from rigora.system.local_origin import is_allowed_origin
 
 if TYPE_CHECKING:
@@ -68,10 +73,23 @@ class VTubeStudioHandler:
     as Python dicts that the Qt wrapper serialises. Kept Qt-free so
     tests can verify the protocol without a WebSocket."""
 
-    def __init__(self, canvas: PuppetCanvas):
+    def __init__(self, canvas: PuppetCanvas, tokens: vs.TokenStore | None = None,
+                 limiter: vs.RateLimiter | None = None):
         self._canvas = canvas
-        self._issued_token: str | None = None
+        self._tokens = tokens if tokens is not None else vs.TokenStore()
+        self._limiter = limiter if limiter is not None else vs.RateLimiter()
         self._authenticated: bool = False
+        self._token: str | None = None
+        self.plugin_name: str = ""
+
+    @property
+    def source(self) -> str:
+        """The arbitration source this session writes as."""
+        return f"external:{self.plugin_name or 'plug-in'}"
+
+    def close(self) -> None:
+        """Release every parameter this session controls."""
+        release_source(self._canvas, self.source)
 
     def is_authenticated(self) -> bool:
         return self._authenticated
@@ -101,8 +119,12 @@ class VTubeStudioHandler:
         if handler is None:
             return self._envelope(
                 request_id, "APIError",
-                {"errorID": 1, "message": f"unknown messageType {message_type!r}"},
+                {"errorID": vs.ERR_REQUEST_TYPE_UNKNOWN,
+                 "message": f"unknown messageType {message_type!r}"},
             )
+        if self._authenticated and not self._tokens.check(self._token)[0]:
+            # Revoked or expired while connected: the session must authenticate again.
+            self._authenticated = False
         response_type, response_data = handler(self, data)
         return self._envelope(request_id, response_type, response_data)
 
@@ -116,13 +138,17 @@ class VTubeStudioHandler:
         }
 
     def _on_auth_token(self, data: dict) -> tuple[str, dict]:
-        plugin_name = str(data.get("pluginName", ""))
-        plugin_dev = str(data.get("pluginDeveloper", ""))
-        # Auto-issue. Tokens are 32 bytes of urlsafe randomness — well
-        # over the entropy required for a session id. We don't persist
-        # across server restarts; the next connection re-authenticates.
-        token = secrets.token_urlsafe(32)
-        self._issued_token = token
+        plugin_name = data.get("pluginName", "")
+        plugin_dev = data.get("pluginDeveloper", "")
+        if not vs.valid_name(plugin_name):
+            return "APIError", {"errorID": vs.ERR_TOKEN_PLUGIN_NAME_INVALID,
+                                "message": "pluginName must be 3-32 characters"}
+        if not vs.valid_name(plugin_dev):
+            return "APIError", {"errorID": vs.ERR_TOKEN_DEVELOPER_NAME_INVALID,
+                                "message": "pluginDeveloper must be 3-32 characters"}
+        # Tokens are 32 bytes of urlsafe randomness, stored only as digests in
+        # memory; they expire and are revoked when the server stops.
+        token = self._tokens.issue(plugin_name, plugin_dev)
         # Phrase the log line without the literal word "token" — static
         # analysers flag any "<credential> issued" message as a potential
         # secret leak, even when the actual value isn't interpolated.
@@ -131,12 +157,18 @@ class VTubeStudioHandler:
 
     def _on_auth(self, data: dict) -> tuple[str, dict]:
         token = data.get("authenticationToken")
-        if not isinstance(token, str) or token != self._issued_token:
-            return "AuthenticationResponse", {
-                "authenticated": False,
-                "reason": "unknown token — request AuthenticationTokenRequest first",
-            }
-        self._authenticated = True
+        if not isinstance(token, str) or not token:
+            return "APIError", {"errorID": vs.ERR_AUTH_TOKEN_MISSING,
+                                "message": "authenticationToken is missing"}
+        # Plug-ins send their name and developer with the token; when they do,
+        # they must match the ones the token was issued to.
+        ok, reason = self._tokens.check(token, data.get("pluginName"),
+                                        data.get("pluginDeveloper"))
+        if not ok:
+            self._authenticated = False
+            return "AuthenticationResponse", {"authenticated": False, "reason": reason}
+        self._authenticated, self._token = True, token
+        self.plugin_name = self._tokens.plugin_for(token) or ""
         return "AuthenticationResponse", {"authenticated": True, "reason": "ok"}
 
     def _on_current_model(self, _data: dict) -> tuple[str, dict]:
@@ -170,12 +202,14 @@ class VTubeStudioHandler:
 
     def _on_parameter_value(self, data: dict) -> tuple[str, dict]:
         if not self._require_auth():
-            return "APIError", {"errorID": 50, "message": _NOT_AUTHENTICATED_MSG}
+            return "APIError", {"errorID": vs.ERR_REQUIRES_AUTHENTICATION,
+                                "message": _NOT_AUTHENTICATED_MSG}
         name = str(data.get("name", ""))
         doc = self._canvas.document()
         param = doc.parameter(name) if doc is not None else None
         if param is None:
-            return "APIError", {"errorID": 2, "message": f"unknown parameter {name!r}"}
+            return "APIError", {"errorID": vs.ERR_PARAMETER_NOT_FOUND,
+                                "message": f"unknown parameter {name!r}"}
         value = float(self._canvas.parameter_values().get(name, param.default))
         return "ParameterValueResponse", {
             "name": name,
@@ -187,14 +221,17 @@ class VTubeStudioHandler:
 
     def _on_parameter_creation(self, data: dict) -> tuple[str, dict]:
         if not self._require_auth():
-            return "APIError", {"errorID": 50, "message": _NOT_AUTHENTICATED_MSG}
+            return "APIError", {"errorID": vs.ERR_REQUIRES_AUTHENTICATION,
+                                "message": _NOT_AUTHENTICATED_MSG}
         from rigora.puppet.operations import add_parameter
         doc = self._canvas.document()
         if doc is None:
-            return "APIError", {"errorID": 3, "message": "no document loaded"}
+            return "APIError", {"errorID": vs.ERR_MODEL_NOT_LOADED,
+                                "message": "no document loaded"}
         name = str(data.get("parameterName", ""))
         if not name:
-            return "APIError", {"errorID": 4, "message": "parameterName required"}
+            return "APIError", {"errorID": vs.ERR_PARAMETER_CREATION_INVALID,
+                                "message": "parameterName required"}
         try:
             ok = add_parameter(
                 doc, name,
@@ -203,9 +240,11 @@ class VTubeStudioHandler:
                 default=float(data.get("defaultValue", 0.0)),
             )
         except (TypeError, ValueError, OverflowError) as exc:
-            return "APIError", {"errorID": 5, "message": str(exc)}
+            return "APIError", {"errorID": vs.ERR_PARAMETER_CREATION_INVALID,
+                                "message": str(exc)}
         if not ok:
-            return "APIError", {"errorID": 6, "message": "parameter already exists"}
+            return "APIError", {"errorID": vs.ERR_PARAMETER_EXISTS,
+                                "message": "parameter already exists"}
         self._canvas.load_document(doc)
         return "ParameterCreationResponse", {"parameterName": name}
 
@@ -213,24 +252,64 @@ class VTubeStudioHandler:
         """The big one — third-party trackers call this every frame to
         push the latest parameter values into our puppet."""
         if not self._require_auth():
-            return "APIError", {"errorID": 50, "message": _NOT_AUTHENTICATED_MSG}
+            return "APIError", {"errorID": vs.ERR_REQUIRES_AUTHENTICATION,
+                                "message": _NOT_AUTHENTICATED_MSG}
+        if not self._limiter.allow():
+            return "APIError", {"errorID": vs.ERR_RATE_LIMITED,
+                                "message": "too many injection requests; slow down"}
         values = data.get("parameterValues", [])
-        if not isinstance(values, list):
-            return "APIError", {"errorID": 1, "message": "parameterValues must be an array"}
-        applied = 0
+        if not isinstance(values, list) or not values:
+            return "APIError", {"errorID": vs.ERR_INJECT_NO_DATA,
+                                "message": "parameterValues must be a non-empty array"}
+        if len(values) > vs.MAX_VALUES_PER_INJECT:
+            return "APIError", {"errorID": vs.ERR_TOO_MANY_VALUES,
+                                "message": f"at most {vs.MAX_VALUES_PER_INJECT} values"}
+        mode = data.get("mode", "set")
+        if mode not in ("set", "add"):
+            return "APIError", {"errorID": vs.ERR_INJECT_MODE_UNKNOWN,
+                                "message": "mode must be 'set' or 'add'"}
+        planned, error = self._plan_injection(values, mode)
+        if error is not None:
+            return "APIError", error
+        blocked = []
+        if hasattr(type(self._canvas), "input_arbiter"):
+            blocked = self._canvas.input_arbiter().blocked(self.source, planned)
+        if blocked:
+            return "APIError", {"errorID": vs.ERR_INJECT_PARAM_TAKEN,
+                                "message": f"controlled by another source: {', '.join(blocked)}"}
+        submit_values(self._canvas, self.source, planned)
+        return "InjectParameterDataResponse", {"parameterValuesApplied": len(planned)}
+
+    def _plan_injection(self, values: list, mode: str) -> tuple[dict, dict | None]:
+        """Validate every entry first so a request applies all or nothing."""
+        import math
+        doc = self._canvas.document()
+        current = self._canvas.parameter_values()
+        planned: dict[str, float] = {}
         for entry in values:
-            if not isinstance(entry, dict):
-                continue
-            param_id = entry.get("id") or entry.get("name")
-            if not isinstance(param_id, str):
-                continue
+            param_id = entry.get("id") or entry.get("name") if isinstance(entry, dict) else None
+            param = doc.parameter(param_id) if doc is not None and isinstance(
+                param_id, str) else None
+            if param is None:
+                return {}, {"errorID": vs.ERR_INJECT_PARAM_NOT_FOUND,
+                            "message": f"unknown parameter {param_id!r}"}
             try:
-                value = float(entry.get("value", 0.0))
+                value = float(entry.get("value"))
+                weight = float(entry.get("weight", 1.0))
             except (TypeError, ValueError, OverflowError):
-                continue
-            self._canvas.set_parameter_value(param_id, value)
-            applied += 1
-        return "InjectParameterDataResponse", {"parameterValuesApplied": applied}
+                return {}, {"errorID": vs.ERR_INJECT_VALUE_INVALID,
+                            "message": f"{param_id}: value must be a number"}
+            if not math.isfinite(value):
+                return {}, {"errorID": vs.ERR_INJECT_VALUE_INVALID,
+                            "message": f"{param_id}: value must be finite"}
+            if not (math.isfinite(weight) and 0.0 <= weight <= 1.0):
+                return {}, {"errorID": vs.ERR_INJECT_WEIGHT_INVALID,
+                            "message": f"{param_id}: weight must be 0..1"}
+            base = float(current.get(param_id, param.default))
+            target = base + value if mode == "add" else value
+            blended = base + (target - base) * weight
+            planned[param_id] = min(param.max, max(param.min, blended))
+        return planned, None
 
     # ---- helpers -------------------------------------------------------
 
@@ -293,6 +372,14 @@ class VTubeStudioServer(QObject):
         self._enabled = False
         self._server = None
         self._sessions: dict = {}
+        self.tokens = vs.TokenStore()
+
+    def session_count(self) -> int:
+        return len(self._sessions)
+
+    def revoke_tokens(self) -> int:
+        """Revoke every issued token; connected plug-ins must authenticate again."""
+        return self.tokens.revoke_all()
 
     def is_enabled(self) -> bool:
         return self._enabled
@@ -351,7 +438,10 @@ class VTubeStudioServer(QObject):
         for socket in list(self._sessions):   # NOSONAR S7504 - mutation guard
             with contextlib.suppress(RuntimeError):
                 socket.close()
+        for handler in self._sessions.values():
+            handler.close()
         self._sessions.clear()
+        self.tokens.revoke_all()
 
     def _on_new_connection(self) -> None:
         if self._server is None:
@@ -364,9 +454,15 @@ class VTubeStudioServer(QObject):
                 socket.close()
                 socket.deleteLater()
                 continue
+            if len(self._sessions) >= vs.MAX_SESSIONS:
+                logger.warning("VTS API refused a connection: %d sessions open",
+                               len(self._sessions))
+                socket.close()
+                socket.deleteLater()
+                continue
             socket.setMaxAllowedIncomingMessageSize(MAX_MESSAGE_BYTES)
             socket.setMaxAllowedIncomingFrameSize(MAX_MESSAGE_BYTES)
-            handler = VTubeStudioHandler(self._canvas)
+            handler = VTubeStudioHandler(self._canvas, self.tokens)
             self._sessions[socket] = handler
             socket.textMessageReceived.connect(
                 lambda text, s=socket: self._on_text(s, text),
@@ -381,11 +477,15 @@ class VTubeStudioServer(QObject):
             message = json.loads(text)
         except json.JSONDecodeError as exc:
             logger.debug("VTS bad JSON from client: %s", exc)
+            socket.sendTextMessage(json.dumps(handler._error_envelope(   # noqa: SLF001
+                "", "InvalidRequest", "message is not valid JSON")))
             return
         response = handler.handle_message(message)
         socket.sendTextMessage(json.dumps(response))
 
     def _on_disconnect(self, socket) -> None:  # pragma: no cover - needs network
-        self._sessions.pop(socket, None)
+        handler = self._sessions.pop(socket, None)
+        if handler is not None:
+            handler.close()
         with contextlib.suppress(RuntimeError):
             socket.deleteLater()

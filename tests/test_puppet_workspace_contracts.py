@@ -15,6 +15,7 @@ def host_for(doc):
     calls = []
     host = Host(
         _canvas=SimpleNamespace(
+            end_mesh_edit_drag=lambda: None,
             document=lambda: doc,
             load_document=lambda value: calls.append(("load", value)),
             parameter_values=lambda: {"P": 0.25},
@@ -22,6 +23,15 @@ def host_for(doc):
         ),
         _announce=lambda key, fallback, **values: calls.append((key, values)),
         _status_label=SimpleNamespace(setText=lambda text: calls.append(("status", text))),
+        _commit_edit=lambda *args: None,
+        _begin_document_work=lambda: None,
+        _accept_document_result=lambda revision: True,
+        _discard_recovery=lambda: None,
+        _update_session_actions=lambda: None,
+        session=SimpleNamespace(mark_saved=lambda path: None),
+    )
+    host._replace_document = lambda value, **kwargs: (
+        host._canvas.load_document(value) or True
     )
     return host, calls
 
@@ -96,7 +106,8 @@ def test_key_edit_post_success_order(monkeypatch, method, outcome):
 
 @pytest.mark.parametrize("failure", [None, FileNotFoundError, ValueError])
 def test_open_result_and_failure_boundary(monkeypatch, failure):
-    doc = SimpleNamespace(size=(40, 50), drawables=[object()])
+    doc = SimpleNamespace(size=(40, 50), drawables=[SimpleNamespace(texture="textures/a.png")],
+                          textures={"textures/a.png": b"png"})
     host, calls = host_for(None)
 
     def load(path):
@@ -134,14 +145,10 @@ def test_save_result_suffix_and_recent_order(monkeypatch, outcome):
 
     patch_global(monkeypatch, "save_puppet", "save_puppet", save)
     patch_global(monkeypatch, "save_puppet", "_push_recent", lambda path: calls.append(("recent", path)))
-    if outcome == "other_error":
-        with pytest.raises(ValueError, match="bad document"):
-            host.save_puppet("no_suffix")
-    else:
-        assert host.save_puppet("no_suffix") is (outcome == "success")
+    assert host.save_puppet("no_suffix") is (outcome == "success")
     assert [c[0] for c in calls] == {
         "success": ["write", "status", "recent"], "missing": [],
-        "io_error": ["write", "status"], "other_error": ["write"],
+        "io_error": ["write", "status"], "other_error": ["write", "status"],
     }[outcome]
     if calls:
         assert calls[0] == ("write", "no_suffix")

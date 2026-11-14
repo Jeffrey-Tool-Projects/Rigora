@@ -77,6 +77,7 @@ class PetScriptEditorDialog(QDialog):
         self,
         script: PetScript,
         parent: QWidget | None = None,
+        context: dict | None = None,
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle(_tr(
@@ -129,6 +130,10 @@ class PetScriptEditorDialog(QDialog):
         tabs.addTab(self._scheduled, _tr(
             "desktop_pet_editor_tab_scheduled", "Scheduled",
         ))
+        from rigora.desktop_pet.pet_behavior_editor import BehaviorEditor
+        self._behaviors = BehaviorEditor(script.behaviors, context)
+        tabs.addTab(self._behaviors, _tr("desktop_pet_editor_tab_behaviors", "Behaviors"))
+        self._tabs = tabs
         layout.addWidget(tabs)
         # Dialog buttons
         buttons = QDialogButtonBox(
@@ -137,16 +142,24 @@ class PetScriptEditorDialog(QDialog):
             Qt.Orientation.Horizontal,
             self,
         )
-        buttons.accepted.connect(self.accept)
+        buttons.accepted.connect(self._accept_if_valid)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
+
+    def _accept_if_valid(self) -> None:
+        """Behavior rules run actions, so a script with a broken rule is not
+        accepted; the Behaviors tab shows where the problems are."""
+        if self._behaviors.check():
+            self._tabs.setCurrentWidget(self._behaviors)
+            return
+        self.accept()
 
     def script(self) -> PetScript:
         """Snapshot the current form state as a :class:`PetScript`.
         Callers use this after a successful exec/accept; pre-accept
         access is fine too (the dialog doesn't mutate the source
         script)."""
-        return script_from_form_data({
+        script = script_from_form_data({
             "name": self._name_edit.text(),
             "greetings": self._greetings.lines(),
             "time_of_day_greetings": {
@@ -157,3 +170,5 @@ class PetScriptEditorDialog(QDialog):
             "motion_lines": self._motion_lines.data(),
             "scheduled": self._scheduled.entries(),
         })
+        script.behaviors = self._behaviors.behaviors()
+        return script

@@ -313,7 +313,7 @@ def test_paint_profile_draw_order(monkeypatch, document, pet, shadow):
         _pan_x=2.0, _pan_y=3.0, _zoom=4.0,
     )
     for name in ("_maybe_refit_view", "_draw_transparency_backdrop", "_draw_pet_shadow",
-                 "_draw_drawables", "_draw_selection_overlay"):
+                 "_draw_drawables", "_draw_selection_overlay", "_draw_mesh_overlay"):
         setattr(host, name, lambda name=name: calls.append(name))
     globals_ = PuppetCanvas.paintGL.__globals__
     for name in ("glClear", "glPushMatrix", "glLoadIdentity", "glTranslatef",
@@ -330,6 +330,6 @@ def test_paint_profile_draw_order(monkeypatch, document, pet, shadow):
             expected.append("_draw_pet_shadow")
         expected.append("_draw_drawables")
         if not pet:
-            expected.append("_draw_selection_overlay")
+            expected += ["_draw_selection_overlay", "_draw_mesh_overlay"]
         expected.append("glPopMatrix")
     assert calls == expected

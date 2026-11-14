@@ -206,7 +206,7 @@ class MotionPlayer(
     def shutdown(self) -> None:
         """Release playback immediately without fading or touching the canvas."""
         self._timer.stop()
-        self._stop_sound()
+        self._release_sound()
         self._is_playing = False
         self._elapsed = 0.0
         self._reset_fade_state()

@@ -20,7 +20,7 @@
   <div class="page-shell">
     <nav class="sidebar" aria-label="Documentation">
       <p class="nav-label">Explore Rigora</p>
-      {% assign routes = 'Overview|/,Windows download|/windows/,Getting started|/getting-started/,User guide|/user-guide/,Reference|/reference/,Development|/development/,繁體中文入門|/getting-started-zh-tw/' | split: ',' %}
+      {% assign routes = 'Overview|/,Windows download|/windows/,Getting started|/getting-started/,User guide|/user-guide/,Desktop companions|/desktop-companions/,Reference|/reference/,Development|/development/,繁體中文入門|/getting-started-zh-tw/' | split: ',' %}
       {% for route in routes %}
         {% assign item = route | split: '|' %}
         <a href="{{ item[1] | relative_url }}"{% if page.url == item[1] %} class="active" aria-current="page"{% endif %}>{{ item[0] }}</a>

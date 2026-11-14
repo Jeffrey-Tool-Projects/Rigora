@@ -107,6 +107,8 @@ class PetPlaybackMixin:
         * ``"none"``   → no-op.
         """
         kind, target = classify_drop_paths(paths)
+        if kind in ("puppet", "other") and getattr(self, "_behavior_timers", None) is not None:
+            self.fire_behavior("drop:puppet" if kind == "puppet" else "drop:file")
         if kind == "puppet" and target is not None:
             self.load_puppet_file(target)
             self.hit_triggered.emit("")

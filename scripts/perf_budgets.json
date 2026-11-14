@@ -1,0 +1,16 @@
+{
+  "machine": "AMD Ryzen 5 240, RTX 5060 Laptop, Windows 11, AC power, balanced plan (f876cf75-360e-4003-9027-20216ed10c85)",
+  "rule": "Checked against the median of three runs from this machine. Interactive scenes keep the median CPU frame and GPU render within one 60 fps frame (16.7 ms) and four pets within a 30 fps frame; other budgets sit above the worst observed run so noise alone does not fail them, while a 1.5x regression does.",
+  "scenes": {
+    "imeru": {"cpu_frame_median_ms": 8.0, "cpu_frame_p95_ms": 12.0, "gl_render_ms": 12.0,
+              "open_ms": 900.0, "save_ms": 1000.0},
+    "many_drawables": {"cpu_frame_median_ms": 6.0, "gl_render_ms": 25.0,
+                       "open_ms": 250.0, "save_ms": 200.0},
+    "deep_deformers": {"cpu_frame_median_ms": 16.7, "gl_render_ms": 16.7},
+    "masks": {"cpu_frame_median_ms": 2.0, "gl_render_ms": 25.0},
+    "physics": {"cpu_frame_median_ms": 14.0, "gl_render_ms": 16.7},
+    "multi_pet": {"cpu_frame_median_ms": 33.3, "gl_render_ms": 45.0,
+                  "open_ms": 3500.0, "save_ms": 4500.0},
+    "startup": {"import_core_ms": 900.0, "import_gui_ms": 3000.0, "open_imeru_ms": 1100.0}
+  }
+}

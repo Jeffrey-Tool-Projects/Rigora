@@ -36,6 +36,7 @@ DEFAULT_SOURCE_NAME: str = "Imervue Puppet"
 # ``virtual_camera.MAX_OUTPUT_DIMENSION``. NDI itself doesn't reject
 # huge frames, but a Cubism-native 3503×7777 source saturates a
 # 1 Gbps LAN and chokes any downstream OBS receiver.
+from rigora.puppet.output_pump import FramePump, OutputStats   # noqa: E402
 from rigora.puppet.virtual_camera import _scale_for_streaming   # noqa: E402
 
 
@@ -64,6 +65,9 @@ class NDIOutput(QObject):
         self._enabled = False
         self._ndi = None
         self._sender = None
+        self._pump: FramePump | None = None
+        self._stats = OutputStats("ndi", source_name=self._source_name,
+                                  target_fps=float(self._fps), alpha=True)
         self._anchor: float = 0.0
         self._timer = QTimer(self)
         self._timer.setInterval(int(1000 / self._fps))
@@ -81,6 +85,17 @@ class NDIOutput(QObject):
 
     def source_name(self) -> str:
         return self._source_name
+
+    def stats(self) -> dict:
+        """What the output panel shows (R4.4), with the live receiver count."""
+        if self._sender is not None and self._ndi is not None:
+            count = getattr(self._ndi, "send_get_no_connections", None)
+            if count is not None:
+                try:
+                    self._stats.receivers = int(count(self._sender, 0))
+                except Exception:   # noqa: BLE001 - optional SDK call
+                    self._stats.receivers = None
+        return self._stats.to_dict()
 
     def set_source_name(self, name: str) -> None:
         """Change the NDI source name that receivers see. Takes
@@ -130,16 +145,30 @@ class NDIOutput(QObject):
                 return False
         except Exception as exc:   # noqa: BLE001 - NDI surfaces vary
             logger.warning("NDI open failed: %s", exc)
+            self._stats.last_error = str(exc) or type(exc).__name__
             return False
         self._ndi = ndi
         self._sender = sender
+        width, height = _scale_for_streaming(*self._canvas.document().size)
+        self._stats = OutputStats("ndi", source_name=self._source_name, width=int(width),
+                                  height=int(height), target_fps=float(self._fps), alpha=True)
+        self._pump = FramePump(self._send_frame, self._stats)
         self._anchor = time.monotonic()
         self._timer.start()
         logger.info("NDI source %r is broadcasting at %d fps", self._source_name, self._fps)
         return True
 
+    def _send_frame(self, frame) -> None:  # pragma: no cover - needs NDI runtime
+        video_frame = self._ndi.VideoFrameV2()
+        video_frame.data = frame
+        video_frame.FourCC = self._ndi.FOURCC_VIDEO_TYPE_RGBA
+        self._ndi.send_send_video_v2(self._sender, video_frame)
+
     def _stop(self) -> None:  # pragma: no cover - needs NDI runtime
         self._timer.stop()
+        pump, self._pump = self._pump, None
+        if pump is not None:
+            pump.close()
         ndi = self._ndi
         sender = self._sender
         self._ndi = None
@@ -158,7 +187,13 @@ class NDIOutput(QObject):
     # ---- frame pump ----------------------------------------------------
 
     def _on_tick(self) -> None:  # pragma: no cover - needs NDI runtime
-        if self._sender is None or self._ndi is None:
+        if self._sender is None or self._ndi is None or self._pump is None:
+            return
+        if self._pump.failed:
+            logger.warning("NDI send failed: %s", self._stats.last_error)
+            self._stop()
+            self._enabled = False
+            self.state_changed.emit()
             return
         document = self._canvas.document()
         if document is None:
@@ -181,14 +216,7 @@ class NDIOutput(QObject):
         frame = _qimage_to_rgba_array(image, target_w, target_h)
         if frame is None:
             return
-        try:
-            video_frame = self._ndi.VideoFrameV2()
-            video_frame.data = frame
-            video_frame.FourCC = self._ndi.FOURCC_VIDEO_TYPE_RGBA
-            self._ndi.send_send_video_v2(self._sender, video_frame)
-        except Exception as exc:   # noqa: BLE001
-            logger.warning("NDI send failed: %s", exc)
-            self._stop()
+        self._pump.offer(frame)
 
 
 def _qimage_to_rgba_array(image, target_width: int, target_height: int):

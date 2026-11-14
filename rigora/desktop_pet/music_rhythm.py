@@ -270,6 +270,11 @@ def capture_sample_rate(default_samplerate: Any) -> int:
     return rate if rate > 0 else DEFAULT_SAMPLE_RATE
 
 
+BEAT_FLOOR = 0.15
+BEAT_RATIO = 1.6
+BEAT_MIN_GAP = 0.25
+
+
 class MusicRhythmDriver(QObject):
     """Drives the rig's Z-axis sway from the system audio envelope.
 
@@ -279,11 +284,14 @@ class MusicRhythmDriver(QObject):
     """
 
     state_changed = Signal()
+    beat = Signal()
+    """A sudden rise in loudness; behavior rules listen for it as ``beat``."""
 
     def __init__(self, canvas: PuppetCanvas, parent=None):
         super().__init__(parent)
         self._canvas = canvas
         self._enabled = False
+        self._last_beat: float = 0.0
         self._stream = None
         self._envelope_target: float = 0.0
         self._envelope_smoothed: float = 0.0
@@ -444,6 +452,9 @@ class MusicRhythmDriver(QObject):
         now = time.monotonic()
         dt = now - self._last_tick
         self._last_tick = now
+        # The level before this tick: a coarse clock can report dt == 0, which snaps the
+        # smoothed value onto the target and would hide the rise it is compared against.
+        previous_level = self._envelope_smoothed
         self._envelope_smoothed = smooth_envelope(
             self._envelope_smoothed,
             self._envelope_target,
@@ -457,6 +468,11 @@ class MusicRhythmDriver(QObject):
             sway_period_s=self._sway_period_s,
             sway_amplitude=self._sway_amplitude,
         )
+        # A sharp rise of loudness over the smoothed level is a beat (R5.4).
+        if (self._envelope_target > max(BEAT_FLOOR, BEAT_RATIO * previous_level)
+                and now - getattr(self, "_last_beat", 0.0) >= BEAT_MIN_GAP):
+            self._last_beat = now
+            self.beat.emit()
         canvas_values = self._canvas.parameter_values()
         batch = {pid: v for pid, v in targets.items() if pid in canvas_values}
         if batch:

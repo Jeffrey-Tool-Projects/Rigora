@@ -22,8 +22,10 @@ feed or a file on disk.
 ## Contents
 
 - [Quick start](#quick-start)
+- [From artwork to a finished character](#from-artwork-to-a-finished-character)
 - [Part 1 — Live streaming to OBS](#part-1--live-streaming-to-obs)
 - [Part 2 — Making animations](#part-2--making-animations)
+- [Part 3 — Desktop companions](#part-3--desktop-companions)
 - [Importing rigs](#importing-rigs)
 - [Advanced rig features](#advanced-rig-features)
 - [Optional dependencies](#optional-dependencies)
@@ -45,6 +47,40 @@ feed or a file on disk.
 
 That's the baseline. The rest of this guide explains how to take
 this idle rig and either go live or bake out a video.
+
+---
+
+## From artwork to a finished character
+
+One path from a layered illustration to a character that streams, animates
+and sits on the desktop. Each step links to its section.
+
+1. **Import.** **File > Import PSD…** shows every layer and what the import
+   cannot carry over (masks, unsupported blend modes) before anything changes
+   ([From a PSD](#from-a-psd)). Cubism models go through
+   **File > Import Cubism…**.
+2. **Check the rig.** **Tools > Rig doctor…** lists broken meshes, weight and
+   symmetry problems, missing standard rigging and validation errors, and
+   previews each fix before applying it ([Rig doctor](#rig-doctor-and-part-templates)).
+3. **Add standard parts.** **Tools > Part templates…** adds an eye blink,
+   mouth shapes, head turn and sway to the drawables you pick
+   ([Part templates](#rig-doctor-and-part-templates)).
+4. **Refine.** Adjust meshes and weights in the **Mesh** menu
+   ([Editing meshes and weights](#editing-meshes-and-weights)), order
+   deformers and group parameters in the docks
+   ([Organising deformers and parameters](#organising-deformers-and-parameters)),
+   and tune hair and cloth in **Tools > Physics chains…** ([Physics](#physics)).
+5. **Calibrate and perform.** Pick devices and tune tracking in
+   **Live > Input devices and calibration…**, then stream
+   ([Part 1](#part-1--live-streaming-to-obs)).
+6. **Animate.** Record takes, edit keys, arrange compositions and export
+   ([Part 2](#part-2--making-animations)).
+7. **Put it on the desktop.** Load the rig in the Desktop Pet tab and give it
+   a script ([Part 3](#part-3--desktop-companions)).
+8. **When art changes.** **File > Update art from PSD…** replaces pixels and
+   keeps the rig ([Updating art](#updating-art-from-a-psd)).
+
+Every step that changes the rig is one **Edit > Undo** step.
 
 ---
 
@@ -80,11 +116,45 @@ tracker actually sees your face.
 > first time you enable the toggle. Subsequent launches use the
 > cached copy.
 
-**Output > VTS API** adds one more input: it opens a minimal VTube
+**Live > Input devices and calibration…** chooses the camera and
+microphone and tunes how tracking moves the rig. Settings are kept
+in named profiles (one per room or desk, say):
+
+- **Sensitivity**, **Dead zone** and **Smoothing** shape every tracked
+  parameter. Smoothing behaves the same at any camera frame rate.
+- **Capture neutral pose (2 s)** — with webcam tracking on, sit
+  relaxed and press it. Rigora records how you sit at rest, and that
+  pose becomes each parameter's default, so a slightly turned head no
+  longer reads as "looking away".
+- **Return to neutral after** / **Return duration** — when your face
+  leaves the frame, the rig waits this long and then eases back to its
+  rest pose instead of freezing mid-expression.
+- **Microphone gain**, **Microphone noise gate** and **Lip-sync
+  smoothing** tune mic lip-sync; the gate keeps room noise from
+  twitching the mouth.
+
+Listing devices never opens them; the camera turns on only with
+**Webcam tracking**.
+
+When several inputs drive the same parameter, one of them controls it
+at a time. A higher source takes over at once; a lower one waits until
+the owner has stopped writing for a quarter of a second (a second for
+a slider you dragged). The order is: slider you are dragging → VTS
+plug-in → playing motion → webcam → microphone → auto-blink → mouse →
+idle. So a playing motion wins over the webcam, and webcam eye tracking
+suppresses auto-blink. **Live > Input sources…** shows, for every
+parameter, which source controls it right now and which expressions
+are layered on top.
+
+**Output > VTS API** adds one more input: it opens a small VTube
 Studio Public API server on `ws://127.0.0.1:8001` (this machine
 only), so a face tracker that speaks that protocol can list the
-rig's parameters and inject values into them. The server issues
-and accepts tokens automatically.
+rig's parameters and inject values into them. It covers the requests
+a tracker needs, not the whole VTube Studio API — see
+[VTS API support](docs/vts-api-support.md) for the list, the token
+rules and the rate limits. Tokens expire after 12 hours, end when the
+API is turned off, and can be revoked at once from **Output > Live
+status…**.
 
 ### 1.2 Outputs (how OBS sees the rig)
 
@@ -226,6 +296,32 @@ they last put them. Click **Reset to rest** on the toolbar (or
 
 Status bar confirms: *"Rig reset to neutral pose."*
 
+### 1.5 Live status and device problems
+
+**Output > Live status…** shows each output and device as it runs:
+the name the receiver sees, resolution, actual and target frame rate,
+frames dropped, connection state and the last error. For the VTS API it
+shows the number of connected plug-ins.
+
+Frames go to the virtual camera and NDI through a two-frame queue.
+When a receiver is slower than the rig, older frames are dropped and
+counted; the editor itself never waits for the receiver. If sending
+keeps failing, the output turns off and the status bar says why.
+
+Rigora recovers from common device problems on its own:
+
+| Problem | What happens |
+|---|---|
+| Camera unplugged or taken by another app | Tracking reports it and retries after 1, 2, 4, 8 and 15 s, then stops and waits for **Retry devices** |
+| Microphone unplugged | Lip-sync reports it and retries the same way |
+| Camera access denied | No retry; allow camera access in the system settings, then press **Retry devices** |
+| Face model download failed | No retry; check the network, then press **Retry devices** |
+| Camera changed in the calibration dialog while tracking | The old camera is released first, then the new one starts |
+| Computer slept | Tracking restarts once after waking |
+
+Turning an input off stops its capture thread and releases the
+device.
+
 ---
 
 ## Part 2 — Making animations
@@ -248,11 +344,17 @@ bakes the take into a `Motion` you can later play / loop / save.
 4. Perform — move your face / talk into the mic / move the
    cursor — for however long you want.
 5. Choose **Output > Record motion** again to stop.
-6. The new motion appears in the **Motions** dock (a take with
-   an existing motion's name replaces it). Adding it reloads the
-   rig, which resets parameters, expressions and physics to their
-   defaults. Click the motion to play it back, or save the rig
-   (**File > Save As…**) to persist it into the `.puppet` file.
+6. The new motion appears in the **Motions** dock. If a motion
+   already has that name, Rigora asks: **Replace it**, **Keep both**
+   (the new take gets a numbered name) or **Discard new take**.
+   Adding it reloads the rig, which resets parameters, expressions
+   and physics to their defaults, and is one **Edit > Undo** step.
+   Click the motion to play it back, or save the rig (**File > Save
+   As…**) to persist it into the `.puppet` file.
+
+Each take remembers when it was recorded, at what rate and which live
+inputs were on; replacing a motion also records which take it
+replaced. The **Motions** dock shows this in the motion's tooltip.
 
 Motion recording captures at 30 Hz. Flat tracks (parameters that
 didn't actually change during the take) are dropped automatically.
@@ -289,6 +391,24 @@ post-hoc.
    canvas at the player's current time. **File > Save As…**
    writes the change into the `.puppet` file.
 
+Working with several keys at once:
+
+- Drag over empty space to select keys with a box. **Filter tracks…**
+  narrows the **Track** list on a rig with many parameters.
+- **Copy keys** and **Paste at…** copy the selected keys to another
+  time on the same or another track; **Move…** shifts them in time and
+  value; **Scale time…** stretches or compresses their spacing.
+- **Snap** rounds key times to 1/30 s, 1/60 s or 0.1 s while dragging,
+  moving and pasting.
+- **Tangent** sets the selected keys' curves to `linear`, `smooth`,
+  `flat` or `stepped`.
+- When the motion has a sound, its waveform is drawn behind the keys
+  so mouth keys can be lined up with syllables.
+
+An operation that would change nothing (no keys selected, say) says so
+under the graph and leaves the motion as it was. Each edit can be
+undone with **Edit > Undo** after the dialog closes.
+
 ### 2.3 Authoring a motion by hand (no live take)
 
 The Puppet tab has no keyframe editor for new motions. To build
@@ -320,6 +440,7 @@ head across a 2D grid — are read from `parameter_blends` in
 | **Output > Capture frame…** | Single PNG of the current frame on a transparent background. Used for thumbnails / static portraits. |
 | **Output > Record…** | Pick a GIF / WebM / MP4 file, then frames are written at 30 fps via `imageio` until you toggle it off; the codec follows the file extension. The toolbar button is the same toggle. |
 | **Output > Export all motions…** | Pick a folder and a container (`.mp4`, `.gif` or `.webm`); every motion plays from its start and is recorded for its duration into `<motion-name>.<ext>`. Useful for batch-producing reaction clips, idle loops, etc. |
+| **Output > Export animation…** | Render one motion or composition offline, frame by frame, independent of the screen's refresh rate. Choose a PNG sequence, GIF, MP4 or WebM, the size, frame rate, time range, transparency (PNG and WebM keep alpha) and a physics warm-up so hair has settled by the first frame. Video can carry the motion's sound. Exports wait in a queue that shows progress per job; a cancelled or failed export leaves no partial file, and **Retry** runs it again. An existing file is kept unless you choose to overwrite or rename. |
 
 Recording uses the same **character-only off-screen render** as
 the streaming outputs, so you don't have to crop the chrome out
@@ -332,19 +453,73 @@ long side.
 ### 2.5 Sound for recorded motions
 
 A motion can carry a `sound_path` — an absolute path to a WAV
-file. When playback of the motion starts, the WAV plays once via
-`QSoundEffect`; **Pause** and **Stop** silence it. Merging a
+file. When playback of the motion starts, the WAV plays with it and
+follows the motion: seeking moves the sound to the same time, a
+looping motion restarts its sound each loop, and if playback drifts
+more than 80 ms from the sound the motion follows the sound clock.
+**Pause** and **Stop** silence it. Merging a
 Cubism `.model3.json` onto an open rig (see *Importing rigs*)
 fills it from the motion entry's `Sound` field, and **Live >
 Lip-sync from Audio File…** builds a new motion around a WAV: the
-mouth (`ParamMouthOpenY`) opens with its loudness, 30 times a
-second, and the WAV is the motion's sound. For any other motion,
+mouth (`ParamMouthOpenY`) opens with its loudness, and the WAV is the
+motion's sound. Its options set the key rate, how far the mouth leads
+the sound (40 ms by default, which reads as in sync) and a silence
+gate that keeps the mouth shut between words. For any other motion,
 edit `motions/<name>.json` inside the `.puppet` zip — the Puppet
 tab has no field for it. The WAV itself stays outside
-the `.puppet` file, and a missing file is skipped.
+the `.puppet` file. **Validate** lists motions whose sound file is
+missing, and **File > Relink sounds…** looks for them by name in a
+folder you choose and updates the paths in one undoable step.
 
 If `PySide6.QtMultimedia` isn't installed the audio degrades
 silently and the motion's visual track still plays.
+
+### 2.6 Arranging motions in compositions
+
+A composition plays several motions together on a timeline — a wave
+on the body while the face smiles, say — without editing the motions
+themselves. Open **Edit > Compositions…**:
+
+1. **New** creates a composition; set its **Duration (s)**. F2
+   renames it.
+2. Add layers. A layer is either **override** (replaces what lower
+   layers set, by its strength) or **additive** (adds its movement on
+   top). Give each layer a weight, or mute it.
+3. Select a layer and add clips: pick a motion, when it starts, an
+   optional offset into the motion and length, looping, fade-in and
+   fade-out, weight and mute. Within a layer a clip fading in
+   cross-fades over the previous one.
+4. **Preview** plays the composition on the canvas without changing
+   the rig. Problems (a missing motion, overlapping layer names,
+   negative times) are listed under the tables, and the dialog will
+   not save until they are fixed.
+5. **OK** saves the compositions in one undoable step. **Save and bake
+   into motion** also adds the selected composition as an ordinary
+   motion, which can be edited, played by hit areas or used by apps
+   that don't understand compositions.
+
+**Output > Export animation…** offers compositions as well as motions.
+Compositions are stored in the `.puppet` file (see
+[`FORMAT.md`](rigora/puppet/FORMAT.md#composition)).
+
+---
+
+## Part 3 — Desktop companions
+
+The **Desktop Pet** tab puts the rig on your desktop. Its **Characters** tab
+runs several characters at once, each with its own rig, script and settings;
+stopping one leaves the others running, and layouts remember who runs where.
+Scripts can hold behavior rules — clicks, drops, hotkeys, music beats and
+timers, with conditions, cooldowns and priorities — which the script editor
+checks and previews before they run. Characters return to a visible spot when
+a monitor is unplugged, scaling changes or the computer wakes, repaint at
+15 fps when nothing happens and stop repainting while hidden. An optional
+local LLM can write fresh lines; its replies can only trigger the character's
+own motions and expressions.
+
+The [desktop companions guide](docs/desktop-companions.md) covers all of
+this, including the full list of events and actions; the
+[examples](examples/README.md) include a ready-made behavior script.
 
 ---
 
@@ -390,6 +565,58 @@ Other layers (body, arms, clothing) get no deformers.
 
 Good for: artist-supplied multi-layer character files.
 
+Before anything changes, an **import preview** lists every layer —
+order (top first), group, status, drawable id, size, position,
+opacity, blend, mask and clipping — and every difference from the
+PSD, ranked *Blocks import*, *Changes result* or *Note*. Cancel
+leaves the open document untouched. How PSD features map:
+
+| PSD feature | In the puppet |
+| --- | --- |
+| Layer group, nested group | Part, child Part; hidden groups and group opacity carry over |
+| Normal / Multiply / Linear Dodge | `normal` / `multiply` / `additive` |
+| Other blend modes | drawn as `normal` (reported) |
+| Clipping mask | `clip_mask` on the base layer's mesh — its alpha bounding box, not its exact pixels (reported) |
+| Layer mask, vector mask, fill opacity, layer effects, adjustment layers | not applied (reported) |
+| Text, smart object, fill layer | imported from the stored pixels (reported) |
+| Hidden or empty layer, layer clipped to a hidden base | skipped (reported) |
+| Name outside `A-Z a-z 0-9 _ -`, or a repeated name | stored under a sanitised, unique id (reported) |
+
+### Updating art from a PSD
+
+**File > Update art from PSD…** brings a re-exported PSD into the
+open rig without rebuilding it. Each drawable is matched to the
+layer with the same id (the id a fresh import gives the layer
+name) and the dialog lists, per row, the change, current and new
+area, issues and an action:
+
+- **Replace pixels, keep mesh** (default for changed art) keeps
+  vertices, bone weights, morphs, deformers and motions and only
+  swaps the pixels under the existing mesh. *New art reaches past
+  the mesh* warns when the new layer is bigger than the mesh.
+- **Rebuild mesh** makes a new quad around the new art. The
+  drawable's bone weights and vertex morphs are dropped and
+  counted in the status bar.
+- **Add drawable** (new layers) inserts the layer right above the
+  layer below it in the PSD and into its group's Part.
+- **Keep / Hide** for drawables that are no longer in the PSD.
+
+A vanished drawable and a new layer in the same place are flagged
+*probably a renamed layer*; adding it is off by default. A canvas
+size that differs from the rig blocks the update. Drawables whose
+UVs are not a plain rectangle, or that share a texture, can only
+be rebuilt or skipped. The whole update is one Undo step.
+
+### Relinking textures
+
+A file whose textures are absent says so in the status bar after
+opening. **File > Relink textures…** lists missing and unreadable
+textures with the drawables that use them and the expected size.
+*Search folder…* fills in files with the same name (any image
+format); *Choose image…* picks one by hand. Images keep the
+existing UVs, so a different size is stretched over the mesh and
+noted. Relinking is one Undo step.
+
 ### From a Cubism `.moc3`
 
 **File > Import Cubism…** first shows a note on the import modes
@@ -429,6 +656,18 @@ required by Live2D's Free Material License).
 > add motions to an existing rig, pick the `.model3.json` or one
 > of the per-asset `.motion3.json` / `.exp3.json` /
 > `.physics3.json` / `.pose3.json` / `.cdi3.json` files instead.
+
+Picking a `.moc3` or `.model3.json` opens a **Cubism import
+preview** first. It reads only the JSON files — it never loads the
+Cubism SDK — and lists each referenced file as found or missing
+plus the differences: motion curves the runtime does not model
+(`PartOpacity`, `Model`), missing sounds, user data, pose groups
+that a full conversion does not read, sampled keyform
+approximation, and, when merging, motions or expressions skipped
+because the name exists, hit areas without a matching drawable and
+parameters the rig lacks. A missing `.moc3`, a missing Cubism
+Core library or a missing sidecar that would stop a merge
+disables **Import**.
 
 ---
 
@@ -488,8 +727,60 @@ any slider, motion or expression value on that parameter.
 **Reset to rest** snaps every chain back to rest.
 
 Chains come from a Cubism import (`.physics3.json`), from the PSD
-auto-rig's hair rule, or from `physics.json` inside the `.puppet`
-file; the Puppet tab has no physics editor.
+auto-rig's hair rule, from a part template, or from **Tools > Physics
+chains…**, which edits them: the input and output parameters, particle
+count, length, stiffness, damping and gravity, with presets you can save and
+reuse. It warns about chains that cannot work (a missing parameter, an output
+that is also the input) and about settings that saturate the output, and
+each change is one Undo step. Chains are stored in `physics.json` inside the
+`.puppet` file.
+
+### Editing meshes and weights
+
+Turn on **Mesh > Edit mesh**, then:
+
+- click a vertex to select it, **Shift**-click to add one, or drag over empty
+  canvas to box-select (**Shift** adds to the selection);
+- drag a selected vertex to move the whole selection;
+- **Lock selected vertices** keeps them still while you drag the rest;
+  **Unlock all vertices** releases them;
+- **Show weights…** colours the mesh by one bone's weights;
+  **Smooth weights**, **Normalize weights** and **Mirror weights left →
+  right** edit the selection's bone weights;
+- **Mirror selected vertices** and **Delete selected vertices…** change the
+  mesh; deleting lists what it will affect (triangles, weights, morphs) before
+  it runs.
+
+Every edit is one Undo step.
+
+### Organising deformers and parameters
+
+The **Bones** dock lists deformers as a tree. Search by name, drag a row onto
+another to change its parent (or onto empty space to detach it), move rows
+with **Up** / **Down**, **Lock** a deformer so it cannot be reparented or
+reordered, and **Hide** it from the list (**Show hidden** brings hidden rows back). A parent cycle is
+shown as a warning naming the deformers involved.
+
+The **Parameters** dock groups sliders into Head, Eyes, Mouth, Body, Hair and
+Other, and **Filter parameters…** narrows the list. Each slider's **⋯** menu
+has **Edit range…** (a range that would leave existing keys, blend keys or
+expression values outside it is refused) and **Preview key forms**, which steps through the parameter's keys. **Reset all** returns every
+slider to its default.
+
+### Rig doctor and part templates
+
+**Tools > Rig doctor…** checks the rig and groups what it finds by kind:
+mesh problems (zero-area or broken triangles, duplicate or unused vertices),
+bone weights that do not add up to 1, left/right drawables without a mirrored
+partner, standard rigging the auto-rig would add (such as a head tilt or hair
+swing), and everything **Validate** reports. Pick findings to see a preview of
+each fix, then apply them together as one Undo step. The same
+checks run from the command line with `rigora rig-doctor`.
+
+**Tools > Part templates…** adds ready-made rigging to the drawables you
+choose: **eye blink**, **mouth shapes**, **head turn** (it reuses an existing
+head tilt instead of stacking a second one) and **sway**. The dialog shows
+what each template will create and warns when it overlaps existing rigging.
 
 ### Expressions
 
@@ -540,6 +831,11 @@ missing.
 | NDI output | `ndi-python` + NDI runtime + NDI SDK (build-time) | see Path B above |
 | Cubism `.moc3` import | user-supplied Cubism Native SDK DLL | <https://www.live2d.com/sdk/about/> |
 | Motion sound playback | `PySide6.QtMultimedia` | Usually ships with PySide6 — install via your platform's QtMultimedia package if missing |
+| Animation export as GIF / MP4 / WebM | `imageio` + `imageio-ffmpeg` (in the `gui` extra) | `pip install "rigora[gui]"`; PNG sequences need neither |
+| VTS API input | `PySide6.QtWebSockets` | Ships with PySide6 |
+| Desktop pet global hotkeys | `pynput` | `pip install "rigora[hotkeys]"` |
+| Desktop pet music rhythm | `sounddevice` with a WASAPI loopback device (Windows) | `pip install "rigora[lipsync]"` |
+| Desktop pet LLM dialogue | A local [Ollama](https://ollama.com) server (or any HTTPS endpoint with the same API) | Installed separately; nothing is downloaded by Rigora |
 
 Toggling a feature whose Python package is missing opens the
 package installer for it and switches the feature on once the
@@ -555,15 +851,22 @@ of licensing.
 
 ## Keyboard shortcuts
 
-The Puppet tab has no keyboard shortcuts of its own — every
-command is on its menus and toolbar. The canvas takes these
-mouse inputs:
+| Keys | Action |
+|---|---|
+| **Ctrl+S** | Save (asks for a file the first time) |
+| **Ctrl+Z** / **Ctrl+Shift+Z** | Undo / redo the last rig edit |
+| **F2** | Rename the selected composition (Compositions dialog) |
+| **Shift** + click or drag | Add to the vertex selection (Edit mesh) |
+
+Everything else is on the menus and toolbar. The canvas takes these mouse
+inputs:
 
 | Input | Action |
 |---|---|
 | **Middle-button drag** | Pan |
 | **Mouse wheel** | Zoom (cursor-anchored); **Tools > Fit to Window** re-fits |
-| **Left-click** | Run the hit area under the cursor; with **Edit mesh** on, grab a vertex within 8 px of the cursor (frontmost drawable first) and drag it instead |
+| **Left-click** | Run the hit area under the cursor; with **Edit mesh** on, select the vertex within 8 px of the cursor (frontmost drawable first), or start a box selection on empty canvas |
+| **Left-drag** | With **Edit mesh** on, move the selected vertices (locked ones stay put) |
 | **Right-click** | Clear bone-selection overlay |
 
 ---
@@ -581,6 +884,30 @@ If the preview is black: the camera is busy (another app has
 it) or the OS denied camera access. macOS asks for camera
 permission on first use — check System Settings → Privacy &
 Security → Camera.
+
+### "Webcam tracking keeps saying the camera was lost"
+
+The camera stopped delivering frames — usually it was unplugged or another
+app took it. Rigora retries after 1, 2, 4, 8 and 15 seconds and then waits;
+**Output > Live status…** shows the countdown, and **Retry devices** tries
+again at once. If access was denied, allow the camera in the system privacy
+settings first. A failed face-model download is not retried automatically:
+check the network and press **Retry devices**.
+
+### "A tracker's values are ignored"
+
+Open **Live > Input sources…**: another source probably controls the
+parameter. A slider you are dragging, a playing motion and other plug-ins take
+precedence over a VTS plug-in. A plug-in sending more than 120 requests a
+second gets error 6000; a parameter held by another plug-in gives error 454.
+See [VTS API support](docs/vts-api-support.md).
+
+### "Export animation says a capability is missing"
+
+PNG sequences need a desktop session with OpenGL; GIF needs `imageio`; MP4
+and WebM need `imageio-ffmpeg`. From the command line this is exit status 4
+with error code `capability_missing`. A cancelled or failed export never
+leaves a partial file.
 
 ### "OBS shows magenta background"
 
@@ -602,6 +929,13 @@ end holds its last frame, and **Pause** holds the current pose.
 the motion's fade-out (0.5 s unless the motion sets its own).
 **Reset to rest** on the toolbar puts every parameter,
 expression, pose group and physics chain back in one step.
+
+### "My pet script was not loaded"
+
+A script whose behavior rules have a problem is refused as a whole, and the
+character keeps its previous script. Open **Edit script… > Behaviors** and
+press **Check**: each problem names its place, for example
+`rules[2].do[0]: unknown action 'shout'`.
 
 ### Cubism converter shows the camera as a "phantom hand"
 

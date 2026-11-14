@@ -53,7 +53,11 @@ def _doc(ids: tuple[str, ...], *, size=(200, 160), vertices=True) -> PuppetDocum
 
 
 def _digest(doc: PuppetDocument) -> str:
-    payload = json.dumps(dataclasses.asdict(doc), sort_keys=True, default=repr)
+    data = dataclasses.asdict(doc)
+    if not data.get("compositions"):
+        # Added after these pins (R3.2); an empty list does not change the rig.
+        data.pop("compositions", None)
+    payload = json.dumps(data, sort_keys=True, default=repr)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 

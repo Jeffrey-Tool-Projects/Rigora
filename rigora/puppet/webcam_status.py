@@ -14,6 +14,8 @@ class WebcamPhase(str, Enum):
     MISSING_DEPENDENCY = "missing_dependency"
     DEVICE_UNAVAILABLE = "device_unavailable"
     PERMISSION_DENIED = "permission_denied"
+    DEVICE_LOST = "device_lost"
+    MODEL_UNAVAILABLE = "model_unavailable"
     FAILED = "failed"
 
 
@@ -46,6 +48,15 @@ STATUS_TEXT = {
     WebcamPhase.PERMISSION_DENIED: (
         "webcam_permission_denied",
         "Camera access was denied. Allow access in system settings, then retry.",
+    ),
+    WebcamPhase.DEVICE_LOST: (
+        "webcam_device_lost",
+        "The camera stopped sending frames (unplugged or in use). Retrying automatically…",
+    ),
+    WebcamPhase.MODEL_UNAVAILABLE: (
+        "webcam_model_unavailable",
+        "The face tracking model could not be downloaded or verified. Check the network, "
+        "then retry.",
     ),
     WebcamPhase.FAILED: (
         "webcam_failed", "Camera tracking failed. Review diagnostics, then retry.",

@@ -34,14 +34,17 @@ class PuppetValidationMixin:
         if doc is None:
             self._announce("puppet_repair_rig_no_doc", "Load a puppet first before repairing.")
             return
-        report = repair_rig(doc)
+        self._begin_document_work()
+        with self.session.transaction("Repair rig"):
+            report = repair_rig(self.session.document)
         if not report.changed:
             self._announce(
                 "puppet_repair_rig_none",
                 "Nothing to repair — every mesh and weight map is sound.",
             )
             return
-        self._canvas.load_document(doc)
+        self._canvas.load_document(self.session.document)
+        self._update_session_actions()
         self._announce(
             "puppet_repair_rig_done",
             "Repaired {drawables} drawables: {degenerate} degenerate and {broken} broken "

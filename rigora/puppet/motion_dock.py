@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
 from rigora.i18n.language_wrapper import language_wrapper
 from rigora.puppet.motion_player import MotionPlayer
 from rigora.system.ui_scale import scaled_px
+from rigora.puppet.takes import take_label
 
 if TYPE_CHECKING:
     from rigora.puppet.canvas import PuppetCanvas
@@ -114,7 +115,13 @@ class MotionDock(QDockWidget):
             self._player.set_motion(None)
             return
         for motion in document.motions:
-            self._list.addItem(QListWidgetItem(motion.name))
+            item = QListWidgetItem(motion.name)
+            label = take_label(motion)
+            if label:
+                # Recorded takes say where they came from and when (R3.3).
+                inputs = ", ".join((motion.take or {}).get("inputs") or [])
+                item.setToolTip(f"{label}\n{inputs}" if inputs else label)
+            self._list.addItem(item)
 
     def _build_controls(self) -> QWidget:
         lang = language_wrapper.language_word_dict

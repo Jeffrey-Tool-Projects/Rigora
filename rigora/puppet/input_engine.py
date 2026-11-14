@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
+from rigora.puppet.input_arbitration import release_source, submit_values
 from rigora.puppet.input_drivers import (
     DEFAULT_EYE_PARAMS,
     DEFAULT_MOUTH_FORM_PARAM,
@@ -41,11 +42,19 @@ class InputEngine(QObject):
     # QTimer.singleShot would have scheduled on the loop-less audio thread and
     # never fired.
     _viseme_ready = Signal(dict)
+    # The audio stream ended on its own (device unplugged / driver reset).
+    _mic_finished = Signal()
 
     def __init__(self, canvas: PuppetCanvas, parent=None):
         super().__init__(parent)
         self._canvas = canvas
         self._viseme_ready.connect(self._apply_viseme)
+        self._mic_finished.connect(self._on_mic_lost)
+        self._mic_device: str = ""
+        self._mic_phase: str = "stopped"
+        self._mic_detail: str = ""
+        self._calibrator = None
+        self._closing_mic = False
         canvas.cursor_moved.connect(self.push_cursor)
         self._blink_enabled = False
         self._drag_enabled = False
@@ -77,7 +86,7 @@ class InputEngine(QObject):
             return
         size = self._canvas.document().size
         values = cursor_to_angle_params(image_x, image_y, size[0], size[1])
-        self._canvas.set_parameter_values(values)
+        submit_values(self._canvas, "mouse", values)
 
     def set_blink_enabled(self, enabled: bool) -> None:
         if enabled == self._blink_enabled:
@@ -115,6 +124,30 @@ class InputEngine(QObject):
     def lipsync_enabled(self) -> bool:
         return self._lipsync_enabled
 
+    def set_mic_device(self, name: str) -> bool:
+        """Use the named input device (``""`` = system default). Restarts a
+        running lip-sync stream on the new device."""
+        self._mic_device = str(name or "")
+        if not self._lipsync_enabled:
+            return True
+        self._stop_mic()
+        ok = self._start_mic()
+        if not ok:
+            self._lipsync_enabled = False
+            self.state_changed.emit()
+        return ok
+
+    def mic_device(self) -> str:
+        return self._mic_device
+
+    def mic_status(self) -> tuple[str, str]:
+        """``(phase, detail)``: stopped, running, device_lost, device_unavailable
+        or missing_dependency."""
+        return self._mic_phase, self._mic_detail
+
+    def set_calibrator(self, calibrator) -> None:
+        self._calibrator = calibrator
+
     def shutdown(self) -> None:
         self._lipsync_enabled = False
         self._blink_enabled = False
@@ -134,63 +167,94 @@ class InputEngine(QObject):
         # blink ticks, the equality check would otherwise mask the
         # blink curve's downward sweep and the user only sees the
         # very first blink before everything looks frozen.
-        self._canvas.force_parameter_values(
-            dict.fromkeys(DEFAULT_EYE_PARAMS, value),
-        )
+        submit_values(self._canvas, "blink", dict.fromkeys(DEFAULT_EYE_PARAMS, value),
+                      force=True)
 
     def _reset_blink_params(self) -> None:
         if self._canvas.document() is None:
             return
-        self._canvas.set_parameter_values(
-            dict.fromkeys(DEFAULT_EYE_PARAMS, 1.0),
-        )
+        submit_values(self._canvas, "blink", dict.fromkeys(DEFAULT_EYE_PARAMS, 1.0))
+        release_source(self._canvas, "blink")
 
     def _reset_drag_params(self) -> None:
         if self._canvas.document() is None:
             return
-        self._canvas.set_parameter_values({
+        submit_values(self._canvas, "mouse", {
             "ParamAngleX": 0.0,
             "ParamAngleY": 0.0,
             "ParamEyeBallX": 0.0,
             "ParamEyeBallY": 0.0,
         })
+        release_source(self._canvas, "mouse")
 
     # ---- microphone -----------------------------------------------------
 
     def _start_mic(self) -> bool:
         try:
             import sounddevice as sd
-        except ImportError:
+        except ImportError as exc:
             logger.info("sounddevice not installed; lip-sync unavailable")
+            self._mic_phase, self._mic_detail = "missing_dependency", str(exc)
             return False
+        self._closing_mic = False
         try:
             self._mic_stream = sd.InputStream(
                 samplerate=_AUDIO_SAMPLE_RATE, channels=1,
                 blocksize=_AUDIO_BLOCK_SAMPLES, dtype="float32",
+                device=self._mic_device or None,
                 callback=self._on_audio_block,
+                finished_callback=self._on_stream_finished,
             )
             self._mic_stream.start()
         except Exception as exc:   # noqa: BLE001 - sounddevice raises a zoo of types
             logger.warning("mic stream failed: %s", exc)
             self._mic_stream = None
+            self._mic_phase, self._mic_detail = "device_unavailable", str(exc)
             return False
+        self._mic_phase, self._mic_detail = "running", ""
         return True
+
+    def _on_stream_finished(self) -> None:
+        """Runs on the audio thread when the stream ends; only an unexpected
+        end (not our own stop) counts as a lost device."""
+        if not self._closing_mic:
+            self._mic_finished.emit()
+
+    def _on_mic_lost(self) -> None:
+        if self._mic_stream is None or self._closing_mic:
+            return
+        logger.warning("microphone stream ended unexpectedly")
+        self._stop_mic()
+        self._mic_phase, self._mic_detail = "device_lost", "the input stream ended"
+        self.state_changed.emit()
+
+    def restart_mic(self) -> bool:
+        """Retry after a lost device; keeps lip-sync on when it succeeds."""
+        if not self._lipsync_enabled:
+            return False
+        self._stop_mic()
+        return self._start_mic()
 
     def _stop_mic(self) -> None:
         stream = self._mic_stream
         self._mic_stream = None
+        self._mic_phase = "stopped" if self._mic_phase == "running" else self._mic_phase
         if stream is None:
             return
+        self._closing_mic = True
         try:
             stream.stop()
             stream.close()
         except Exception as exc:   # noqa: BLE001 - same; never want to crash teardown
             logger.warning("mic stream close failed: %s", exc)
+        if self._calibrator is not None:
+            self._calibrator.reset()
         if self._canvas.document() is not None:
-            self._canvas.set_parameter_values({
+            submit_values(self._canvas, "mic", {
                 DEFAULT_MOUTH_PARAM: 0.0,
                 DEFAULT_MOUTH_FORM_PARAM: 0.0,
             })
+            release_source(self._canvas, "mic")
 
     def _on_audio_block(self, indata, frames, time_info, status) -> None:  # noqa: ARG002
         if status:
@@ -207,9 +271,12 @@ class InputEngine(QObject):
     def _apply_viseme(self, viseme: dict[str, float]) -> None:
         if not self._lipsync_enabled or self._canvas.document() is None:
             return
-        self._canvas.set_parameter_values({
+        values = {
             DEFAULT_MOUTH_PARAM: float(viseme.get(DEFAULT_MOUTH_PARAM, 0.0)),
             DEFAULT_MOUTH_FORM_PARAM: float(
                 viseme.get(DEFAULT_MOUTH_FORM_PARAM, 0.0),
             ),
-        })
+        }
+        if self._calibrator is not None:
+            values = self._calibrator.apply_mic(values, time.monotonic())
+        submit_values(self._canvas, "mic", values)

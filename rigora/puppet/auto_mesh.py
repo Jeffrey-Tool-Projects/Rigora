@@ -167,6 +167,12 @@ def _load_png_bytes(source: str | Path | bytes) -> bytes:
 
 
 def _decode_rgba(png_bytes: bytes) -> np.ndarray:
+    """RGBA pixels; any undecodable or over-limit image is a ``ValueError``."""
     from PIL import Image
-    with Image.open(io.BytesIO(png_bytes)) as img:
-        return np.array(img.convert("RGBA"), dtype=np.uint8)
+
+    from rigora.system.image_errors import IMAGE_READ_ERRORS
+    try:
+        with Image.open(io.BytesIO(png_bytes)) as img:
+            return np.array(img.convert("RGBA"), dtype=np.uint8)
+    except IMAGE_READ_ERRORS as exc:
+        raise ValueError(f"cannot read the image: {exc}") from exc

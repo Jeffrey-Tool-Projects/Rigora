@@ -50,14 +50,12 @@ from OpenGL.GL import (
     glBindTexture,
     glBlendFunc,
     glBufferData,
-    glBufferSubData,
     glColor4f,
     glColorMask,
     glDeleteBuffers,
     glDeleteTextures,
     glDisable,
     glDisableClientState,
-    glDrawElements,
     glEnable,
     glEnableClientState,
     glEnd,
@@ -66,15 +64,14 @@ from OpenGL.GL import (
     glStencilFunc,
     glStencilOp,
     glTexCoord2f,
-    glTexCoordPointer,
     glTexImage2D,
     glTexParameteri,
     glVertex2f,
-    glVertexPointer,
 )
 from OpenGL.error import GLError
 
 from rigora.puppet.clip_masks import resolve_masks
+from rigora.rendering import gl_raw as _raw
 from rigora.puppet.render_prep import DrawCommand
 
 logger = logging.getLogger("rigora.puppet.canvas")
@@ -279,46 +276,49 @@ class PuppetCanvasRenderMixin:
         last_blend: tuple[int, int] | None = None
         last_tex: int | None = None
         try:
-            for cmd in self._draw_list:
-                visible = self._visibility.get(cmd.drawable_id, cmd.visible)
-                if not visible:
-                    continue
-                tex_id = self._texture_for(cmd.texture)
-                if tex_id is None:
-                    continue
-                blend = _BLEND_FUNCS.get(cmd.blend_mode, _BLEND_FUNCS["normal"])
-                if blend != last_blend:
-                    glBlendFunc(*blend)
-                    last_blend = blend
-                # ``_drawable_opacity`` folds ``cmd.opacity`` with
-                # parameter-driven ``opacity_keys`` curves;
-                # ``_part_opacity`` carries the cascading Part-tree
-                # multiplier on top.
-                effective_opacity = self._drawable_opacity.get(
-                    cmd.drawable_id, cmd.opacity,
-                ) * self._part_opacity.get(cmd.drawable_id, 1.0)
-                tint_r, tint_g, tint_b = self._drawable_tint.get(
-                    cmd.drawable_id, (1.0, 1.0, 1.0),
-                )
-                # Premultiply the vertex tint by the opacity so a
-                # partly-faded drawable doesn't over-brighten when the
-                # GL pipeline modulates the (already-premultiplied)
-                # texture RGB.
-                glColor4f(
-                    tint_r * effective_opacity,
-                    tint_g * effective_opacity,
-                    tint_b * effective_opacity,
-                    effective_opacity,
-                )
-                if tex_id != last_tex:
-                    glBindTexture(GL_TEXTURE_2D, tex_id)
-                    last_tex = tex_id
-                verts = self._deformed_vertices.get(cmd.drawable_id, cmd.vertices)
-                mask_cmd = masks.get(cmd.drawable_id)
-                if mask_cmd is None:
-                    self._draw_cmd_mesh(cmd, verts)
-                    continue
-                self._draw_with_stencil(cmd, mask_cmd, verts)
+            # Per-call GL error checks stall the pipeline after every draw; check
+            # once for the whole pass instead (see rigora.rendering.gl_raw).
+            with _raw.unchecked("draw drawables"):
+                for cmd in self._draw_list:
+                    visible = self._visibility.get(cmd.drawable_id, cmd.visible)
+                    if not visible:
+                        continue
+                    tex_id = self._texture_for(cmd.texture)
+                    if tex_id is None:
+                        continue
+                    blend = _BLEND_FUNCS.get(cmd.blend_mode, _BLEND_FUNCS["normal"])
+                    if blend != last_blend:
+                        _raw.glBlendFunc(*blend)
+                        last_blend = blend
+                    # ``_drawable_opacity`` folds ``cmd.opacity`` with
+                    # parameter-driven ``opacity_keys`` curves;
+                    # ``_part_opacity`` carries the cascading Part-tree
+                    # multiplier on top.
+                    effective_opacity = self._drawable_opacity.get(
+                        cmd.drawable_id, cmd.opacity,
+                    ) * self._part_opacity.get(cmd.drawable_id, 1.0)
+                    tint_r, tint_g, tint_b = self._drawable_tint.get(
+                        cmd.drawable_id, (1.0, 1.0, 1.0),
+                    )
+                    # Premultiply the vertex tint by the opacity so a
+                    # partly-faded drawable doesn't over-brighten when the
+                    # GL pipeline modulates the (already-premultiplied)
+                    # texture RGB.
+                    _raw.glColor4f(
+                        tint_r * effective_opacity,
+                        tint_g * effective_opacity,
+                        tint_b * effective_opacity,
+                        effective_opacity,
+                    )
+                    if tex_id != last_tex:
+                        _raw.glBindTexture(GL_TEXTURE_2D, tex_id)
+                        last_tex = tex_id
+                    verts = self._deformed_vertices.get(cmd.drawable_id, cmd.vertices)
+                    mask_cmd = masks.get(cmd.drawable_id)
+                    if mask_cmd is None:
+                        self._draw_cmd_mesh(cmd, verts)
+                        continue
+                    self._draw_with_stencil(cmd, mask_cmd, verts)
         finally:
             # Unbind so neither immediate-mode follow-ups (selection
             # overlay) nor a foreign GL caller inherit our bindings.
@@ -341,24 +341,24 @@ class PuppetCanvasRenderMixin:
         mask_verts = self._deformed_vertices.get(
             mask_cmd.drawable_id, mask_cmd.vertices,
         )
-        glEnable(GL_STENCIL_TEST)
+        _raw.glEnable(GL_STENCIL_TEST)
         self._write_stencil(mask_cmd, mask_verts, 1)
-        glStencilFunc(GL_EQUAL, 1, 0xFF)
-        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
+        _raw.glStencilFunc(GL_EQUAL, 1, 0xFF)
+        _raw.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
         self._draw_cmd_mesh(cmd, verts)
         self._write_stencil(mask_cmd, mask_verts, 0)
-        glDisable(GL_STENCIL_TEST)
+        _raw.glDisable(GL_STENCIL_TEST)
 
     def _write_stencil(  # pragma: no cover - GL needs display
         self, mask_cmd, mask_verts, value: int,
     ) -> None:
         """Set the stencil to ``value`` wherever the mask's triangles
         cover, whatever its texture's alpha; colour writes stay off."""
-        glStencilFunc(GL_ALWAYS, value, 0xFF)
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
+        _raw.glStencilFunc(GL_ALWAYS, value, 0xFF)
+        _raw.glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
+        _raw.glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
         self._draw_cmd_mesh(mask_cmd, mask_verts)
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        _raw.glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 
     def _draw_selection_overlay(self) -> None:   # pragma: no cover - GL needs display
         """If a bone-tree row is selected, draw a marker so the user
@@ -455,17 +455,18 @@ class PuppetCanvasRenderMixin:
         # edit that adds / removes vertices reallocates the buffer
         # with the new size.
         verts32 = np.ascontiguousarray(vertices, dtype=np.float32)
-        glBindBuffer(GL_ARRAY_BUFFER, bufs["vert_vbo"])
+        _raw.glBindBuffer(GL_ARRAY_BUFFER, bufs["vert_vbo"])
         if verts32.nbytes != bufs["vert_bytes"]:
-            glBufferData(GL_ARRAY_BUFFER, verts32.nbytes, verts32, GL_DYNAMIC_DRAW)
+            _raw.glBufferData(GL_ARRAY_BUFFER, verts32.nbytes, verts32,
+                              GL_DYNAMIC_DRAW)
             bufs["vert_bytes"] = int(verts32.nbytes)
         else:
-            glBufferSubData(GL_ARRAY_BUFFER, 0, verts32.nbytes, verts32)
-        glVertexPointer(2, GL_FLOAT, 0, None)
-        glBindBuffer(GL_ARRAY_BUFFER, bufs["uv_vbo"])
-        glTexCoordPointer(2, GL_FLOAT, 0, None)
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufs["idx_ibo"])
-        glDrawElements(GL_TRIANGLES, bufs["idx_count"], GL_UNSIGNED_INT, None)
+            _raw.glBufferSubData(GL_ARRAY_BUFFER, 0, verts32.nbytes, verts32)
+        _raw.glVertexPointer(2, GL_FLOAT, 0, None)
+        _raw.glBindBuffer(GL_ARRAY_BUFFER, bufs["uv_vbo"])
+        _raw.glTexCoordPointer(2, GL_FLOAT, 0, None)
+        _raw.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufs["idx_ibo"])
+        _raw.glDrawElements(GL_TRIANGLES, bufs["idx_count"], GL_UNSIGNED_INT, None)
 
     def _ensure_drawable_buffers(  # pragma: no cover - GL needs display
         self, cmd: DrawCommand,
@@ -556,6 +557,15 @@ class PuppetCanvasRenderMixin:
             w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, arr.tobytes(),
         )
         return tex
+
+    def _delete_static_textures(self) -> None:  # pragma: no cover - GL needs display
+        """Free the checker backdrop and pet shadow textures."""
+        ids = [t for t in (self._checker_texture, self._pet_shadow_texture) if t is not None]
+        if ids:
+            with contextlib.suppress(GLError):   # context already gone
+                glDeleteTextures(ids)
+        self._checker_texture = None
+        self._pet_shadow_texture = None
 
     def _invalidate_texture_cache(self) -> None:  # pragma: no cover - GL needs display
         if not self._texture_cache:

@@ -30,6 +30,7 @@ from rigora.puppet.canvas_rig import PuppetCanvasRigMixin
 from rigora.puppet.canvas_physics import PuppetCanvasPhysicsMixin
 from rigora.puppet.canvas_overrides import PuppetCanvasOverridesMixin
 from rigora.puppet.canvas_editing import PuppetCanvasEditingMixin
+from rigora.puppet.canvas_mesh_tools import PuppetCanvasMeshToolsMixin
 from rigora.puppet.canvas_view import PuppetCanvasViewMixin
 from rigora.puppet.canvas_pointer import PuppetCanvasPointerMixin
 from rigora.puppet.canvas_frame import PuppetCanvasFrameMixin
@@ -47,6 +48,7 @@ class PuppetCanvas(
     PuppetCanvasPhysicsMixin,
     PuppetCanvasOverridesMixin,
     PuppetCanvasEditingMixin,
+    PuppetCanvasMeshToolsMixin,
     PuppetCanvasViewMixin,
     PuppetCanvasPointerMixin,
     PuppetCanvasFrameMixin,
@@ -56,6 +58,8 @@ class PuppetCanvas(
     """Render and interact with one deformable puppet document at a time."""
 
     document_loaded = Signal()
+    edit_finished = Signal(str)
+    deformer_selection_changed = Signal(str)
     zoom_changed = Signal(float)
     parameters_changed = Signal()
     selection_cleared = Signal()
@@ -187,6 +191,7 @@ class PuppetCanvas(
         # Mesh-edit mode lets the user drag vertices; off by default.
         self._mesh_edit_enabled: bool = False
         self._mesh_edit_target: tuple[str, int] | None = None
+        self._init_mesh_tool_state()
 
     def _init_gl_caches(self) -> None:
         """GL resources created lazily on first paint: checker, pet shadow, VBOs."""

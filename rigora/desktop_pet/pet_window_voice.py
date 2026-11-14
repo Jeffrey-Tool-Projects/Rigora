@@ -41,6 +41,9 @@ class PetVoiceMixin:
         on) and fire the LLM in parallel if enabled. The scripted
         line shows immediately for snappy feedback; the LLM reply
         replaces it via ``_on_llm_line`` if/when it lands."""
+        if getattr(self, "_behavior_timers", None) is not None and self.fire_behavior(
+                f"click:{area_id or 'body'}"):
+            return              # a behavior rule answered this click
         if not self._speech_enabled:
             return
         line = (
@@ -105,6 +108,10 @@ class PetVoiceMixin:
             return False
         self._script_engine.set_script(script)
         self._persist(script_path=str(path))
+        if getattr(self, "_behavior_timers", None) is not None:
+            self.stop_behaviors()
+            self.resume_behaviors()
+            self.fire_behavior("start")
         return True
 
     def reset_script_to_default(self) -> None:
@@ -135,7 +142,11 @@ class PetVoiceMixin:
 
     def _on_script_tick(self) -> None:   # pragma: no cover - Qt timer
         """1 Hz heartbeat that fires any due
-        :class:`ScheduledEvent` from the active script."""
+        :class:`ScheduledEvent` from the active script, and the timed
+        behavior rules."""
+        tick = getattr(self, "_behavior_tick", None)
+        if tick is not None and getattr(self, "_behavior_timers", None) is not None:
+            tick()
         if not self._speech_enabled:
             return
         line = self._script_engine.due_scheduled_message()

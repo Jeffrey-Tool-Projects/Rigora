@@ -25,6 +25,15 @@ class PuppetCanvasFrameMixin:
         return make_current_guard(self)
 
     def initializeGL(self) -> None:  # pragma: no cover - GL needs display
+        # Qt builds a new context when the widget moves to another window. GL
+        # ids from an earlier context mean nothing here, so start empty and
+        # free this context's objects while it still exists (R7.4).
+        self._forget_gl_resources()
+        context = self.context()
+        if context is not None and context is not getattr(self, "_watched_context", None):
+            context.aboutToBeDestroyed.connect(self.release_gl_resources)
+            self._watched_context = context
+        self.gl_context_generation = getattr(self, "gl_context_generation", 0) + 1
         if self._pet_mode:
             # Fully transparent clear — paintGL skips the checker so
             # every non-puppet pixel reaches the host window's
@@ -34,6 +43,31 @@ class PuppetCanvasFrameMixin:
             glClearColor(0.13, 0.13, 0.15, 1.0)
         glEnable(GL_TEXTURE_2D)
         glEnable(GL_BLEND)
+
+    def release_gl_resources(self) -> None:   # pragma: no cover - GL needs display
+        """Delete every texture and buffer while the context is current, then
+        forget the ids. Runs before Qt destroys the context."""
+        with self._current_gl_context():
+            self._invalidate_texture_cache()
+            self._invalidate_buffer_cache()
+            self._delete_static_textures()
+        self._forget_gl_resources()
+
+    def _forget_gl_resources(self) -> None:
+        """Drop cached GL ids without GL calls (their context is gone)."""
+        self._texture_cache = {}
+        self._drawable_buffers = {}
+        self._checker_texture = None
+        self._pet_shadow_texture = None
+
+    def gl_resource_counts(self) -> dict[str, int]:
+        """Live GL objects this canvas owns, for lifecycle checks. Document
+        textures and buffers belong to the loaded document; the checker backdrop
+        and pet shadow are created once per context and shared."""
+        return {"textures": len(self._texture_cache),
+                "static_textures": (self._checker_texture is not None)
+                + (self._pet_shadow_texture is not None),
+                "buffers": 3 * len(self._drawable_buffers)}
 
     def resizeGL(self, w: int, h: int) -> None:  # pragma: no cover - GL needs display
         glViewport(0, 0, w, h)
@@ -64,6 +98,7 @@ class PuppetCanvasFrameMixin:
             self._draw_transparency_backdrop()
             self._draw_drawables()
             self._draw_selection_overlay()
+            self._draw_mesh_overlay()
         glPopMatrix()
 
     def render_offscreen_puppet(   # pragma: no cover - GL needs display

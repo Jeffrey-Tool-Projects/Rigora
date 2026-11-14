@@ -30,6 +30,7 @@ def _ndi(render):
     canvas = SimpleNamespace(document=lambda: SimpleNamespace(size=(64, 48)),
                              render_offscreen_puppet=render)
     return SimpleNamespace(_sender=object(), _ndi=SimpleNamespace(send=sent.append),
+                           _pump=SimpleNamespace(failed=False, offer=sent.append),
                            _canvas=canvas), sent
 
 
@@ -37,6 +38,7 @@ def _camera(render):
     frames: list = []
     camera = SimpleNamespace(width=32, height=24, send=frames.append)
     return SimpleNamespace(_camera=camera,
+                           _pump=SimpleNamespace(failed=False, offer=frames.append),
                            _canvas=SimpleNamespace(render_offscreen_puppet=render)), frames
 
 

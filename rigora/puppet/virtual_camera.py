@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 from OpenGL.error import GLError
 from PySide6.QtCore import QObject, QTimer, Signal
 
+from rigora.puppet.output_pump import FramePump, OutputStats
 
 if TYPE_CHECKING:
     from rigora.puppet.canvas import PuppetCanvas
@@ -81,6 +82,8 @@ class VirtualCameraOutput(QObject):
         self._fps = max(1, int(fps))
         self._enabled = False
         self._camera = None
+        self._pump: FramePump | None = None
+        self._stats = OutputStats("virtual_camera", target_fps=float(self._fps))
         self._anchor: float = 0.0
         self._timer = QTimer(self)
         self._timer.setInterval(int(1000 / self._fps))
@@ -98,6 +101,10 @@ class VirtualCameraOutput(QObject):
         ``Camera`` construction."""
         self._fps = max(1, int(fps))
         self._timer.setInterval(int(1000 / self._fps))
+
+    def stats(self) -> dict:
+        """What the output panel shows (R4.4)."""
+        return self._stats.to_dict()
 
     def set_enabled(self, enabled: bool) -> bool:
         if enabled == self._enabled:
@@ -142,7 +149,16 @@ class VirtualCameraOutput(QObject):
             )
         except Exception as exc:   # noqa: BLE001 - pyvirtualcam errors vary by backend
             logger.warning("virtual camera open failed: %s", exc)
+            self._stats.last_error = str(exc) or type(exc).__name__
+            self._stats.connected = False
             return False
+        self._stats = OutputStats(
+            "virtual_camera", source_name=str(self._camera.device),
+            width=int(self._camera.width), height=int(self._camera.height),
+            target_fps=float(self._fps), alpha=False)
+        # Sending runs on a worker with a two-frame queue: a slow driver drops
+        # frames instead of stalling the editor's GUI thread.
+        self._pump = FramePump(self._camera.send, self._stats)
         self._anchor = time.monotonic()
         self._timer.start()
         logger.info(
@@ -153,6 +169,9 @@ class VirtualCameraOutput(QObject):
 
     def _stop(self) -> None:  # pragma: no cover - needs pyvirtualcam
         self._timer.stop()
+        pump, self._pump = self._pump, None
+        if pump is not None:
+            pump.close()
         cam = self._camera
         self._camera = None
         if cam is None:
@@ -165,7 +184,13 @@ class VirtualCameraOutput(QObject):
     # ---- frame pump ----------------------------------------------------
 
     def _on_tick(self) -> None:  # pragma: no cover - needs pyvirtualcam + display
-        if self._camera is None:
+        if self._camera is None or self._pump is None:
+            return
+        if self._pump.failed:
+            logger.warning("virtual camera send failed: %s", self._stats.last_error)
+            self._stop()
+            self._enabled = False
+            self.state_changed.emit()
             return
         # Off-screen FBO render: character only, no backdrop, no
         # overlay. Magenta fills the area outside the puppet — RGB-
@@ -184,12 +209,7 @@ class VirtualCameraOutput(QObject):
         frame = _qimage_to_rgb_array(image, self._camera.width, self._camera.height)
         if frame is None:
             return
-        try:
-            self._camera.send(frame)
-            self._camera.sleep_until_next_frame()
-        except Exception as exc:   # noqa: BLE001 - same surface as open
-            logger.warning("virtual camera send failed: %s", exc)
-            self._stop()
+        self._pump.offer(frame)
 
 
 def _qimage_to_rgb_array(image, target_width: int, target_height: int):

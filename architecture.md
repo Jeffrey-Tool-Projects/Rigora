@@ -7,26 +7,40 @@ Imervue and FrontEngine are consumers. No Rigora runtime module imports Imervue.
 
 | Package | Responsibility |
 | --- | --- |
-| `rigora.puppet` | `.puppet` data model, archives, schemas, animation, rigging, physics, Cubism import, editor, live inputs and outputs |
-| `rigora.desktop_pet` | Pet windows, scripts, interaction, global hotkeys, scheduling, settings and integration interfaces |
+| `rigora.puppet` | `.puppet` data model, archives, schemas, animation, rigging, physics, PSD/Cubism import with Qt-free previews, art updates and texture relinking, editor, live inputs and outputs |
+| `rigora.desktop_pet` | Pet windows, several characters and layouts, scripts with behavior rules, screen recovery, frame pacing and shared rig cache, interaction, global hotkeys, scheduling, LLM dialogue, settings and integration interfaces |
 | `rigora.rendering` | Context-aware OpenGL lifetime and shared pet shadow geometry |
-| `rigora.psd` | Read-only PSD layer records and raw/RLE decoding without a Paint document dependency |
+| `rigora.psd` | Read-only PSD layer records, nested groups, masks, clipping and blend keys, raw/RLE decoding without a Paint document dependency |
 | `rigora.system` | Independent settings, paths, atomic writes, timers, job state, local-origin checks and local-LLM transport |
 | `rigora.gui` | Editor UI helpers, background jobs, filters, tooltips, icons and scrollable panels |
 | `rigora.i18n` | Five built-in language dictionaries and translation validation |
 | `rigora.dependencies` | Optional dependency discovery, installation, cancellation and worker retirement |
 | `rigora.resources` | Installed example rigs, pet scripts and schemas |
 | `rigora.commands` | Four headless operation handlers shared with embedding applications |
-| `rigora.command_registry` | CLI and MCP operation metadata |
+| `rigora.command_ops` | Shared import, repair, motion and export operations behind the CLI and MCP, with stable error codes and exit statuses |
+| `rigora.command_jobs` | Long commands as child-process jobs with progress, cancel and idempotent request ids |
+| `rigora.command_registry` | CLI and MCP operation metadata and input schemas |
+| `rigora.host_api` | Versioned interface (1.0) for embedding applications |
 | `rigora.cli` | `rigora` command line |
 | `rigora.mcp_server` | `rigora-mcp` standard-input/output server |
 | `rigora.app`, `rigora.editor_window` | Standalone startup, editor and Desktop Pet tabs, language selection and shutdown |
+
+Live input is layered: drivers (`webcam_tracker`, `input_engine`, `vts_api`,
+motion playback, idle and gaze drivers) write through
+`input_arbitration.submit_values`, so the canvas keeps one owner per
+parameter; `input_calibration` turns raw tracking into calibrated values;
+`device_supervisor` decides retries and restarts; `output_pump` sends frames
+to receivers on a worker with a bounded queue. All four cores are Qt-free.
 
 `python -m rigora` opens the standalone application. The `rigora-editor` entry
 point does the same. `rigora` exposes headless commands plus `editor` and `mcp`.
 Core model and archive imports do not initialize Qt or OpenGL. GUI dependencies
 are installed through the `gui` extra; camera, microphone, virtual-camera, NDI
 and hotkey integrations have separate extras.
+
+The [public integration contract](docs/public-api.md) defines consumer APIs,
+editor close protection, revision tokens and recovery ownership. Authored editing
+state lives in `document_session.py`; playback parameters remain on the canvas.
 
 ## Ownership and persistence
 
@@ -65,3 +79,7 @@ FrontEngine. Installed-wheel checks must run outside either source checkout
 without Imervue installed; a passing source-tree import is insufficient.
 Offscreen test runs skip tests that require a native OpenGL widget. Native
 rendering and shutdown acceptance must be reported separately from those skips.
+
+Performance baselines come from `scripts/benchmark.py` on the generated scenes in
+`scripts/bench_scenes.py`. A report is only comparable with another run from the
+same machine and configuration; it records both alongside each scene's real size.

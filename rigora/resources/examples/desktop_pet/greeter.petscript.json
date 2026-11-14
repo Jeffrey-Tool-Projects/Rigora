@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "name": "Greeter",
+  "greetings": ["Hello!", "Hi there.", "Nice to see you."],
+  "hit_responses": {"Head": ["Hehe, that tickles."]},
+  "behaviors": {
+    "initial": "idle",
+    "states": ["idle", "happy", "sleepy"],
+    "rules": [
+      {"id": "hello", "on": "start", "do": [{"say": "I'm here!"}]},
+      {"id": "pat", "on": "click:Head", "when": {"state": "idle"}, "priority": 10,
+       "cooldown": 4, "do": [{"say": "Hehe"}, {"motion_group": "TapHead"}, {"state": "happy"}]},
+      {"id": "pat_again", "on": "click:Head", "when": {"state": "happy"}, "cooldown": 2,
+       "do": [{"say": "Again?"}]},
+      {"id": "any_click", "on": "click:*", "priority": -1, "cooldown": 2,
+       "do": [{"motion_group": "Idle"}]},
+      {"id": "calm_down", "on": "state:happy", "do": [{"wait": 20}, {"state": "idle"}]},
+      {"id": "dropped", "on": "drop:file", "do": [{"say": "Thanks for the file!"}]},
+      {"id": "dance", "on": "beat", "cooldown": 1, "max_per_minute": 20,
+       "do": [{"motion_group": "Idle"}]},
+      {"id": "nap", "on": "idle:600", "do": [{"say": "Zzz…"}, {"state": "sleepy"}]},
+      {"id": "wake", "on": "click:*", "when": {"state": "sleepy"}, "priority": 20,
+       "do": [{"say": "Oh! I'm awake."}, {"state": "idle"}]},
+      {"id": "stretch", "on": "every:1800", "when": {"hours": [9, 18], "weekdays": [0, 1, 2, 3, 4]},
+       "do": [{"say": "Time to stretch."}]}
+    ]
+  }
+}
