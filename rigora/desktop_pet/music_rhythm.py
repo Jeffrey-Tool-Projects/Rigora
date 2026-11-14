@@ -452,6 +452,9 @@ class MusicRhythmDriver(QObject):
         now = time.monotonic()
         dt = now - self._last_tick
         self._last_tick = now
+        # The level before this tick: a coarse clock can report dt == 0, which snaps the
+        # smoothed value onto the target and would hide the rise it is compared against.
+        previous_level = self._envelope_smoothed
         self._envelope_smoothed = smooth_envelope(
             self._envelope_smoothed,
             self._envelope_target,
@@ -466,7 +469,7 @@ class MusicRhythmDriver(QObject):
             sway_amplitude=self._sway_amplitude,
         )
         # A sharp rise of loudness over the smoothed level is a beat (R5.4).
-        if (self._envelope_target > max(BEAT_FLOOR, BEAT_RATIO * self._envelope_smoothed)
+        if (self._envelope_target > max(BEAT_FLOOR, BEAT_RATIO * previous_level)
                 and now - getattr(self, "_last_beat", 0.0) >= BEAT_MIN_GAP):
             self._last_beat = now
             self.beat.emit()

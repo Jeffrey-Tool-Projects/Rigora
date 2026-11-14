@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
 import sys
+import zipfile
 from pathlib import Path
 
 import numpy as np
@@ -41,11 +43,17 @@ EXPECTED = {
 }
 
 
+def _entries(archive: bytes) -> list[tuple[str, bytes]]:
+    with zipfile.ZipFile(io.BytesIO(archive)) as zf:
+        return [(info.filename, zf.read(info)) for info in zf.infolist()]
+
+
 @pytest.mark.parametrize("name", sorted(EXPECTED))
 def test_synthetic_scenes_are_deterministic_valid_and_sized(name):
     first, second = scenes.build_scene(name), scenes.build_scene(name)
     archive = to_zip_bytes(first.documents[0])
-    assert archive == to_zip_bytes(second.documents[0])
+    # Compare the entries, not the raw bytes: zip headers carry the wall-clock write time.
+    assert _entries(archive) == _entries(to_zip_bytes(second.documents[0]))
     errors = [i for i in validate(first.documents[0]) if i.severity == "error"]
     assert errors == []
     scale = scenes.scene_scale(first)
