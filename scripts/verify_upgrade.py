@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import tarfile
@@ -25,6 +26,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+_TAG = re.compile(r"v\d+(\.\d+){1,3}((a|b|rc|\.post|\.dev)\d+)?")
 
 OLD_SCRIPT = r"""
 import json, sys
@@ -45,8 +47,10 @@ def _run(args, **kwargs):
 
 def old_environment(tag: str, work: Path) -> Path:
     """A venv with ``rigora`` built from ``tag`` (dependencies from this Python)."""
+    if not _TAG.fullmatch(tag):   # never let a tag be read as a git option or a revision range
+        raise ValueError(f"not a release tag: {tag!r}")
     archive = work / "old.tar"
-    _run(["git", "archive", "--format=tar", f"--output={archive}", tag], cwd=ROOT)
+    _run(["git", "archive", "--format=tar", f"--output={archive}", f"refs/tags/{tag}"], cwd=ROOT)
     source = work / "old-src"
     with tarfile.open(archive) as tar:
         tar.extractall(source, filter="data")

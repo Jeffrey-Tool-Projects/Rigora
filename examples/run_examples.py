@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import subprocess
 import sys
 import tempfile
@@ -87,7 +88,8 @@ def animation(out: Path, render: bool) -> dict:
     result = rigora("bake-composition", str(source), "--composition", "hello",
                     "--destination", str(baked), "--overwrite")
     motions = {m.name: m for m in load_puppet(baked).motions}
-    expect(result["motion"] in motions and motions[result["motion"]].duration == 4.0,
+    expect(result["motion"] in motions
+           and math.isclose(motions[result["motion"]].duration, 4.0),
            f"baked motion missing: {result}")
     summary = {"baked_motion": result["motion"], "tracks": result["tracks"]}
     if render:
